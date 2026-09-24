@@ -50,8 +50,10 @@ body.bab-vacille #zj-scene { animation: bab-vacille 2.6s ease-in-out both; }
 .bab-signature strong { color: var(--ink); font-weight: 600; }
 
 /* Ce que l'écran d'accueil de Zawia propose et qui n'a pas de sens chez Nareva :
-   l'entrée en invité, le dossier accepté, l'entrée par un lien de parrainage. */
-.bab-maison .zj-dyaf, .bab-maison #zj-dossier-ouvrir, .bab-maison #zj-form-dossier,
+   le dossier accepté, l'entrée par un lien de parrainage, et l'entrée en visiteur
+   depuis une porte fermée (un collègue non reconnu n'est pas un étudiant).
+   L'entrée du visiteur, elle, est devenue celle de Bab Discovery (vie.js, 25/09/2026). */
+.bab-maison #zj-dossier-ouvrir, .bab-maison #zj-form-dossier,
 .bab-maison #zj-porte-fermee-dyaf { display: none !important; }
 /* Les calligraphies arabes qui doublent le français (titres, rangs, lexique). */
 .bab-maison .ar, .bab-maison [lang="ar"]:not(html) { display: none !important; }

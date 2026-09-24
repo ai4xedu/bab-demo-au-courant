@@ -424,6 +424,8 @@ main:focus { outline: none; }
       <button type="button" class="onglet" role="tab" id="onglet-pages" aria-controls="panneau-pages" aria-selected="false" tabindex="-1" data-onglet="pages">Sites<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
       <button type="button" class="onglet" role="tab" id="onglet-tahaddi" aria-controls="panneau-tahaddi" aria-selected="false" tabindex="-1" data-onglet="tahaddi">Défis de métier<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
       <button type="button" class="onglet" role="tab" id="onglet-quiz" aria-controls="panneau-quiz" aria-selected="false" tabindex="-1" data-onglet="quiz">Quiz du jour<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-fil" aria-controls="panneau-fil" aria-selected="false" tabindex="-1" data-onglet="fil">Le Fil<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-memoires" aria-controls="panneau-memoires" aria-selected="false" tabindex="-1" data-onglet="memoires">Mémoire des anciens<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
     </div>
   </div>
 </nav>
@@ -440,6 +442,8 @@ main:focus { outline: none; }
   <section class="section" id="panneau-pages" role="tabpanel" aria-labelledby="onglet-pages" hidden></section>
   <section class="section" id="panneau-tahaddi" role="tabpanel" aria-labelledby="onglet-tahaddi" hidden></section>
   <section class="section" id="panneau-quiz" role="tabpanel" aria-labelledby="onglet-quiz" hidden></section>
+  <section class="section" id="panneau-fil" role="tabpanel" aria-labelledby="onglet-fil" hidden></section>
+  <section class="section" id="panneau-memoires" role="tabpanel" aria-labelledby="onglet-memoires" hidden></section>
 </main>
 
 <div class="actions" role="region" aria-label="Enregistrer et voir dans le jeu">
@@ -491,7 +495,7 @@ main:focus { outline: none; }
   const META = ["enregistre_le"];
   const JEU = "au-courant.html";
   // Le contenu d'origine, dans l'ordre où le jeu le charge.
-  const SCRIPTS = ["assets/maisons/nareva/contenu.js", "assets/maisons/nareva/maison.js", "assets/maisons/nareva/interface.js"];
+  const SCRIPTS = ["assets/maisons/nareva/contenu.js", "assets/maisons/nareva/maison.js", "assets/maisons/nareva/interface.js", "assets/maisons/nareva/vie.js"];
   const LOGOS = ["assets/maisons/nareva/logo.svg", "assets/maisons/nareva/logo.png"];
   const LETTRES = ["A", "B", "C", "D"];
   const NOMBRES = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
@@ -578,12 +582,19 @@ main:focus { outline: none; }
     const s = sites.find((x) => estObjet(x) && x.cle === ville);
     return s ? texte(s.ville) : "";
   }
+  // Les sites où une nouvelle peut être ciblée : « Toute la maison », puis chaque ville.
+  function sitesDuFil() {
+    const sites = Array.isArray(contenu().sites) ? contenu().sites : [];
+    const villes = [];
+    sites.forEach((x) => { const v = estObjet(x) ? texte(x.ville).trim() : ""; if (v && villes.indexOf(v) < 0) villes.push(v); });
+    return [{ valeur: "maison", libelle: "Toute la maison" }].concat(villes.map((v) => ({ valeur: v, libelle: v })));
+  }
   function rayon(cle, defaut) {
     const r = maison().rayonsCulture;
     return (estObjet(r) && estObjet(r[cle]) && texte(r[cle].nom).trim()) || defaut;
   }
 
-  /* ───────────── Les huit sections, dans l'ordre des onglets ─────────────
+  /* ───────────── Les dix sections, dans l'ordre des onglets ─────────────
      Chaque champ a un type : texte (une ligne), long (un paragraphe), choix (une
      liste), reponses (séparées par des virgules), indices (deux), options (quatre
      réponses et la bonne). Les autres champs d'une entrée — sa clé, sa ville, sa
@@ -707,6 +718,42 @@ main:focus { outline: none; }
         { cle: "explication", type: "long", libelle: "L'explication", aide: "S'affiche après la réponse.", requis: true }
       ],
       vide: () => ({ theme: "", question: "", options: ["", "", "", ""], bonne: null, explication: "" })
+    },
+    {
+      cle: "fil", onglet: "Le Fil", titre: "Le Fil de la maison", etiquette: "Nouvelle",
+      ou: () => "Dans le jeu : « Le Fil de la maison », dans le menu de la maison ; une nouvelle pas encore lue se signale en entrant",
+      chapo: () => "Ce que la maison annonce : un accueil, un rituel, une nouvelle d'un site. Une nouvelle datée d'un jour à venir attend ce jour-là pour paraître ; une nouvelle ciblée ne parle qu'aux gens de son site. Les épinglées restent en tête.",
+      unite: ["nouvelle", "nouvelles"], nouveau: "Nouvelle nouvelle", ajouter: "Écrire une nouvelle", prefixe: "fil",
+      titreDe: (e) => [texte(e.date).trim(), texte(e.titre).trim()].filter(Boolean).join(" · "), cleDepuis: "titre",
+      champs: [
+        { cle: "titre", type: "texte", libelle: "Le titre", aide: "En une ligne, 90 caractères au plus.", requis: true, largeur: "large" },
+        { cle: "date", type: "texte", libelle: "La date de parution", aide: "Au format AAAA-MM-JJ, par exemple 2026-10-06. Une date à venir attend son jour.", requis: true, largeur: "court",
+          motif: /^\d{4}-\d{2}-\d{2}$/, motifMessage: "Écris la date au format AAAA-MM-JJ, par exemple 2026-10-06." },
+        { cle: "site", type: "choix", libelle: "Pour qui", choix: () => sitesDuFil(), invite: "Toute la maison", largeur: "moyen" },
+        { cle: "epingle", type: "choix", libelle: "À la une", choix: () => [{ valeur: "non", libelle: "Non" }, { valeur: "oui", libelle: "Oui, épinglée en tête" }], invite: "Non", largeur: "court" },
+        { cle: "texte", type: "long", libelle: "La nouvelle", aide: "Quelques lignes, 600 caractères au plus. Pas de chiffre qu'on ne peut pas vérifier.", requis: true }
+      ],
+      vide: () => ({ titre: "", date: new Date().toISOString().slice(0, 10), site: "maison", epingle: "non", texte: "" })
+    },
+    {
+      cle: "memoires", onglet: "Mémoire des anciens", titre: "La mémoire des anciens", etiquette: "Page",
+      ou: () => "Dans le jeu : « La mémoire des anciens », dans le menu de la maison, et aux archives",
+      chapo: () => "Ce que les anciens savent et qu'aucune procédure ne dit, écrit avant qu'ils partent. Les pages que les collègues envoient depuis le jeu arrivent dans la console RH ; une fois publiées, elles se relisent et se corrigent ici. La question est facultative : celui qui y répond juste « rallume » la page.",
+      unite: ["page", "pages"], nouveau: "Nouvelle page", ajouter: "Écrire une page", prefixe: "memoire",
+      titreDe: (e) => [texte(e.titre).trim(), texte(e.auteur).trim()].filter(Boolean).join(" — "), cleDepuis: "titre",
+      champs: [
+        { cle: "titre", type: "texte", libelle: "Le titre", requis: true, largeur: "large" },
+        { cle: "auteur", type: "texte", libelle: "Qui l'a écrite", aide: "Son prénom.", requis: true, largeur: "court" },
+        { cle: "metier", type: "texte", libelle: "Son métier", largeur: "moyen" },
+        { cle: "site", type: "texte", libelle: "Son site", largeur: "court" },
+        { cle: "annees", type: "texte", libelle: "Depuis quand dans la maison", aide: "Par exemple « 16 ans de maison ».", largeur: "moyen" },
+        { cle: "recit", type: "long", libelle: "Ce qui s'est passé", aide: "Une situation vraie, ce qu'il ou elle a vu, ce qu'il ou elle a fait.", requis: true },
+        { cle: "lecon", type: "long", libelle: "Ce qu'aucune procédure ne dit", aide: "Une ou deux phrases : ce qu'un nouveau doit savoir.", requis: true },
+        { cle: "question", type: "long", libelle: "La question pour la rallumer", aide: "Facultative : si tu en poses une, remplis les quatre réponses et coche la bonne." },
+        { cle: "options", type: "options", libelle: "Les quatre réponses proposées", aide: "Coche la bonne." },
+        { cle: "explication", type: "long", libelle: "L'explication", aide: "S'affiche après la réponse." }
+      ],
+      vide: () => ({ titre: "", auteur: "", metier: "", site: "", annees: "", recit: "", lecon: "", question: "", options: ["", "", "", ""], bonne: null, explication: "" })
     }
   ];
   const PAR_CLE = {};
@@ -770,6 +817,7 @@ main:focus { outline: none; }
     const err = (champ, sous, message) => erreurs.push({ section: k, index: i, champ: champ, sous: sous, message: message });
     if (d.type === "texte" || d.type === "long") {
       if (!plein(e[d.cle])) err(d.cle, null, "Ce champ ne peut pas rester vide.");
+      else if (d.motif && !d.motif.test(texte(e[d.cle]).trim())) err(d.cle, null, d.motifMessage || "Ce champ n'a pas la bonne forme.");
     } else if (d.type === "choix") {
       if (!plein(e[d.cle])) err(d.cle, null, d.invite + ".");
     } else if (d.type === "reponses") {
@@ -809,7 +857,7 @@ main:focus { outline: none; }
     try { o = JSON.parse(texte(brut).replace(/^﻿/, "")); } catch (e) {
       return { ok: false, erreur: "Ce fichier n'est pas un JSON lisible." };
     }
-    if (!estObjet(o)) return { ok: false, erreur: "Ce fichier ne contient aucune des huit sections du jeu." };
+    if (!estObjet(o)) return { ok: false, erreur: "Ce fichier ne contient aucune des sections du jeu." };
     const source = estObjet(o.sections) ? o.sections : o;
     const sections = {}, lues = [];
     SECTIONS.forEach((s) => {
@@ -833,7 +881,7 @@ main:focus { outline: none; }
       sections[s.cle] = liste;
       lues.push(s.cle);
     });
-    if (!lues.length) return { ok: false, erreur: "Ce fichier ne contient aucune des huit sections du jeu." };
+    if (!lues.length) return { ok: false, erreur: "Ce fichier ne contient aucune des sections du jeu." };
     return { ok: true, sections: sections, lues: lues };
   }
 
@@ -898,7 +946,7 @@ main:focus { outline: none; }
   function sectionsEnregistrees(o) {
     return estObjet(o) ? SECTIONS.filter((s) => Array.isArray(o[s.cle]) && o[s.cle].length).map((s) => s.cle) : [];
   }
-  // Ce que la clé porte en plus des huit sections : gardé tel quel à chaque écriture.
+  // Ce que la clé porte en plus des sections : gardé tel quel à chaque écriture.
   function autresCles() {
     const garde = {};
     if (estObjet(brutEnregistre)) Object.keys(brutEnregistre).forEach((k) => { if (!PAR_CLE[k] && META.indexOf(k) < 0) garde[k] = brutEnregistre[k]; });
@@ -1377,7 +1425,7 @@ main:focus { outline: none; }
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 10000);
       statut(sale ? "modifie" : "ok", `Fichier exporté : ${nom}.`,
-        sale ? "Il contient les huit onglets tels qu'ils sont à l'écran — tes modifications ne sont pas encore enregistrées dans le jeu." : "Il contient les huit onglets tels qu'ils sont à l'écran.");
+        sale ? "Il contient tous les onglets tels qu'ils sont à l'écran — tes modifications ne sont pas encore enregistrées dans le jeu." : "Il contient tous les onglets tels qu'ils sont à l'écran.");
     } catch (e) {
       statut("erreur", "Le navigateur refuse de télécharger le fichier.", "");
     }

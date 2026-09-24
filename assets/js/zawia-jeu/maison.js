@@ -427,7 +427,12 @@
     { cle: "histoire", nom: "L'histoire de la maison", titre: function (e) { return (e.annee ? e.annee + " · " : "") + (e.titre || ""); } },
     { cle: "codes", nom: "Les codes de la maison" },
     { cle: "rituels", nom: "Les rituels", titre: function (e) { return (e.titre || "") + (e.quand ? " · " + e.quand : ""); } },
-    { cle: "metiers", nom: "Les métiers et les gens", titre: function (e) { return (e.prenom ? e.prenom + " — " : "") + (e.titre || "") + (e.site ? " · " + e.site : ""); } }
+    { cle: "metiers", nom: "Les métiers et les gens", titre: function (e) { return (e.prenom ? e.prenom + " — " : "") + (e.titre || "") + (e.site ? " · " + e.site : ""); } },
+    // La mémoire des anciens (vie.js) : une page publiée par la RH se lit aussi aux
+    // archives ; lue ici ou « rallumée » dans son panneau, elle compte UNE lumière.
+    { cle: "memoires", nom: "La mémoire des anciens",
+      titre: function (e) { return (e.titre || "") + (e.auteur ? " — " + e.auteur + (e.metier ? ", " + e.metier : "") : ""); },
+      texte: function (e) { return (e.recit || "") + (e.lecon ? " — Ce qu'aucune procédure ne dit : " + e.lecon : ""); } }
   ];
   function rayonsCulture(contenu, cfg) {
     var c = contenu || root.ZWJ_MAISON_CONTENU || {}, noms = ((cfg || root.ZWJ_MAISON || {}).rayonsCulture) || {};
@@ -435,7 +440,7 @@
       return {
         cle: r.cle, nom: (noms[r.cle] && noms[r.cle].nom) || r.nom, sous: (noms[r.cle] && noms[r.cle].sous) || "",
         entrees: c[r.cle].map(function (e, i) {
-          return { id: r.cle + ":" + (e.cle || i), titre: r.titre ? r.titre(e) : (e.titre || ""), texte: e.texte || "" };
+          return { id: r.cle + ":" + (e.cle || i), titre: r.titre ? r.titre(e) : (e.titre || ""), texte: r.texte ? r.texte(e) : (e.texte || "") };
         })
       };
     });
@@ -576,9 +581,10 @@
   // La page de paramétrage d'une maison (au-courant-parametres.html pour Nareva)
   // écrit ses sections dans le navigateur, sous cette clé : un objet JSON dont
   // chaque section (valeurs, histoire, codes, rituels, metiers, pages, tahaddi,
-  // quiz) REMPLACE celle du fichier contenu.js. Relue à chaque chargement du jeu :
+  // quiz, fil, memoires) REMPLACE celle du fichier contenu.js. Relue à chaque chargement du jeu :
   // la DRH change un code, recharge le jeu, et le voit. Illisible → ignorée.
-  var SECTIONS_EDITABLES = ["valeurs", "histoire", "codes", "rituels", "metiers", "pages", "tahaddi", "quiz"];
+  // (25/09/2026 — « fil » et « memoires » : le Fil de la maison et la mémoire des anciens, vie.js)
+  var SECTIONS_EDITABLES = ["valeurs", "histoire", "codes", "rituels", "metiers", "pages", "tahaddi", "quiz", "fil", "memoires"];
   function cleContenu(cle) { return "bab.maison." + (cle || "maison") + ".contenu"; }
   function contenuEdite(cle) {
     try {

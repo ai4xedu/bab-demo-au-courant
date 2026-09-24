@@ -1017,7 +1017,9 @@
     ecrireDayf(Object.assign({}, dayf.etat, { porte: cle }));
     noterDayf("porte_" + cle);
     fermerPortesDayf();
-    ouvrirDialogue({ nom: "Le mou'allim", pages: p.pages.slice(), apres: function () {
+    ouvrirDialogue({ nom: p.voix || "Le mou'allim", pages: p.pages.slice(), apres: function () {
+      // Bab — une porte de maison porte son geste (vie.js : postuler, être recontacté)
+      if (p.geste) { if (ZWJ.vie && ZWJ.vie.geste) ZWJ.vie.geste(p.geste); return; }
       // Chaque porte mène à un geste RÉEL, jamais à un discours.
       if (cle === "batir") window.open(adresseDossier(), "_blank", "noopener");
       else if (cle === "apprendre") ouvrirBibliotheque();
@@ -1053,6 +1055,8 @@
   // v7.3 — le compteur anonyme. Une panne ne se voit jamais : on note, on
   // n'attend pas, et on ne dit rien si ça rate.
   function noterDayf(evenement) {
+    // Bab — le carnet de visite d'une maison (vie.js) : l'entonnoir de Discovery, anonyme
+    if (dayf.actif && ZWJ.vie && ZWJ.vie.noterVisite) { try { ZWJ.vie.noterVisite(evenement); } catch (e) { /* un compteur ne casse pas une visite */ } }
     if (!dayf.actif || !compte || typeof compte.noterDayf !== "function") return;
     try { compte.noterDayf(evenement); } catch (e) { /* un compteur ne casse pas une visite */ }
   }
@@ -2832,7 +2836,8 @@
     for (var i = 0; i < panneauxEls.length; i++) {
       if (panneauxEls[i] && !panneauxEls[i].hidden) return true;
     }
-    return false;
+    // Bab — les panneaux de la vie de la maison (vie.js) : le Fil, la mémoire, la candidature
+    return !!document.querySelector(".bab-panneau:not([hidden])");
   }
 
   // La tuile qu'on regarde : celle des pieds, plus la direction.
@@ -10159,6 +10164,7 @@
   // Pour vérifier depuis la console — ou depuis un test de navigateur.
   window.ZWJ_APP = {
     get joueur() { return joueur; }, get ecran() { return ecran; }, get perso() { return cour.perso; },
+    get dayf() { return dayf.actif; }, get dayfEtat() { return dayf.etat; }, get menuOuvert() { return menuOuvert; },   // Bab — vie.js
     afficher: afficher, agir: agir, touches: cour.touches, get compte() { return compte; }, get scene() { return cour.scene; },
     sandouq: ouvrirSandouq, repondre: repondre, indice: demanderIndice, fermer: fermerDialogue,
     etabli: ouvrirEtabli, choisir: choisir, carnet: ouvrirCarnet, riwaq: ouvrirRiwaq, fermerRiwaq: fermerRiwaq,

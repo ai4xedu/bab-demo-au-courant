@@ -467,6 +467,41 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
 .revoir__erreur { color: var(--revoir); font-weight: 720; font-size: .92rem; }
 .revoir__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
 
+/* ——— Discovery et la mémoire des anciens ——— */
+.entonnoir { list-style: none; display: grid; gap: .7rem; }
+.entonnoir li { display: grid; grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr) 3rem; align-items: center; gap: .8rem; }
+.entonnoir__nom { color: var(--encre-2); font-size: .92rem; }
+.entonnoir__barre { height: .7rem; border-radius: 999px; background: var(--surface-douce); overflow: hidden; }
+.entonnoir__barre span { display: block; height: 100%; border-radius: 999px; background: var(--nareva-2); }
+.entonnoir b { text-align: right; font-variant-numeric: tabular-nums; color: var(--nareva-1); }
+.ecoles { list-style: none; display: grid; gap: .45rem; }
+.ecoles li { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .45rem; border-bottom: 1px solid var(--filet); font-size: .95rem; }
+.ecoles li:last-child { border-bottom: 0; }
+.ecoles b { font-variant-numeric: tabular-nums; color: var(--nareva-1); white-space: nowrap; }
+.filtres { display: flex; flex-wrap: wrap; gap: .5rem; }
+.filtre { padding: .45rem .95rem; border-radius: 999px; border: 1px solid var(--filet); background: var(--surface); color: var(--encre-2); font-weight: 650; cursor: pointer; }
+.filtre--actif { background: var(--nareva-1); border-color: var(--nareva-1); color: #fff; }
+.candidat { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem 2rem; align-items: start; border-left: 6px solid var(--nareva-2); }
+.candidat--recontact { border-left-color: var(--nareva-vert); }
+.candidat__cherche { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem .8rem; font-size: 1.08rem; font-weight: 740; color: var(--nareva-1); }
+.candidat__recu { font-size: .76rem; font-weight: 700; color: #fff; background: var(--nareva-vert-fonce); padding: .12rem .55rem; border-radius: 999px; }
+.candidat__message { margin-top: .5rem; font-style: italic; color: var(--encre-2); }
+.candidat__visite { display: flex; gap: .5rem; margin-top: .55rem; padding: .6rem .8rem; border-radius: 10px; background: var(--surface-douce); font-size: .92rem; }
+.candidat__visite .ico { margin-top: .12rem; color: var(--nareva-2); flex: none; }
+.candidat__label { font-size: .82rem; font-weight: 700; color: var(--encre-3); }
+.candidat__statut { padding: .55rem .7rem; border-radius: 10px; border: 1.5px solid var(--filet-fort); background: var(--surface); font: inherit; }
+.memoire__recit { margin-top: .4rem; line-height: 1.55; }
+.memoire__lecon { margin-top: .6rem; padding: .6rem .8rem; border-left: 3px solid var(--nareva-jaune); background: var(--surface-douce); border-radius: 0 10px 10px 0; }
+.memoire__lecon span { display: block; font-size: .74rem; font-weight: 760; letter-spacing: .06em; text-transform: uppercase; color: var(--encre-3); }
+.memoire__q { margin-top: .6rem; font-size: .92rem; }
+.memoire__q ol { margin: .35rem 0 0 1.2rem; color: var(--encre-2); }
+.memoire__bonne { color: var(--nareva-vert-fonce); font-weight: 700; }
+@media (max-width: 760px) {
+  .candidat { grid-template-columns: 1fr; }
+  .entonnoir li { grid-template-columns: 1fr 3rem; }
+  .entonnoir__barre { grid-column: 1 / -1; grid-row: 2; }
+}
+
 /* ——— Le référentiel ——— */
 .domaines { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--espace); align-items: start; }
 .domaine__tete { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
@@ -646,6 +681,8 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
       <button type="button" class="onglet" role="tab" id="onglet-a-attester" aria-controls="panneau-a-attester" aria-selected="false" tabindex="-1" data-aller="a-attester">À attester <span class="pastille" id="pastille-attester"></span></button>
       <button type="button" class="onglet" role="tab" id="onglet-referentiel" aria-controls="panneau-referentiel" aria-selected="false" tabindex="-1" data-aller="referentiel">Le référentiel</button>
       <button type="button" class="onglet" role="tab" id="onglet-sites" aria-controls="panneau-sites" aria-selected="false" tabindex="-1" data-aller="sites">La jauge des sites</button>
+      <button type="button" class="onglet" role="tab" id="onglet-memoire" aria-controls="panneau-memoire" aria-selected="false" tabindex="-1" data-aller="memoire">Mémoire des anciens <span class="pastille" id="pastille-memoire" hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-discovery" aria-controls="panneau-discovery" aria-selected="false" tabindex="-1" data-aller="discovery">Discovery <span class="pastille" id="pastille-discovery" hidden></span></button>
       <button type="button" class="onglet" role="tab" id="onglet-charte" aria-controls="panneau-charte" aria-selected="false" tabindex="-1" data-aller="charte">La charte</button>
     </nav>
   </div>
@@ -667,6 +704,8 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
   <section class="section" id="panneau-a-attester" role="tabpanel" aria-labelledby="onglet-a-attester" hidden></section>
   <section class="section" id="panneau-referentiel" role="tabpanel" aria-labelledby="onglet-referentiel" hidden></section>
   <section class="section" id="panneau-sites" role="tabpanel" aria-labelledby="onglet-sites" hidden></section>
+  <section class="section" id="panneau-memoire" role="tabpanel" aria-labelledby="onglet-memoire" hidden></section>
+  <section class="section" id="panneau-discovery" role="tabpanel" aria-labelledby="onglet-discovery" hidden></section>
 
   <section class="section" id="panneau-charte" role="tabpanel" aria-labelledby="onglet-charte" hidden>
     <div class="charte">
@@ -725,6 +764,8 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
 <div class="sr-only" id="annonce" aria-live="polite"></div>
 
 <script src="assets/maisons/nareva/contenu.js"></script>
+<script src="assets/maisons/nareva/vie.js"></script>
+<script src="assets/js/zawia-jeu/vie.js"></script>
 <script id="au-courant">
 (function (racine) {
   "use strict";
@@ -1687,9 +1728,191 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
       </section>`;
   }
 
+  /* ───────────── La vie de la maison : Discovery et la mémoire des anciens ─────────────
+     Les deux files que le jeu nourrit (le module de la vie de la maison) : en démo, elles vivent
+     dans ce navigateur, sous les clés de la maison ; chez un client, dans sa base. */
+
+  const VIE = racine.ZWJ && racine.ZWJ.vie ? racine.ZWJ.vie : null;
+  const VIE_MAISON = racine.ZWJ_MAISON && racine.ZWJ_MAISON.vie ? racine.ZWJ_MAISON.vie : {};
+  const CLES_VIE = VIE ? VIE.cles("nareva") : null;
+  const SUIVI = "bab-au-courant-console-rh-discovery";
+
+  /* L'entonnoir de la démo : un mois de visites inventé, auquel s'ajoutent les visites de ce navigateur */
+  const ENTONNOIR_DEMO = { entree: 184, jour2: 97, jour3: 61, porte_candidater: 38, porte_recontact: 14, porte_passer: 9, candidature: 31, recontact: 12 };
+
+  /* Six candidatures inventées (prénoms de fiction), comme les nouveaux arrivants */
+  const CANDIDATS_DEMO = [
+    { id: "demo-1", mode: "candidater", le: "2026-09-23T18:12:00Z", prenom: "Soukaina", nom: "El Idrissi", email: "soukaina.elidrissi@exemple.ma", ecole: "École Mohammadia d'ingénieurs (EMI)", filiere: "Génie électrique", sortie: 2027, cherche: "pfe", domaine: "exploitation",
+      message: "Le défi sur le travail en hauteur m'a appris plus que mon cours de sécurité. J'aimerais faire mon PFE sur la maintenance prédictive d'un parc éolien.", visite: { jours: 3, murs: 7, sites: 1, defis: 4, lectures: 9 }, consentement: true, demo: true },
+    { id: "demo-2", mode: "candidater", le: "2026-09-22T09:40:00Z", prenom: "Ilyas", nom: "Tazi", email: "ilyas.tazi@exemple.ma", telephone: "+212 6 00 00 00 01", ecole: "École nationale supérieure d'électricité et de mécanique (ENSEM)", filiere: "Énergies renouvelables", sortie: 2026, cherche: "emploi", domaine: "ingenierie",
+      message: "Je sors de l'école en juin. Les études de raccordement m'intéressent.", visite: { jours: 3, murs: 5, sites: 1, defis: 2, lectures: 4 }, consentement: true, demo: true },
+    { id: "demo-3", mode: "candidater", le: "2026-09-21T15:05:00Z", prenom: "Kenza", nom: "Alaoui", email: "kenza.alaoui@exemple.ma", ecole: "École Hassania des travaux publics (EHTP)", filiere: "Génie hydraulique", sortie: 2027, cherche: "ete", domaine: "eau",
+      message: "Le dessalement de Dakhla : c'est exactement ce que je veux voir de près.", visite: null, consentement: true, demo: true },
+    { id: "demo-4", mode: "recontact", le: "2026-09-20T20:30:00Z", prenom: "Yassir", nom: "Benjelloun", email: "yassir.benjelloun@exemple.ma", ecole: "École Centrale Casablanca", filiere: "", sortie: null, cherche: "", domaine: "projets",
+      message: "En deuxième année : recontactez-moi pour un stage d'été l'an prochain.", visite: { jours: 2, murs: 4, sites: 1, defis: 1, lectures: 2 }, consentement: true, demo: true },
+    { id: "demo-5", mode: "candidater", le: "2026-09-19T11:20:00Z", prenom: "Imane", nom: "Chraibi", email: "imane.chraibi@exemple.ma", ecole: "École nationale de commerce et de gestion (ENCG)", filiere: "Finance et contrôle de gestion", sortie: 2026, cherche: "emploi", domaine: "finance",
+      message: "", visite: { jours: 3, murs: 7, sites: 1, defis: 0, lectures: 6 }, consentement: true, demo: true },
+    { id: "demo-6", mode: "candidater", le: "2026-09-18T08:55:00Z", prenom: "Othmane", nom: "Fassi", email: "othmane.fassi@exemple.ma", ecole: "Université Mohammed VI Polytechnique (UM6P)", filiere: "Génie des procédés", sortie: 2027, cherche: "pfe", domaine: "hse",
+      message: "Le presque-accident raconté à l'atelier m'a donné envie de travailler la culture sécurité.", visite: { jours: 3, murs: 6, sites: 1, defis: 3, lectures: 5 }, consentement: true, demo: true }
+  ];
+
+  /* Deux pages inventées, déjà envoyées depuis le jeu : la file que la RH trouve en ouvrant la démo */
+  const PROPOSITIONS_DEMO = [
+    { id: "demo-sable", le: "2026-09-24T07:10:00Z", par: "Mustapha", etat: "attente",
+      titre: "Après une tempête de sable, on regarde les filtres avant de redémarrer", auteur: "Mustapha", metier: "Technicien électricien", site: "Aftissat", annees: "12 ans de maison",
+      recit: "Après une grosse tempête de sable, toutes les machines étaient prêtes à repartir. J'ai ouvert une armoire : les filtres à air étaient bouchés, l'électronique chauffait déjà. On a pris une heure pour les changer sur tout le secteur. Les autres fois, on redémarrait tout de suite, et on avait des défauts de surchauffe pendant une semaine.",
+      lecon: "Une machine qui a respiré du sable ne dit rien tout de suite. Une heure de filtres évite une semaine de pannes.",
+      question: "Après une tempête de sable, avant de redémarrer, on regarde d'abord…", options: ["Les pales", "Les filtres à air des armoires", "La peinture du mât", "Le compteur de production"], bonne: 1,
+      explication: "Les filtres : un filtre bouché fait chauffer l'électronique, et la panne arrive quelques jours plus tard." },
+    { id: "demo-appel", le: "2026-09-23T16:45:00Z", par: "Naïma", etat: "attente",
+      titre: "On appelle la salle de contrôle avant, pas après", auteur: "Naïma", metier: "Opératrice de conduite", site: "Safi", annees: "8 ans de maison",
+      recit: "Une intervention simple sur une vanne, un matin calme. Le technicien a commencé sans prévenir la salle de contrôle. De notre côté, on a vu une alarme qu'on ne comprenait pas, et on a failli lancer une manœuvre qui l'aurait mis en danger. Depuis, dans mon équipe, personne ne touche à rien sans un appel avant.",
+      lecon: "La salle de contrôle voit tout, sauf ce qu'on ne lui dit pas. Un appel de trente secondes avant, c'est une manœuvre dangereuse évitée.",
+      question: "", options: [], bonne: null, explication: "" }
+  ];
+
+  function lireVie(cle, defaut) { return VIE && cle ? VIE.lire(null, cle, defaut) : defaut; }
+  function ecrireVie(cle, valeur) { return VIE && cle ? VIE.ecrire(null, cle, valeur) : false; }
+  function lireSuivi() { const s = lireVie(SUIVI, {}); return s && typeof s === "object" && !Array.isArray(s) ? s : {}; }
+
+  /* La file : les pages de démo n'y entrent qu'une fois, et jamais si elles sont déjà publiées */
+  function amorcerPropositions() {
+    if (!VIE || !CLES_VIE) return;
+    if (lireVie(CLES_VIE.propositions, null) !== null) return;
+    const publiees = memoiresActuelles().map((m) => m.titre);
+    ecrireVie(CLES_VIE.propositions, PROPOSITIONS_DEMO.filter((p) => publiees.indexOf(p.titre) < 0));
+  }
+  function propositionsActuelles() { return VIE && CLES_VIE ? VIE.propositions(lireVie(CLES_VIE.propositions, [])) : []; }
+  function memoiresActuelles() {
+    if (!VIE || !CLES_VIE) return [];
+    const edite = lireVie(CLES_VIE.contenu, {});
+    const liste = edite && Array.isArray(edite.memoires) && edite.memoires.length ? edite.memoires
+      : (racine.ZWJ_MAISON_CONTENU && Array.isArray(racine.ZWJ_MAISON_CONTENU.memoires) ? racine.ZWJ_MAISON_CONTENU.memoires : []);
+    return liste.map(VIE.normaliserMemoire);
+  }
+  function candidaturesActuelles() {
+    const locales = VIE && CLES_VIE ? (lireVie(CLES_VIE.candidatures, []) || []).map(VIE.normaliserCandidature) : [];
+    const suivi = lireSuivi();
+    const toutes = locales.concat(CANDIDATS_DEMO.filter((c) => !(suivi.effacees || []).includes(c.id)).map((c) => (VIE ? VIE.normaliserCandidature(c) : c)));
+    return toutes.map((c) => Object.assign({}, c, { statut: (suivi.statuts && suivi.statuts[c.id]) || c.statut || "nouvelle" }))
+      .sort((a, b) => String(b.le).localeCompare(String(a.le)));
+  }
+  function entonnoirActuel() {
+    const local = VIE && CLES_VIE ? VIE.entonnoir(lireVie(CLES_VIE.visites, {})) : {};
+    return VIE ? VIE.additionner(ENTONNOIR_DEMO, local) : ENTONNOIR_DEMO;
+  }
+  const nomDe = (liste, cle) => { const x = (liste || []).find((t) => t.cle === cle); return x ? x.nom : ""; };
+  const dateDe = (iso) => (iso ? dateLongue(String(iso).slice(0, 10)) : "");
+
+  function discoveryHTML(filtre) {
+    if (!VIE) return `${teteSection("Bab Discovery", "Les étudiants qui découvrent la maison", "")}<p class="carte">Le module de la vie de la maison n'est pas chargé.</p>`;
+    const e = entonnoirActuel();
+    const etapes = [
+      ["Sont entrés en visite", e.entree], ["Sont revenus le deuxième jour", e.jour2], ["Sont allés au troisième jour", e.jour3],
+      ["Ont choisi « Je postule »", e.porte_candidater], ["Ont choisi « Recontactez-moi »", e.porte_recontact]
+    ];
+    const max = Math.max(1, e.entree);
+    const toutes = candidaturesActuelles();
+    const liste = toutes.filter((c) => filtre === "recontact" ? c.mode === "recontact" : filtre === "candidater" ? c.mode === "candidater" : true);
+    const ecoles = {};
+    toutes.forEach((c) => { if (c.ecole) ecoles[c.ecole] = (ecoles[c.ecole] || 0) + 1; });
+    const statuts = VIE.STATUTS;
+    const carte = (c) => {
+      const initialesC = ((c.prenom || "?").charAt(0) + (c.nom || "").charAt(0)).toUpperCase();
+      const ligne = [c.ecole, c.filiere, c.sortie ? `sortie ${c.sortie}` : ""].filter(Boolean).join(" · ");
+      const cherche = c.mode === "recontact" ? "Recontactez-moi" : nomDe(VIE_MAISON.discovery && VIE_MAISON.discovery.cherche, c.cherche);
+      const domaine = nomDe(VIE_MAISON.discovery && VIE_MAISON.discovery.domaines, c.domaine);
+      return `<li class="carte candidat${c.mode === "recontact" ? " candidat--recontact" : ""}" data-candidat="${esc(c.id)}">
+        <div class="candidat__corps">
+          <div class="demande__qui"><span class="avatar" aria-hidden="true">${esc(initialesC)}</span><div><b>${esc(c.prenom)} ${esc(c.nom)}</b><span>${esc(ligne)}</span></div></div>
+          <p class="candidat__cherche">${esc(cherche || "")}${domaine ? ` <span class="domaine-etiquette">${esc(domaine)}</span>` : ""}${c.demo ? "" : ' <span class="candidat__recu">Reçue pendant la démo</span>'}</p>
+          ${c.message ? `<p class="candidat__message">${esc(guillemets(c.message))}</p>` : ""}
+          <p class="candidat__visite">${c.visite ? `${ico("etincelle")}<span><b>Sa visite, jointe par ${esc(c.prenom)}</b> : ${esc(VIE.phraseVisite(c.visite))}</span>` : `${ico("oeilBarre")}<span>Visite non jointe : ${esc(c.prenom)} a choisi de ne pas la partager.</span>`}</p>
+          <p class="demande__meta">Reçue le ${esc(dateDe(c.le))} · ${esc(c.email)}${c.telephone ? ` · ${esc(c.telephone)}` : ""} · accord donné (loi 09-08)</p>
+        </div>
+        <div class="demande__actions">
+          <label class="candidat__label" for="statut-${esc(c.id)}">Suivi</label>
+          <select id="statut-${esc(c.id)}" class="candidat__statut" data-statut="${esc(c.id)}">${statuts.map((s) => `<option value="${s.cle}"${s.cle === c.statut ? " selected" : ""}>${esc(s.nom)}</option>`).join("")}</select>
+          <button type="button" class="lien-bouton" data-effacer="${esc(c.id)}">Effacer, à sa demande</button>
+        </div>
+      </li>`;
+    };
+    const filtreBouton = (cle, nom) => `<button type="button" class="filtre${(filtre || "toutes") === cle ? " filtre--actif" : ""}" data-filtre-discovery="${cle}" aria-pressed="${(filtre || "toutes") === cle}">${nom}</button>`;
+    return `${teteSection("Bab Discovery", "Les étudiants qui découvrent la maison", "Trois jours de visite, sans compte ni CV : la cour, les valeurs, un site, les défis du métier. Le troisième jour, Ba Lahcen pose une seule question. Rien ne part sans l'accord de l'étudiant, et sa visite n'est jointe que s'il le coche.", `<button type="button" class="bouton bouton--clair" id="exporter-candidatures">${ico("dossier")}Exporter en CSV</button>`)}
+      <div class="grille-2">
+        <section class="carte" aria-labelledby="titre-entonnoir">
+          <div class="carte__tete"><div><h3 id="titre-entonnoir">La visite, ce mois-ci</h3><p class="carte__note">Un nombre par geste, jamais une personne. Démo : un mois inventé, plus les visites faites dans ce navigateur.</p></div></div>
+          <ol class="entonnoir">${etapes.map(([nom, n]) => `<li><span class="entonnoir__nom">${esc(nom)}</span><span class="entonnoir__barre"><span style="width:${pourcent(n, max)}%"></span></span><b>${n}</b></li>`).join("")}</ol>
+          <p class="carte__note">${pl(e.candidature, "candidature envoyée", "candidatures envoyées")} · ${pl(e.recontact, "demande de contact", "demandes de contact")}.</p>
+        </section>
+        <section class="carte" aria-labelledby="titre-ecoles">
+          <div class="carte__tete"><div><h3 id="titre-ecoles">D'où ils viennent</h3><p class="carte__note">Les écoles des candidatures reçues.</p></div></div>
+          <ul class="ecoles">${Object.keys(ecoles).sort((a, b) => ecoles[b] - ecoles[a] || a.localeCompare(b)).map((k) => `<li><span>${esc(k)}</span><b>${ecoles[k]}</b></li>`).join("") || '<li><span>Aucune candidature pour l\'instant.</span></li>'}</ul>
+        </section>
+      </div>
+      <div class="filtres" role="group" aria-label="Filtrer les candidatures">${filtreBouton("toutes", `Toutes <b>${toutes.length}</b>`)}${filtreBouton("candidater", "Je postule")}${filtreBouton("recontact", "Recontactez-moi")}</div>
+      <p class="note-demo">${ico("info")}<span>Démo : une candidature envoyée depuis le jeu, dans ce navigateur, apparaît ici aussitôt. Le suivi est un repère pour l'équipe recrutement, jamais une note.</span></p>
+      <ol class="demandes">${liste.map(carte).join("") || '<li class="carte">Aucune candidature dans ce filtre.</li>'}</ol>`;
+  }
+
+  function memoireHTML(ouvert) {
+    if (!VIE) return `${teteSection("La mémoire des anciens", "Ce que les anciens transmettent", "")}<p class="carte">Le module de la vie de la maison n'est pas chargé.</p>`;
+    const file = propositionsActuelles().slice().sort((a, b) => (a.etat === "attente" ? 0 : 1) - (b.etat === "attente" ? 0 : 1) || String(b.le).localeCompare(String(a.le)));
+    const n = (x) => file.filter((p) => p.etat === x).length;
+    const publiees = memoiresActuelles();
+    const carte = (p) => {
+      const id = String(p.id).replace(/[^a-z0-9]+/gi, "-");
+      const qui = [p.auteur, p.metier, p.site, p.annees].filter(Boolean).join(" · ");
+      let actions;
+      if (p.etat === "publiee") actions = `<div class="decision statut--ok">${ico("check")}<div><b>Publiée aux archives</b><span>le ${esc(dateDe(p.decide_le))}</span></div></div><button type="button" class="lien-bouton" data-rouvrir="${esc(p.id)}">Retirer et remettre en attente</button>`;
+      else if (p.etat === "refusee") actions = `<div class="decision statut--revoir">${ico("revoir")}<div><b>Pas cette fois</b><span><q>${esc(guillemets(p.mot))}</q></span></div></div><button type="button" class="lien-bouton" data-rouvrir="${esc(p.id)}">Annuler</button>`;
+      else if (ouvert === p.id) actions = "";
+      else actions = `<button type="button" class="bouton bouton--attester" data-publier="${esc(p.id)}">${ico("check")}Publier aux archives</button><button type="button" class="bouton bouton--revoir" data-refuser="${esc(p.id)}">${ico("revoir")}Pas cette fois</button>`;
+      const q = VIE.aUneQuestion(p) ? `<div class="memoire__q"><p><b>Sa question</b> : ${esc(p.question)}</p><ol>${p.options.map((o, i) => `<li${i === p.bonne ? ' class="memoire__bonne"' : ""}>${esc(o)}${i === p.bonne ? " — la bonne" : ""}</li>`).join("")}</ol></div>` : '<p class="demande__meta">Sans question : la page se rallume à la lecture.</p>';
+      const formulaire = ouvert === p.id && p.etat === "attente" ? `
+        <form class="revoir" data-refuser-form="${esc(p.id)}" novalidate>
+          <label class="revoir__label" for="mot-m-${id}">Un mot pour ${esc(p.auteur)} <span>(obligatoire)</span></label>
+          <textarea id="mot-m-${id}" name="mot" rows="3" maxlength="${VIE.LIMITES.mot[1]}" aria-describedby="erreur-m-${id}" placeholder="Par exemple : raconte ce que tu as vu avant la panne, et je la publie."></textarea>
+          <p class="revoir__erreur" id="erreur-m-${id}" role="alert" hidden></p>
+          <div class="revoir__actions"><button type="submit" class="bouton bouton--envoi">${ico("revoir")}Renvoyer avec ce mot</button><button type="button" class="lien-bouton" data-fermer-memoire="${esc(p.id)}">Annuler</button></div>
+        </form>` : "";
+      return `<li class="carte demande demande--${p.etat === "publiee" ? "ok" : p.etat === "refusee" ? "revoir" : "attente"}">
+        <div class="demande__corps">
+          <div class="demande__qui"><span class="avatar" aria-hidden="true">${esc((p.auteur || "?").charAt(0).toUpperCase())}</span><div><b>${esc(p.titre)}</b><span>${esc(qui)}</span></div></div>
+          <p class="memoire__recit">${esc(p.recit)}</p>
+          <p class="memoire__lecon"><span>Ce qu'aucune procédure ne dit</span>${esc(p.lecon)}</p>
+          ${q}
+          <p class="demande__meta">Envoyée depuis le jeu le ${esc(dateDe(p.le))}${p.par ? ` par ${esc(p.par)}` : ""}</p>
+        </div>
+        ${actions ? `<div class="demande__actions">${actions}</div>` : ""}
+        ${formulaire}
+      </li>`;
+    };
+    return `${teteSection("La mémoire des anciens", "Ce que les anciens transmettent avant de partir", "Un collègue écrit, depuis le jeu, ce qu'il sait et qu'aucune procédure ne dit. La RH relit, puis publie la page aux archives, ou la renvoie avec un mot. Publiée, elle se lit dans le jeu, et celui qui répond juste à sa question la « rallume ».")}
+      <div class="compteurs" role="status">
+        <span class="compteur">À relire <b>${n("attente")}</b></span>
+        <span class="compteur">Publiées depuis la file <b>${n("publiee")}</b></span>
+        <span class="compteur">Pas cette fois <b>${n("refusee")}</b></span>
+        <span class="compteur">Pages aux archives <b>${publiees.length}</b></span>
+      </div>
+      <p class="note-demo">${ico("info")}<span>Démo : les pages envoyées depuis le jeu arrivent ici, dans ce navigateur. Une page publiée se corrige ensuite dans « Paramétrer le jeu », onglet Mémoire des anciens.</span></p>
+      <ol class="demandes">${file.map(carte).join("") || '<li class="carte">Aucune page dans la file.</li>'}</ol>
+      <section class="carte" aria-labelledby="titre-publiees">
+        <div class="carte__tete"><div><h3 id="titre-publiees">Aux archives du jeu</h3><p class="carte__note">Les pages que les nouveaux arrivants lisent et rallument.</p></div><a class="lien-bouton" href="au-courant-parametres.html#memoires">Relire et corriger ${ico("fleche")}</a></div>
+        <ul class="ecoles">${publiees.map((m) => `<li><span>${esc(m.titre)}</span><b>${esc(m.auteur)}</b></li>`).join("") || "<li><span>Aucune page publiée.</span></li>"}</ul>
+      </section>`;
+  }
+
+  function csvCandidatures() {
+    const col = ["prenom", "nom", "email", "telephone", "ecole", "filiere", "sortie", "cherche", "domaine", "mode", "statut", "le", "visite", "message"];
+    const cellule = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+    const lignes = candidaturesActuelles().map((c) => col.map((k) => cellule(k === "visite" ? (c.visite && VIE ? VIE.phraseVisite(c.visite) : "") : c[k])).join(";"));
+    return "﻿" + col.join(";") + "\n" + lignes.join("\n");
+  }
+
   /* ───────────── La page : onglets, gestes, mémoire ───────────── */
 
-  const SECTIONS = ["vue-ensemble", "nouveaux", "a-attester", "referentiel", "sites", "charte"];
+  const SECTIONS = ["vue-ensemble", "nouveaux", "a-attester", "referentiel", "sites", "memoire", "discovery", "charte"];
 
   function lireMemoire() {
     try { const lu = window.localStorage.getItem(MEMOIRE); return lu ? JSON.parse(lu) : null; } catch (e) { return null; }
@@ -1754,6 +1977,9 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     let ouvert = null;
     let sectionAffichee = null;
     let versLeDossier = false;
+    let filtreDiscovery = "toutes";
+    let ouvertMemoire = null;
+    amorcerPropositions();
 
     const annoncer = (texte) => { const a = $("#annonce"); a.textContent = ""; window.setTimeout(() => { a.textContent = texte; }, 30); };
     const focaliser = (sel) => { const el = document.querySelector(sel); if (el) el.focus(); };
@@ -1772,6 +1998,12 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
       zones["a-attester"].innerHTML = typo(attesterHTML(etat, ouvert));
       zones.referentiel.innerHTML = typo(referentielHTML(etat));
       zones.sites.innerHTML = typo(sitesHTML());
+      zones.memoire.innerHTML = typo(memoireHTML(ouvertMemoire));
+      zones.discovery.innerHTML = typo(discoveryHTML(filtreDiscovery));
+      const nm = propositionsActuelles().filter((x) => x.etat === "attente").length;
+      const pm = $("#pastille-memoire"); pm.textContent = String(nm); pm.hidden = nm === 0;
+      const nd = candidaturesActuelles().filter((x) => x.statut === "nouvelle").length;
+      const pd = $("#pastille-discovery"); pd.textContent = String(nd); pd.hidden = nd === 0;
       const n = demandes(etat).filter((d) => d.e.etat === "attente").length;
       const pastille = $("#pastille-attester");
       pastille.textContent = String(n);
@@ -1823,6 +2055,49 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     const sauver = () => ecrireMemoire(etat);
 
     document.addEventListener("click", (e) => {
+      const v = e.target.closest("[data-publier], [data-refuser], [data-rouvrir], [data-fermer-memoire], [data-effacer], [data-filtre-discovery], #exporter-candidatures");
+      if (v && VIE) {
+        if (v.dataset.publier) {
+          const r = VIE.publier(propositionsActuelles(), memoiresActuelles(), v.dataset.publier);
+          if (!r.ok) { annoncer(r.erreur); return; }
+          ecrireVie(CLES_VIE.propositions, r.liste);
+          VIE.ecrireSection(null, "nareva", "memoires", r.memoires);
+          ouvertMemoire = null; rendre();
+          focaliser(`[data-rouvrir="${v.dataset.publier}"]`);
+          annoncer("Page publiée : elle entre aux archives du jeu.");
+          return;
+        }
+        if (v.dataset.refuser) { ouvertMemoire = v.dataset.refuser; rendre(); focaliser(`form[data-refuser-form="${ouvertMemoire}"] textarea`); return; }
+        if (v.dataset.fermerMemoire) { const id = v.dataset.fermerMemoire; ouvertMemoire = null; rendre(); focaliser(`[data-refuser="${id}"]`); return; }
+        if (v.dataset.rouvrir) {
+          const r = VIE.rouvrir(propositionsActuelles(), memoiresActuelles(), v.dataset.rouvrir);
+          if (!r.ok) { annoncer(r.erreur); return; }
+          ecrireVie(CLES_VIE.propositions, r.liste);
+          VIE.ecrireSection(null, "nareva", "memoires", r.memoires);
+          rendre(); focaliser(`[data-publier="${v.dataset.rouvrir}"]`);
+          annoncer("La page attend de nouveau sa relecture.");
+          return;
+        }
+        if (v.dataset.filtreDiscovery) { filtreDiscovery = v.dataset.filtreDiscovery; rendre(); focaliser(`[data-filtre-discovery="${filtreDiscovery}"]`); return; }
+        if (v.dataset.effacer) {
+          const id = v.dataset.effacer;
+          const c = candidaturesActuelles().find((x) => x.id === id);
+          if (!c || !window.confirm(`Effacer la candidature de ${c.prenom} ${c.nom} ? Elle disparaît de la console, pour de bon.`)) return;
+          if (c.demo) { const s = lireSuivi(); s.effacees = (s.effacees || []).concat([id]); ecrireVie(SUIVI, s); }
+          else ecrireVie(CLES_VIE.candidatures, (lireVie(CLES_VIE.candidatures, []) || []).filter((x) => x && x.id !== id));
+          rendre(); annoncer("Candidature effacée.");
+          return;
+        }
+        if (v.id === "exporter-candidatures") {
+          const lien = document.createElement("a");
+          lien.href = URL.createObjectURL(new Blob([csvCandidatures()], { type: "text/csv;charset=utf-8" }));
+          lien.download = "au-courant-discovery-candidatures.csv";
+          document.body.appendChild(lien); lien.click(); lien.remove();
+          setTimeout(() => URL.revokeObjectURL(lien.href), 2000);
+          annoncer("Le fichier des candidatures est prêt.");
+          return;
+        }
+      }
       const t = e.target.closest("[data-aller], [data-nouveau], [data-attester], [data-revoir], [data-fermer], [data-annuler], #remise");
       if (!t) return;
       if (t.dataset.aller) { aller(t.dataset.aller); return; }
@@ -1864,7 +2139,29 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
       }
     });
 
+    document.addEventListener("change", (e) => {
+      const sel = e.target.closest && e.target.closest("select[data-statut]");
+      if (!sel) return;
+      const s = lireSuivi(); s.statuts = Object.assign({}, s.statuts, { [sel.dataset.statut]: sel.value });
+      ecrireVie(SUIVI, s); rendre(); focaliser(`select[data-statut="${sel.dataset.statut}"]`);
+      annoncer("Suivi mis à jour.");
+    });
+
     document.addEventListener("submit", (e) => {
+      const fm = e.target.closest("form[data-refuser-form]");
+      if (fm && VIE) {
+        e.preventDefault();
+        const id = fm.dataset.refuserForm, zone = fm.querySelector("textarea");
+        const r = VIE.refuser(propositionsActuelles(), id, zone.value);
+        if (!r.ok) {
+          const er = fm.querySelector(".revoir__erreur"); er.textContent = r.erreur; er.hidden = false;
+          zone.setAttribute("aria-invalid", "true"); zone.focus(); return;
+        }
+        ecrireVie(CLES_VIE.propositions, r.liste);
+        ouvertMemoire = null; rendre(); focaliser(`[data-rouvrir="${id}"]`);
+        annoncer("Page renvoyée avec votre mot : l'auteur le lit dans le jeu.");
+        return;
+      }
       const form = e.target.closest("form[data-renvoyer]");
       if (!form) return;
       e.preventDefault();
@@ -1917,6 +2214,8 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     });
 
     window.addEventListener("hashchange", afficher);
+    // Une candidature ou une page envoyée depuis le jeu, dans un autre onglet : la console la voit aussitôt.
+    window.addEventListener("storage", (e) => { if (!e.key || /^bab\.maison\.nareva\./.test(e.key)) { ouvertMemoire = null; rendre(); } });
     rendre();
     afficher();
     brancherLogo();
@@ -1932,7 +2231,11 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     panneauHTML: (p, etat) => typo(panneauHTML(p, etat)),
     attesterHTML: (etat, ouvert) => typo(attesterHTML(etat, ouvert)),
     referentielHTML: (etat) => typo(referentielHTML(etat)),
-    sitesHTML: () => typo(sitesHTML())
+    sitesHTML: () => typo(sitesHTML()),
+    CANDIDATS_DEMO, PROPOSITIONS_DEMO, ENTONNOIR_DEMO,
+    discoveryHTML: (filtre) => typo(discoveryHTML(filtre)),
+    memoireHTML: (ouvert) => typo(memoireHTML(ouvert)),
+    csvCandidatures
   };
 
   if (typeof document !== "undefined") {

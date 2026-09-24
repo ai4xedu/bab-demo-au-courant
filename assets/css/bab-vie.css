@@ -1,0 +1,100 @@
+/* Bab — la vie de la maison (assets/js/zawia-jeu/vie.js) : le Fil, la mémoire des
+   anciens, la candidature Discovery. Les panneaux reprennent la forme de ceux du
+   moteur (.zj-riwaq) ; ce fichier n'ajoute que ce qu'ils ont de propre. Les couleurs
+   sont celles de la maison (ses variables), jamais écrites ici. */
+
+/* ---- la pastille du menu et l'annonce d'une nouvelle ---- */
+.bab-pastille {
+  display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; margin-inline-start: 6px;
+  border-radius: 999px; background: var(--gold); color: var(--night); font-size: 12px; font-weight: 700; vertical-align: 1px;
+}
+.bab-pastille[hidden] { display: none; }
+.bab-annonce {
+  position: fixed; right: 16px; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 55;
+  display: grid; gap: 2px; max-width: min(360px, calc(100vw - 32px)); padding: 12px 16px; text-align: start;
+  border-radius: 14px; border: 1px solid var(--gold); background: rgba(11, 26, 44, 0.94); color: var(--ink);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); cursor: pointer; font: inherit;
+  animation: bab-entre 0.45s ease both;
+}
+.bab-annonce[hidden] { display: none; }
+.bab-annonce__kicker { font-size: 12px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.06em; }
+.bab-annonce strong { font-size: 15px; line-height: 1.3; }
+.bab-annonce__lire { font-size: 13px; color: var(--muted); }
+@keyframes bab-entre { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .bab-annonce { animation: none; } }
+
+/* ---- le Fil ---- */
+.bab-fil { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.bab-fil__nouvelle { padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.bab-fil__nouvelle--epingle { border-color: rgba(255, 206, 0, 0.45); background: var(--gold-soft); }
+.bab-fil__nouvelle h3 { margin: 4px 0 6px; font-size: 1.08rem; line-height: 1.3; }
+.bab-fil__nouvelle p { margin: 0; color: var(--ink); font-size: 14.5px; line-height: 1.55; }
+.bab-fil__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--muted) !important; font-size: 13px !important; }
+.bab-fil__puce { padding: 1px 8px; border-radius: 999px; background: var(--emerald-deep, #00572b); color: #eaffef; font-size: 12px; font-weight: 600; }
+.bab-fil__puce--epingle { background: var(--gold); color: var(--night); }
+
+/* ---- la mémoire des anciens ---- */
+.bab-memoire__compte { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
+.bab-memoires { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.bab-memoire { padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.bab-memoire--rallumee { border-color: rgba(255, 206, 0, 0.45); box-shadow: inset 0 0 0 1px rgba(255, 206, 0, 0.12), 0 0 24px rgba(255, 206, 0, 0.08); }
+.bab-memoire h3 { margin: 4px 0 8px; font-size: 1.1rem; line-height: 1.3; }
+.bab-memoire > p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.6; }
+.bab-memoire__qui { color: var(--muted) !important; font-size: 13px !important; margin: 0 !important; }
+.bab-memoire__lecon { padding: 10px 12px; border-inline-start: 3px solid var(--gold); background: var(--gold-soft); border-radius: 0 10px 10px 0; }
+.bab-memoire__lecon span { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin-bottom: 3px; }
+.bab-memoire__q p { margin: 0 0 8px; }
+.bab-memoire__choix { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+.bab-choix { text-align: start; white-space: normal; line-height: 1.35; }
+.bab-choix--juste { border-color: var(--emerald) !important; background: rgba(97, 206, 112, 0.14) !important; }
+.bab-choix--faux { border-color: var(--terracotta) !important; background: rgba(255, 138, 76, 0.12) !important; }
+.bab-memoire__verdict { margin: 10px 0 0 !important; color: var(--ink); font-size: 14px; }
+.bab-memoire__transmettre { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+.bab-memoire__mes { margin: 10px 0 14px; padding-inline-start: 18px; color: var(--muted); font-size: 14px; }
+.bab-memoire__mes strong { color: var(--ink); }
+
+/* ---- les formulaires (Discovery, transmettre) : du texte + novalidate, jamais type=url/email ---- */
+.bab-form { display: grid; gap: 12px; }
+.bab-ligne { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.bab-champ { display: grid; gap: 5px; margin: 0; }
+.bab-champ label, .bab-q legend { font-size: 14px; font-weight: 600; color: var(--ink); }
+.bab-facultatif { font-weight: 400; color: var(--muted); font-size: 13px; }
+.bab-form input[type="text"], .bab-form textarea, .bab-form select {
+  width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; font-size: 15px;
+}
+.bab-form select option { color: #111; }
+.bab-form textarea { resize: vertical; min-height: 96px; line-height: 1.5; }
+.bab-form input:focus, .bab-form textarea:focus, .bab-form select:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.bab-form [aria-invalid="true"] { border-color: var(--terracotta); box-shadow: 0 0 0 3px rgba(255, 138, 76, 0.18); }
+.bab-aide { font-size: 12.5px; color: var(--muted); }
+.bab-erreur { font-size: 13px; color: var(--terracotta); }
+.bab-erreur[hidden] { display: none; }
+.bab-q { margin: 0; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; display: grid; gap: 8px; }
+.bab-option { display: flex; align-items: center; gap: 8px; margin: 0; }
+.bab-option input[type="radio"] { width: 18px; height: 18px; accent-color: var(--gold); flex: none; }
+.bab-case { display: flex; align-items: flex-start; gap: 10px; margin: 0; font-size: 14px; line-height: 1.45; }
+.bab-case input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--gold); flex: none; }
+.bab-visite { color: var(--muted); }
+.bab-form__note { margin: 0; font-size: 13px; color: var(--muted); }
+.bab-form__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.bab-merci { padding: 18px; border: 1px solid rgba(97, 206, 112, 0.45); border-radius: 14px; background: rgba(97, 206, 112, 0.08); }
+.bab-merci h3 { margin: 0 0 8px; }
+.bab-merci p { margin: 0 0 14px; line-height: 1.55; }
+
+/* ---- Discovery : la démo passe au jour suivant sans attendre minuit ---- */
+.bab-demo-jour {
+  position: fixed; left: 16px; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 54;
+  padding: 8px 14px; border-radius: 999px; border: 1px dashed var(--gold); background: rgba(11, 26, 44, 0.9);
+  color: var(--gold); font: 600 13px/1.2 var(--font-body, inherit); cursor: pointer;
+}
+.bab-demo-jour[hidden] { display: none; }
+
+/* ---- Discovery : quand quelqu'un part, la lumière baisse (au lieu du gris de Zawia) ---- */
+html.bab-maison body.zj-nsyan #zj-scene { filter: brightness(0.34) saturate(0.45); transition: filter 1.4s ease; }
+html.bab-maison body.zj-nsyan-reste #zj-scene { filter: brightness(0.62) saturate(0.7); }
+
+@media (max-width: 560px) {
+  .bab-annonce { left: 12px; right: 12px; max-width: none; }
+  .bab-demo-jour { bottom: calc(150px + env(safe-area-inset-bottom)); }
+}

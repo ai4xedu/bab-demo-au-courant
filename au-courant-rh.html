@@ -1,0 +1,1945 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<title>Au Courant — la console RH</title>
+<style>
+/* Au Courant — la console RH · maquette autonome, sans aucune ressource extérieure.
+   Les couleurs de la maison vivent dans les variables --nareva-* : les changer ici suffit.
+   Les trois axes ont leurs propres couleurs, validées pour les daltoniens : à revalider
+   si on les change (le vert de la maison, #49B335, se confond avec l'ambre). */
+:root {
+  color-scheme: light;
+
+  /* La maison — palette publique de Nareva (thème de son site) */
+  --nareva-1: #173056;          /* bleu marine, primaire */
+  --nareva-2: #005BAA;          /* bleu, secondaire */
+  --nareva-vert: #49B335;       /* vert, accent */
+  --nareva-vert-vif: #61CE70;   /* vert clair, accent */
+  --nareva-vert-fonce: #00572B; /* vert foncé */
+  --nareva-jaune: #FFCE00;      /* petits signaux seulement, jamais en fond de texte */
+  --nareva-ciel: #C0DBE9;       /* bleu très clair, fond doux */
+  --nareva-prairie: #C0DBBA;    /* vert très clair, fond doux */
+
+  /* Les trois axes : jamais additionnés, jamais convertis l'un dans l'autre */
+  --axe-lumiere: #D08E00;
+  --axe-lumiere-piste: #F3E4C2;
+  --axe-lumiere-fond: #FBF1DB;
+  --axe-lumiere-encre: #7A4F00;
+  --axe-puissance: #005BAA;
+  --axe-puissance-piste: #CFE1F0;
+  --axe-puissance-fond: #E6F0F8;
+  --axe-puissance-encre: #004785;
+  --axe-reseau: #00873F;
+  --axe-reseau-piste: #C9E7D4;
+  --axe-reseau-fond: #E4F3EA;
+  --axe-reseau-encre: #00612D;
+
+  /* Encre et surfaces */
+  --page: #F2F5F8;
+  --surface: #FFFFFF;
+  --surface-douce: #F7F9FB;
+  --encre: #0E1B2E;
+  --encre-2: #34435A;
+  --encre-3: #526073;
+  --filet: #DDE3EA;
+  --filet-fort: #C5CED9;
+  --piste: #E3E9EF;
+
+  /* États d'une compétence */
+  --ok: #00572B;
+  --ok-fond: #E3F1E7;
+  --attente: #173056;
+  --attente-fond: #E7EEF6;
+  --revoir: #9A3B12;
+  --revoir-fond: #FBEBE2;
+  --a-faire: #526073;
+  --a-faire-fond: #F1F4F7;
+
+  --police: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --rayon: 16px;
+  --ombre: 0 1px 2px rgba(14, 27, 46, .05), 0 14px 34px -22px rgba(14, 27, 46, .28);
+  --gouttiere: clamp(16px, 3.2vw, 56px);
+  --espace: clamp(16px, 1.5vw, 24px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: clamp(16px, 0.47vw + 12px, 21px); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--police);
+  line-height: 1.5;
+  color: var(--encre);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4 { margin: 0; line-height: 1.2; letter-spacing: -.01em; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+button { font: inherit; color: inherit; }
+textarea { font: inherit; color: inherit; }
+svg { display: block; width: 100%; height: 100%; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--nareva-2); outline-offset: 3px; border-radius: 6px; }
+
+.ico { display: inline-block; flex: none; width: 1.2em; height: 1.2em; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.evitement {
+  position: absolute; left: var(--gouttiere); top: -5rem; z-index: 60;
+  padding: .6rem 1rem; border-radius: 10px; background: var(--nareva-1); color: #fff; font-weight: 700;
+}
+.evitement:focus { top: .8rem; }
+.cadre { max-width: 1680px; margin-inline: auto; padding-inline: var(--gouttiere); }
+
+/* ——— En-tête ——— */
+.tete { background: var(--surface); border-bottom: 1px solid var(--filet); }
+.tete__filet {
+  height: 5px;
+  background: linear-gradient(90deg, var(--nareva-1) 0 46%, var(--nareva-2) 46% 82%, var(--nareva-vert) 82% 100%);
+}
+.tete__rang {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem 2rem; flex-wrap: wrap; padding-block: 1.05rem .9rem;
+}
+.marque { display: flex; align-items: center; gap: 1.1rem; min-width: 0; }
+.logo-maison { display: flex; align-items: center; height: 48px; min-width: 5.5rem; }
+.logo-maison img { display: block; height: 48px; width: auto; max-width: 240px; object-fit: contain; }
+.logo-maison__texte { font-weight: 800; font-size: 1.3rem; letter-spacing: .22em; color: var(--nareva-1); }
+.marque__trait { width: 1px; height: 2.8rem; background: var(--filet-fort); flex: none; }
+.marque__titres { min-width: 0; }
+.marque__titres h1 {
+  font-size: clamp(1.25rem, .9vw + .9rem, 1.8rem); font-weight: 760;
+  color: var(--nareva-1); letter-spacing: -.02em;
+}
+.sous-titre { color: var(--encre-3); font-weight: 650; font-size: .95rem; margin-top: .1rem; }
+.marque__meta { display: flex; align-items: center; gap: .35rem .9rem; flex-wrap: wrap; margin-top: .2rem; color: var(--encre-3); font-size: .86rem; }
+.marque__meta .sous-titre { margin-top: 0; }
+.tete__actions { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.tete__actions .bouton { padding: .7rem 1.15rem; }
+a.bouton { text-decoration: none; }
+.tete__actions .bouton--principal { background: var(--nareva-1); color: #fff; }
+.tete__actions .bouton--principal:hover { background: #0F2340; }
+.tete__actions .bouton--clair { background: var(--surface); color: var(--nareva-1); border-color: var(--filet-fort); }
+.tete__actions .bouton--clair:hover { background: var(--surface-douce); border-color: var(--nareva-1); }
+.demo {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .18rem .7rem; font-size: .82rem;
+  border: 1px solid var(--filet-fort); border-radius: 999px;
+  background: var(--surface-douce); color: var(--encre-2); font-weight: 650;
+}
+.demo__point { width: .55rem; height: .55rem; border-radius: 50%; background: var(--nareva-jaune); box-shadow: 0 0 0 3px rgba(255, 206, 0, .22); }
+
+/* ——— Onglets ——— */
+.onglets { display: flex; gap: .15rem; overflow-x: auto; scrollbar-width: none; margin-bottom: -1px; }
+.onglets::-webkit-scrollbar { display: none; }
+.onglet {
+  flex: none; display: inline-flex; align-items: center; gap: .55rem;
+  padding: .8rem 1rem .75rem; border: 0; border-bottom: 3px solid transparent; border-radius: 8px 8px 0 0;
+  background: none; color: var(--encre-2); font-weight: 650; white-space: nowrap; cursor: pointer;
+}
+.onglet:hover { color: var(--nareva-1); background: var(--surface-douce); }
+.onglet[aria-selected="true"] { color: var(--nareva-1); border-bottom-color: var(--nareva-1); }
+.pastille {
+  display: inline-grid; place-items: center; min-width: 1.55rem; height: 1.55rem; padding: 0 .45rem;
+  border-radius: 999px; background: var(--nareva-1); color: #fff;
+  font-size: .78rem; font-weight: 760; font-variant-numeric: tabular-nums;
+}
+
+/* ——— La règle, visible sur tous les onglets ——— */
+.regle {
+  background: #E6F0F6;
+  background: color-mix(in srgb, var(--nareva-ciel) 40%, white);
+  border-bottom: 1px solid #D2E4EF;
+  border-bottom: 1px solid color-mix(in srgb, var(--nareva-ciel) 75%, white);
+}
+.regle .cadre { display: flex; align-items: center; gap: .6rem 1.2rem; flex-wrap: wrap; padding-block: .72rem; }
+.regle__icone { width: 1.6rem; height: 1.6rem; color: var(--nareva-1); }
+.regle p { flex: 1 1 30rem; color: var(--nareva-1); }
+.regle strong { font-weight: 760; }
+.lien-bouton {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .15rem;
+  border: 0; background: none; color: var(--nareva-2); font-weight: 700; cursor: pointer;
+  text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px;
+}
+.lien-bouton .ico { width: 1.05em; height: 1.05em; }
+body[data-section="charte"] .regle .lien-bouton { visibility: hidden; }
+
+/* ——— Sections ——— */
+main { padding-block: clamp(22px, 2.4vw, 40px) clamp(36px, 4vw, 64px); }
+.section { display: grid; gap: var(--espace); }
+.section__tete { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem 2rem; flex-wrap: wrap; }
+.surtitre {
+  font-size: .78rem; font-weight: 760; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--nareva-2); margin-bottom: .45rem;
+}
+.section h2 { font-size: clamp(1.6rem, 1.3vw + 1.05rem, 2.35rem); font-weight: 760; color: var(--nareva-1); letter-spacing: -.025em; }
+.chapo { margin-top: .6rem; font-size: 1.05rem; color: var(--encre-2); max-width: 66ch; }
+.carte {
+  min-width: 0; padding: clamp(18px, 1.6vw, 28px);
+  background: var(--surface); border: 1px solid var(--filet); border-radius: var(--rayon); box-shadow: var(--ombre);
+}
+.carte__tete { display: flex; justify-content: space-between; align-items: flex-start; gap: .6rem 1.2rem; flex-wrap: wrap; margin-bottom: 1.15rem; }
+.carte h3 { font-size: 1.22rem; font-weight: 720; color: var(--encre); }
+.carte__note { margin-top: .25rem; color: var(--encre-3); font-size: .9rem; }
+.grille-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--espace); align-items: start; }
+
+.puce {
+  display: inline-flex; align-items: center; gap: .4rem; padding: .22rem .7rem .22rem .5rem;
+  border-radius: 999px; background: var(--puce-fond); color: var(--puce-encre);
+  font-size: .8rem; font-weight: 720; white-space: nowrap;
+}
+.puce .ico { width: 1.1rem; height: 1.1rem; }
+.puce--lumiere { --puce-fond: var(--axe-lumiere-fond); --puce-encre: var(--axe-lumiere-encre); }
+.puce--puissance { --puce-fond: var(--axe-puissance-fond); --puce-encre: var(--axe-puissance-encre); }
+.puce--reseau { --puce-fond: var(--axe-reseau-fond); --puce-encre: var(--axe-reseau-encre); }
+
+/* Une jauge : la piste est un pas plus clair de la même couleur */
+.jauge { position: relative; height: 12px; border-radius: 999px; background: var(--jauge-piste, var(--piste)); overflow: hidden; }
+.jauge > span { position: absolute; inset: 0 auto 0 0; border-radius: 999px; background: var(--jauge-couleur, var(--nareva-1)); }
+.jauge--lumiere { --jauge-couleur: var(--axe-lumiere); --jauge-piste: var(--axe-lumiere-piste); }
+.jauge--puissance { --jauge-couleur: var(--axe-puissance); --jauge-piste: var(--axe-puissance-piste); }
+.jauge--reseau { --jauge-couleur: var(--axe-reseau); --jauge-piste: var(--axe-reseau-piste); }
+.chiffre { font-weight: 760; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chiffre small { font-size: .82em; font-weight: 600; color: var(--encre-3); }
+
+/* ——— Vue d'ensemble : les indicateurs ——— */
+.indicateurs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--espace); }
+.indicateur { display: flex; flex-direction: column; gap: .45rem; text-align: left; }
+.indicateur__libelle { display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; min-height: 2.9em; font-weight: 650; color: var(--encre-2); font-size: .95rem; }
+.indicateur__valeur { font-size: clamp(2.3rem, 1.8vw + 1.3rem, 3.3rem); font-weight: 760; line-height: 1; letter-spacing: -.03em; color: var(--nareva-1); }
+.indicateur__detail { color: var(--encre-3); font-size: .9rem; }
+.indicateur__aller { margin-top: auto; padding-top: .35rem; display: inline-flex; align-items: center; gap: .35rem; color: var(--nareva-2); font-weight: 700; font-size: .92rem; }
+.indicateur__aller .ico { width: 1.05em; height: 1.05em; }
+button.indicateur { cursor: pointer; font: inherit; transition: border-color .15s, box-shadow .15s; }
+button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px rgba(14, 27, 46, .05), 0 18px 36px -22px rgba(0, 91, 170, .45); }
+
+/* ——— Vue d'ensemble : la frise des 40 jours ——— */
+.frise__tete, .frise__ligne {
+  display: grid; grid-template-columns: minmax(13rem, 27%) minmax(0, 1fr) 3.6rem; gap: 1.2rem; align-items: center;
+}
+.frise__tete { padding: 0 .75rem .7rem; }
+.frise__echelle { position: relative; height: 2.7rem; }
+.frise__echelle > span {
+  position: absolute; top: 0; left: calc(var(--d) * 2.5%); transform: translateX(-50%);
+  display: grid; text-align: center; line-height: 1.25; white-space: nowrap; font-size: .78rem; color: var(--encre-3);
+}
+.frise__echelle > span:first-child { left: 0; transform: none; text-align: left; }
+.frise__echelle > span:last-child { transform: translateX(-100%); text-align: right; }
+.frise__echelle b { color: var(--encre-2); font-weight: 760; }
+.frise__liste { display: grid; gap: .1rem; }
+.frise__ligne {
+  width: 100%; padding: .55rem .75rem; border: 0; border-radius: 12px;
+  background: none; text-align: left; cursor: pointer;
+}
+.frise__ligne:hover { background: var(--surface-douce); }
+.frise__qui { display: grid; min-width: 0; }
+.frise__qui strong { font-weight: 720; }
+.frise__qui span { color: var(--encre-3); font-size: .86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.frise__piste { position: relative; height: 12px; border-radius: 999px; background: var(--piste); }
+.frise__rempli { position: absolute; inset: 0 auto 0 0; width: calc(var(--j) * 2.5%); border-radius: 999px; background: var(--nareva-1); }
+.frise__cran { position: absolute; top: 0; bottom: 0; left: calc(var(--d) * 2.5% - 1px); width: 2px; background: var(--surface); }
+.frise__point {
+  position: absolute; top: 50%; left: calc(var(--j) * 2.5%); width: 20px; height: 20px; margin: -10px 0 0 -10px;
+  border-radius: 50%; background: var(--nareva-1); box-shadow: 0 0 0 3px var(--surface), 0 1px 5px rgba(14, 27, 46, .35);
+}
+.frise__jour { text-align: right; font-weight: 760; color: var(--nareva-1); font-variant-numeric: tabular-nums; }
+
+/* ——— Vue d'ensemble : les valeurs, les rituels, les cartes ——— */
+.valeurs { display: grid; gap: 1.05rem; }
+.valeur { display: grid; grid-template-columns: minmax(0, 1fr) minmax(9rem, 36%); gap: .45rem 1.2rem; align-items: center; }
+.valeur__texte strong { display: block; font-weight: 720; }
+.valeur__texte span { display: block; color: var(--encre-3); font-size: .88rem; }
+.mesure { display: grid; grid-template-columns: minmax(0, 1fr) 6.2rem; gap: .8rem; align-items: center; }
+.mesure .chiffre { text-align: right; }
+.a-retenir { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--filet); color: var(--encre-2); font-size: .93rem; display: flex; gap: .55rem; }
+.a-retenir .ico { color: var(--axe-lumiere-encre); margin-top: .12rem; }
+
+.rituels { display: grid; gap: 1.05rem; }
+.rituel { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .1rem .9rem; align-items: start; }
+.rituel__icone { width: 2.4rem; height: 2.4rem; padding: .5rem; border-radius: 11px; background: var(--axe-reseau-fond); color: var(--axe-reseau-encre); }
+.rituel strong { display: block; font-weight: 720; }
+.rituel__quand { display: block; font-size: .82rem; font-weight: 650; color: var(--axe-reseau-encre); }
+.rituel p { margin-top: .2rem; color: var(--encre-2); font-size: .9rem; }
+.rituels__regle { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--filet); display: flex; gap: .55rem; color: var(--encre-2); font-size: .93rem; }
+.rituels__regle .ico { color: var(--axe-reseau-encre); margin-top: .12rem; }
+
+/* ——— Vue d'ensemble : les blocs, un par axe ——— */
+.bloc { display: grid; gap: var(--espace); margin-top: clamp(10px, 1.2vw, 20px); }
+.bloc__tete { display: flex; justify-content: space-between; align-items: flex-end; gap: .6rem 1.2rem; flex-wrap: wrap; padding-bottom: .7rem; border-bottom: 2px solid var(--filet); }
+.bloc__tete h3 { font-size: clamp(1.3rem, .8vw + .95rem, 1.75rem); font-weight: 760; color: var(--nareva-1); letter-spacing: -.02em; }
+.bloc__tete p { margin-top: .2rem; color: var(--encre-2); }
+.bloc--central .bloc__tete { border-bottom-color: var(--axe-lumiere); }
+.domaines-resume { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 2.6rem; }
+.domaine-ligne { display: grid; grid-template-columns: minmax(0, 1fr) minmax(10rem, 44%); gap: .4rem 1.1rem; align-items: center; }
+.domaine-ligne__nom { display: flex; align-items: center; gap: .65rem; min-width: 0; }
+.domaine-ligne__nom > span:last-child { display: grid; min-width: 0; }
+.domaine-ligne__nom b { font-weight: 720; }
+.domaine-ligne__nom small { color: var(--encre-3); font-size: .82rem; }
+.domaine-ligne__icone { width: 2.2rem; height: 2.2rem; padding: .45rem; border-radius: 10px; background: var(--axe-puissance-fond); color: var(--axe-puissance-encre); }
+.jauges-resume { display: grid; gap: .9rem; }
+.jauge-resume { display: grid; grid-template-columns: minmax(8.5rem, 32%) minmax(0, 1fr) 5.6rem; gap: .5rem 1rem; align-items: center; }
+.jauge-resume__nom { display: flex; align-items: center; gap: .55rem; min-width: 0; font-weight: 700; }
+.jauge-resume__icone { width: 2rem; height: 2rem; padding: .4rem; border-radius: 9px; background: var(--axe-reseau-fond); color: var(--axe-reseau-encre); }
+.jauge-resume__etat { justify-self: end; }
+.jauges-resume__lien { margin-top: 1.1rem; }
+
+.tuiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9rem; }
+.tuile { display: flex; flex-direction: column; gap: .7rem; padding: 1rem; border: 1px solid var(--filet); border-radius: 14px; background: var(--surface); }
+.tuile .mesure { margin-top: auto; }
+.tuile__tete { display: flex; align-items: center; gap: .65rem; min-width: 0; }
+.tuile__icone { width: 2.4rem; height: 2.4rem; padding: .48rem; border-radius: 11px; background: var(--axe-lumiere-fond); color: var(--axe-lumiere-encre); flex: none; }
+.tuile h4 { font-size: 1rem; font-weight: 720; }
+.tuile p { color: var(--encre-3); font-size: .8rem; }
+
+/* ——— Les nouveaux ——— */
+.nouveaux { display: grid; grid-template-columns: clamp(17rem, 26vw, 26rem) minmax(0, 1fr); gap: var(--espace); align-items: start; }
+.liste-nouveaux { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; padding: .6rem; }
+.liste-nouveaux__tete { padding: .5rem .7rem .8rem; color: var(--encre-3); font-size: .88rem; }
+.liste-nouveaux__tete b { color: var(--encre); font-size: 1.05rem; display: block; }
+.personnes { display: grid; gap: .15rem; }
+.personne {
+  width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .85rem; align-items: center;
+  padding: .7rem .8rem; border: 0; border-left: 4px solid transparent; border-radius: 12px;
+  background: none; text-align: left; cursor: pointer;
+}
+.personne:hover { background: var(--surface-douce); }
+.personne[aria-current="true"] { background: #EAF2F8; border-left-color: var(--nareva-1); }
+.personne__texte { display: grid; min-width: 0; }
+.personne__texte b { font-weight: 720; }
+.personne__texte span { color: var(--encre-3); font-size: .85rem; }
+.personne__texte span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.personne__attente {
+  display: inline-flex; align-items: center; gap: .25rem; height: 1.6rem; padding: 0 .5rem 0 .4rem;
+  border-radius: 999px; background: var(--attente-fond); color: var(--attente); font-size: .78rem; font-weight: 760;
+}
+.personne__attente .ico { width: .95rem; height: .95rem; }
+.avatar {
+  flex: none; display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%;
+  background: #E3EAF2; color: var(--nareva-1); font-weight: 760; font-size: .88rem; letter-spacing: .02em;
+}
+.avatar--grand { width: 4.3rem; height: 4.3rem; font-size: 1.35rem; }
+
+.dossier { display: grid; gap: clamp(20px, 1.8vw, 30px); scroll-margin-top: 1rem; }
+.dossier__tete { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 1.15rem; align-items: center; }
+.dossier__tete h3 { font-size: clamp(1.5rem, 1vw + 1.05rem, 2.05rem); font-weight: 760; color: var(--nareva-1); letter-spacing: -.02em; }
+.dossier__tete p { color: var(--encre-2); margin-top: .15rem; }
+.dossier__jour { text-align: right; }
+.dossier__jour strong { display: block; font-size: 1.75rem; font-weight: 760; color: var(--nareva-1); line-height: 1.05; letter-spacing: -.02em; }
+.dossier__jour span { color: var(--encre-3); font-size: .9rem; }
+.dossier__titre { font-size: 1.12rem; font-weight: 720; margin-bottom: .85rem; display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; }
+.dossier__titre small { font-size: .88rem; font-weight: 600; color: var(--encre-3); }
+
+.parcours { display: grid; gap: .7rem; }
+.parcours__piste { position: relative; height: 14px; border-radius: 999px; background: var(--piste); margin-inline: 10px; }
+.parcours__rempli { position: absolute; inset: 0 auto 0 0; width: calc(var(--j) * 2.5%); border-radius: 999px; background: var(--nareva-1); }
+.parcours__cran { position: absolute; top: 0; bottom: 0; left: calc(var(--d) * 2.5% - 1px); width: 2px; background: var(--surface); }
+.parcours__point {
+  position: absolute; top: 50%; left: calc(var(--j) * 2.5%); width: 22px; height: 22px; margin: -11px 0 0 -11px;
+  border-radius: 50%; background: var(--nareva-1); box-shadow: 0 0 0 3px var(--surface), 0 1px 5px rgba(14, 27, 46, .35);
+}
+.parcours__jalons { position: relative; height: 2.7rem; margin-inline: 10px; }
+.parcours__jalons li {
+  position: absolute; top: 0; left: calc(var(--d) * 2.5%); transform: translateX(-50%);
+  display: grid; text-align: center; line-height: 1.25; white-space: nowrap; font-size: .8rem; color: var(--encre-3);
+}
+.parcours__jalons li:first-child { left: 0; transform: none; text-align: left; }
+.parcours__jalons li:last-child { transform: translateX(-100%); text-align: right; }
+.parcours__jalons b { color: var(--encre-3); font-weight: 760; }
+.parcours__jalons li.passe, .parcours__jalons li.passe b { color: var(--nareva-1); }
+
+.axes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.2vw, 20px); }
+.axe {
+  display: grid; gap: .8rem; align-content: start; padding: 1.1rem 1.2rem 1.25rem;
+  background: var(--surface); border: 1px solid var(--filet); border-top: 5px solid var(--axe-couleur); border-radius: 14px;
+}
+.axe--lumiere { --axe-couleur: var(--axe-lumiere); --axe-fond: var(--axe-lumiere-fond); --axe-encre: var(--axe-lumiere-encre); }
+.axe--puissance { --axe-couleur: var(--axe-puissance); --axe-fond: var(--axe-puissance-fond); --axe-encre: var(--axe-puissance-encre); }
+.axe--reseau { --axe-couleur: var(--axe-reseau); --axe-fond: var(--axe-reseau-fond); --axe-encre: var(--axe-reseau-encre); }
+.axe__tete { display: flex; align-items: center; gap: .75rem; }
+.axe__icone { width: 2.6rem; height: 2.6rem; padding: .52rem; border-radius: 12px; background: var(--axe-fond); color: var(--axe-encre); }
+.axe__tete h4 { font-size: 1.18rem; font-weight: 760; }
+.axe__tete p { font-size: .84rem; color: var(--encre-3); }
+.axe__chiffre { display: flex; align-items: baseline; gap: .55rem; flex-wrap: wrap; }
+.axe__chiffre strong { font-size: clamp(2.2rem, 1.6vw + 1.3rem, 3.05rem); font-weight: 760; line-height: 1; letter-spacing: -.03em; }
+.axe__chiffre span { color: var(--encre-2); font-weight: 650; }
+.axe .jauge { height: 14px; }
+.axe__details { display: grid; gap: .3rem; font-size: .9rem; color: var(--encre-2); }
+.axe__details li { display: flex; align-items: baseline; gap: .55rem; }
+.axe__details li::before { content: ""; flex: none; width: .42rem; height: .42rem; border-radius: 50%; background: var(--axe-couleur); transform: translateY(-.1rem); }
+.axes__note { margin-top: .9rem; display: flex; gap: .55rem; color: var(--encre-3); font-size: .9rem; }
+.axes__note .ico { margin-top: .12rem; }
+
+.dossier__duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 1.2vw, 20px); }
+.encart { display: flex; gap: .9rem; align-items: flex-start; padding: 1rem 1.15rem; border-radius: 14px; background: var(--surface-douce); border: 1px solid var(--filet); }
+.encart__icone { width: 2.4rem; height: 2.4rem; padding: .5rem; border-radius: 11px; background: var(--surface); color: var(--nareva-1); border: 1px solid var(--filet); flex: none; }
+.encart__titre { font-size: .8rem; font-weight: 760; letter-spacing: .08em; text-transform: uppercase; color: var(--encre-3); margin-bottom: .2rem; }
+.encart__titre small { font-size: .95em; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.dossier__palier { margin-top: .5rem; }
+.palier { display: inline-flex; align-items: center; padding: .18rem .7rem; border-radius: 999px; background: var(--attente-fond); color: var(--nareva-1); font-size: .8rem; font-weight: 720; }
+.encart b { font-weight: 720; }
+.encart p + p { color: var(--encre-2); font-size: .92rem; }
+.encart--etape { background: #EEF5FA; border-color: #D5E5F0; }
+
+.mini-cartes { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: .6rem; }
+.mini-carte { display: flex; align-items: center; gap: .6rem; min-width: 0; padding: .6rem .7rem; border-radius: 12px; border: 1px solid var(--filet); background: var(--surface); color: var(--encre-3); }
+.mini-carte .ico { width: 1.9rem; height: 1.9rem; padding: .38rem; border-radius: 9px; background: var(--a-faire-fond); color: #8A96A6; }
+.mini-carte span { display: grid; min-width: 0; line-height: 1.25; }
+.mini-carte b { font-weight: 650; font-size: .88rem; line-height: 1.2; }
+.mini-carte small { font-size: .74rem; }
+.mini-carte--gagnee { border-color: #EAD9B0; background: var(--axe-lumiere-fond); color: var(--encre); }
+.mini-carte--gagnee .ico { background: var(--surface); color: var(--axe-lumiere-encre); }
+.mini-carte--gagnee small { color: var(--axe-lumiere-encre); font-weight: 650; }
+
+.competences { display: grid; gap: .7rem; }
+.competence {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .25rem .95rem; align-items: start;
+  padding: .95rem 1.05rem; border: 1px solid var(--filet); border-radius: 13px; background: var(--surface);
+}
+.competence__icone { grid-row: span 2; width: 2.1rem; height: 2.1rem; padding: .4rem; border-radius: 50%; background: var(--statut-fond); color: var(--statut-encre); }
+.competence__titre { display: flex; align-items: center; gap: .5rem .8rem; flex-wrap: wrap; font-weight: 720; }
+.competence__detail { color: var(--encre-2); font-size: .92rem; }
+.competence__detail q { quotes: none; font-style: italic; }
+.statut {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .16rem .6rem; border-radius: 999px;
+  background: var(--statut-fond); color: var(--statut-encre); font-size: .78rem; font-weight: 720; white-space: nowrap;
+}
+.statut--ok { --statut-fond: var(--ok-fond); --statut-encre: var(--ok); }
+.statut--attente { --statut-fond: var(--attente-fond); --statut-encre: var(--attente); }
+.statut--revoir { --statut-fond: var(--revoir-fond); --statut-encre: var(--revoir); }
+.statut--a-faire { --statut-fond: var(--a-faire-fond); --statut-encre: var(--a-faire); }
+.domaine-etiquette { font-size: .76rem; font-weight: 650; color: var(--encre-3); padding: .12rem .55rem; border-radius: 999px; border: 1px solid var(--filet); white-space: nowrap; }
+.dossier__limite { display: flex; gap: .6rem; padding: .9rem 1.05rem; border-radius: 12px; background: var(--surface-douce); border: 1px solid var(--filet); color: var(--encre-2); font-size: .9rem; }
+.dossier__limite .ico { color: var(--revoir); margin-top: .12rem; }
+
+/* ——— À attester ——— */
+.compteurs { display: flex; flex-wrap: wrap; gap: .6rem; }
+.compteur { display: inline-flex; align-items: baseline; gap: .45rem; padding: .45rem .9rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--filet); color: var(--encre-2); font-weight: 650; font-size: .92rem; }
+.compteur b { font-size: 1.15rem; font-weight: 760; color: var(--nareva-1); font-variant-numeric: tabular-nums; }
+.note-demo { display: flex; gap: .55rem; color: var(--encre-3); font-size: .9rem; }
+.note-demo .ico { margin-top: .12rem; }
+.demandes { display: grid; gap: 1rem; }
+.demande { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem 2rem; align-items: start; border-left: 6px solid var(--filet-fort); }
+.demande--ok { border-left-color: var(--ok); }
+.demande--revoir { border-left-color: var(--revoir); }
+.demande__qui { display: flex; align-items: center; gap: .8rem; margin-bottom: .75rem; }
+.demande__qui div { display: grid; min-width: 0; }
+.demande__qui b { font-weight: 720; }
+.demande__qui span { color: var(--encre-3); font-size: .88rem; }
+.demande__competence { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem .8rem; font-size: 1.14rem; font-weight: 740; color: var(--nareva-1); }
+.demande__livrable { margin-top: .55rem; font-size: 1.02rem; }
+.etiquette { display: inline-block; margin-right: .45rem; padding: .1rem .5rem; border-radius: 6px; background: var(--axe-puissance-fond); color: var(--axe-puissance-encre); font-size: .74rem; font-weight: 760; letter-spacing: .06em; text-transform: uppercase; vertical-align: .12em; }
+.demande__meta { margin-top: .55rem; color: var(--encre-3); font-size: .88rem; }
+.demande__actions { display: grid; gap: .6rem; min-width: 13.5rem; }
+.decision { display: flex; gap: .7rem; align-items: flex-start; padding: .75rem .9rem; border-radius: 12px; background: var(--statut-fond); color: var(--statut-encre); max-width: 26rem; }
+.decision .ico { width: 1.5rem; height: 1.5rem; margin-top: .05rem; }
+.decision div { display: grid; }
+.decision b { font-weight: 760; }
+.decision span { color: var(--encre-2); font-size: .9rem; }
+.decision q { quotes: none; font-style: italic; }
+.bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  padding: .75rem 1.25rem; border-radius: 12px; border: 1.5px solid transparent;
+  font-weight: 720; cursor: pointer; transition: background .15s, border-color .15s;
+}
+.bouton .ico { width: 1.15rem; height: 1.15rem; }
+.bouton--attester { background: var(--nareva-vert-fonce); color: #fff; }
+.bouton--attester:hover { background: #00431F; }
+.bouton--revoir { background: var(--surface); color: var(--revoir); border-color: #E6C1AF; }
+.bouton--revoir:hover { background: var(--revoir-fond); }
+.bouton--envoi { background: var(--revoir); color: #fff; }
+.bouton--envoi:hover { background: #7E2F0D; }
+.revoir { grid-column: 1 / -1; display: grid; gap: .55rem; padding: 1rem 1.1rem; border-radius: 13px; background: var(--revoir-fond); border: 1px solid #F0D3C3; }
+.revoir__label { font-weight: 720; color: var(--encre); }
+.revoir__label span { font-weight: 600; color: var(--revoir); }
+.revoir textarea {
+  width: 100%; min-height: 5.2rem; resize: vertical; padding: .7rem .85rem; line-height: 1.45;
+  border: 1.5px solid #E1B8A3; border-radius: 10px; background: var(--surface);
+}
+.revoir textarea:focus-visible { outline-offset: 1px; }
+.revoir textarea[aria-invalid="true"] { border-color: var(--revoir); box-shadow: 0 0 0 3px rgba(154, 59, 18, .15); }
+.revoir__aide { color: var(--encre-3); font-size: .86rem; }
+.revoir__erreur { color: var(--revoir); font-weight: 720; font-size: .92rem; }
+.revoir__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
+
+/* ——— Le référentiel ——— */
+.domaines { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--espace); align-items: start; }
+.domaine__tete { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
+.domaine__icone { width: 2.6rem; height: 2.6rem; padding: .52rem; border-radius: 12px; background: var(--axe-puissance-fond); color: var(--axe-puissance-encre); flex: none; }
+.domaine__tete h3 { font-size: 1.18rem; }
+.domaine__tete p { color: var(--encre-3); font-size: .85rem; }
+.domaine__liste { display: grid; }
+.domaine__liste li { display: grid; gap: .3rem; padding: .85rem 0; border-top: 1px solid var(--filet); }
+.domaine__liste li:first-child { border-top: 0; padding-top: 0; }
+.domaine__liste strong { font-weight: 720; }
+.preuve { color: var(--encre-2); font-size: .92rem; }
+.usage { color: var(--encre-3); font-size: .82rem; display: flex; align-items: center; gap: .45rem; }
+.usage .ico { width: 1em; height: 1em; color: var(--axe-puissance-encre); }
+
+/* ——— La jauge des sites ——— */
+.jauges-sites { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr)); gap: var(--espace); }
+.site-jauge { display: grid; gap: .9rem; align-content: start; }
+.site-jauge__tete { display: flex; align-items: center; gap: .8rem; }
+.site-jauge__icone { width: 2.6rem; height: 2.6rem; padding: .52rem; border-radius: 12px; background: var(--axe-reseau-fond); color: var(--axe-reseau-encre); flex: none; }
+.site-jauge__tete div { flex: 1; min-width: 0; }
+.site-jauge__tete h3 { font-size: 1.2rem; }
+.site-jauge__tete p { color: var(--encre-3); font-size: .86rem; }
+.site-jauge__nombre { color: var(--encre-2); font-size: .88rem; font-weight: 650; white-space: nowrap; }
+.crans { display: flex; gap: 3px; height: 30px; }
+.cran { flex: 1; min-width: 3px; background: var(--axe-reseau-piste); border-radius: 3px; }
+.cran:first-child { border-radius: 9px 3px 3px 9px; }
+.cran:last-child { border-radius: 3px 9px 9px 3px; }
+.cran--plein { background: var(--axe-reseau); }
+.site-jauge__ligne { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem 1rem; flex-wrap: wrap; }
+.site-jauge__ligne .chiffre { font-size: 1.15rem; }
+.allumee { display: inline-flex; align-items: center; gap: .4rem; padding: .2rem .7rem .2rem .45rem; border-radius: 999px; background: var(--axe-reseau-fond); color: var(--axe-reseau-encre); font-weight: 720; font-size: .84rem; }
+.allumee .ico { width: 1.1rem; height: 1.1rem; color: #B38F00; }
+.allumee .ico svg path { fill: var(--nareva-jaune); stroke: #9C7C00; stroke-width: 1.2; }
+.semaines { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; color: var(--encre-3); font-size: .84rem; }
+.semaine { width: 1rem; height: 1rem; border-radius: 4px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--filet-fort); }
+.semaine--pleine { background: var(--axe-reseau); box-shadow: none; }
+.veille { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: .8rem; }
+.veille__site { display: flex; gap: .8rem; align-items: flex-start; padding: .95rem 1.05rem; border-radius: 14px; border: 1px solid var(--filet); background: var(--surface-douce); }
+.veille__site .ico { width: 2.2rem; height: 2.2rem; padding: .45rem; border-radius: 10px; background: var(--surface); color: #7D8A9B; border: 1px solid var(--filet); }
+.veille__site b { display: block; font-weight: 720; }
+.veille__site span { display: block; color: var(--encre-3); font-size: .86rem; }
+.jauges-regle { display: flex; gap: .6rem; color: var(--encre-2); font-size: .95rem; }
+.jauges-regle .ico { color: var(--axe-reseau-encre); margin-top: .12rem; }
+
+/* ——— La charte ——— */
+.charte { display: grid; gap: var(--espace); }
+.charte__regle {
+  position: relative; overflow: hidden; padding: clamp(28px, 4.2vw, 76px);
+  border-radius: 26px; background: var(--nareva-1); color: #fff;
+}
+.charte__regle::after {
+  content: ""; position: absolute; right: -12%; top: -45%; width: 60%; aspect-ratio: 1;
+  border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 91, 170, .55), rgba(0, 91, 170, 0));
+  pointer-events: none;
+}
+.charte__regle > * { position: relative; }
+.charte__surtitre { font-size: .8rem; font-weight: 760; letter-spacing: .12em; text-transform: uppercase; color: var(--nareva-ciel); }
+.charte__grand { margin-top: .9rem; max-width: 17ch; font-size: clamp(2.2rem, 3.1vw + 1rem, 4.4rem); font-weight: 780; line-height: 1.05; letter-spacing: -.03em; }
+.charte__sous { margin-top: 1.2rem; max-width: 58ch; font-size: 1.15rem; color: #D6E4F0; }
+.charte__colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--espace); }
+.charte__col h3 { display: flex; align-items: center; gap: .7rem; font-size: 1.35rem; margin-bottom: .6rem; }
+.charte__col h3 .ico { width: 2.3rem; height: 2.3rem; padding: .45rem; border-radius: 50%; }
+.charte__col--voit h3 .ico { background: var(--ok-fond); color: var(--ok); }
+.charte__col--jamais h3 .ico { background: var(--revoir-fond); color: var(--revoir); }
+.charte__col li { padding: .85rem 0 .85rem 2.2rem; border-top: 1px solid var(--filet); font-size: 1.12rem; position: relative; }
+.charte__col li:first-child { border-top: 0; }
+.charte__col li::before { content: ""; position: absolute; left: .45rem; top: 1.45rem; width: .6rem; height: .6rem; border-radius: 50%; }
+.charte__col--voit li::before { background: var(--ok); }
+.charte__col--jamais li::before { background: var(--revoir); }
+.principes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--espace); }
+.principe h3 { font-size: 1.1rem; margin-bottom: .45rem; color: var(--nareva-1); }
+.principe p { color: var(--encre-2); font-size: .95rem; }
+
+/* ——— Pied de page ——— */
+.pied { border-top: 1px solid var(--filet); background: var(--surface); }
+.pied .cadre { display: flex; justify-content: space-between; align-items: center; gap: .6rem 2rem; flex-wrap: wrap; padding-block: 1.15rem; color: var(--encre-3); font-size: .88rem; }
+.pied__signature { font-weight: 720; color: var(--encre-2); }
+.pied__droite { display: flex; align-items: center; gap: .6rem 1.4rem; flex-wrap: wrap; }
+
+/* ——— L'infobulle ——— */
+.infobulle {
+  position: absolute; top: 0; left: 0; z-index: 70; max-width: min(27rem, calc(100vw - 16px));
+  padding: .6rem .8rem; border-radius: 10px; background: var(--encre); color: #fff;
+  font-size: .86rem; line-height: 1.4; box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .5); pointer-events: none;
+}
+
+/* ——— Largeurs ——— */
+@media (max-width: 1499px) {
+  .indicateur .puce { padding: .3rem; }
+  .indicateur .puce__nom { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+@media (max-width: 1399px) {
+  .domaines { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1239px) {
+  .tuiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1099px) {
+  .indicateurs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grille-2 { grid-template-columns: 1fr; }
+  .nouveaux { grid-template-columns: 1fr; }
+  .liste-nouveaux { position: static; max-height: none; }
+  .principes { grid-template-columns: 1fr; }
+}
+@media (max-width: 899px) {
+  .domaines, .charte__colonnes { grid-template-columns: 1fr; }
+  .axes { grid-template-columns: 1fr; }
+  .dossier__duo { grid-template-columns: 1fr; }
+  .demande { grid-template-columns: 1fr; }
+  .demande__actions { grid-auto-flow: column; justify-content: start; min-width: 0; }
+}
+@media (max-width: 760px) {
+  .frise__tete { grid-template-columns: minmax(0, 1fr); }
+  .frise__tete > span:first-child, .frise__tete > span:last-child { display: none; }
+  .frise__echelle i { display: none; }
+  .frise__echelle, .parcours__jalons { height: 1.5rem; }
+  .onglet { padding-inline: .75rem; }
+  .frise__ligne { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "qui jour" "piste piste"; row-gap: .55rem; }
+  .frise__qui { grid-area: qui; }
+  .frise__jour { grid-area: jour; }
+  .frise__piste { grid-area: piste; }
+  .valeur { grid-template-columns: 1fr; }
+  .domaines-resume { grid-template-columns: 1fr; }
+  .domaine-ligne { grid-template-columns: 1fr; }
+  .jauge-resume { grid-template-columns: minmax(0, 1fr) auto; }
+  .jauge-resume .mesure { grid-column: 1 / -1; }
+  .tete__actions { width: 100%; }
+  .tete__actions .bouton { flex: 1 1 12rem; }
+  .tuiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dossier__tete { grid-template-columns: auto minmax(0, 1fr); }
+  .dossier__jour { grid-column: 1 / -1; text-align: left; }
+  .parcours__jalons li i { display: none; }
+  .marque__trait { display: none; }
+  .marque { flex-wrap: wrap; gap: .5rem 1rem; }
+}
+@media (max-width: 520px) {
+  .indicateurs { grid-template-columns: 1fr; }
+  .indicateur__libelle { min-height: 0; }
+  .demande__actions { grid-auto-flow: row; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}
+@media print {
+  .onglets, .regle .lien-bouton, .pied__droite button { display: none; }
+  body { background: #fff; }
+}
+</style>
+</head>
+<body>
+<a class="evitement" href="#contenu">Aller au contenu</a>
+
+<header class="tete">
+  <div class="tete__filet" aria-hidden="true"></div>
+  <div class="cadre">
+    <div class="tete__rang">
+      <div class="marque">
+        <div class="logo-maison" id="logo-maison"><span class="logo-maison__texte">NAREVA</span></div>
+        <span class="marque__trait" aria-hidden="true"></span>
+        <div class="marque__titres">
+          <h1>Au Courant — la console RH</h1>
+          <div class="marque__meta">
+            <p class="sous-titre">Nareva</p>
+            <span class="demo"><span class="demo__point" aria-hidden="true"></span>Démo — données fictives</span>
+            <span class="tete__date">Données au 25 septembre 2026</span>
+          </div>
+        </div>
+      </div>
+      <nav class="tete__actions" aria-label="Le jeu">
+        <a class="bouton bouton--clair" href="au-courant.html"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 8.3v7.4l6.1-3.7z" fill="currentColor"/></svg></span>Ouvrir le jeu</a>
+        <a class="bouton bouton--principal" href="au-courant-parametres.html"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 6.5h9.5M18.5 6.5H20M4 12h3.5M12.5 12H20M4 17.5h11.5M20 17.5h0"/><circle cx="16" cy="6.5" r="2.3"/><circle cx="10" cy="12" r="2.3"/><circle cx="18" cy="17.5" r="2.3"/></g></svg></span>Paramétrer le jeu</a>
+      </nav>
+    </div>
+    <nav class="onglets" role="tablist" aria-label="Les sections de la console">
+      <button type="button" class="onglet" role="tab" id="onglet-vue-ensemble" aria-controls="panneau-vue-ensemble" aria-selected="true" data-aller="vue-ensemble">Vue d'ensemble</button>
+      <button type="button" class="onglet" role="tab" id="onglet-nouveaux" aria-controls="panneau-nouveaux" aria-selected="false" tabindex="-1" data-aller="nouveaux">Les nouveaux arrivants</button>
+      <button type="button" class="onglet" role="tab" id="onglet-a-attester" aria-controls="panneau-a-attester" aria-selected="false" tabindex="-1" data-aller="a-attester">À attester <span class="pastille" id="pastille-attester"></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-referentiel" aria-controls="panneau-referentiel" aria-selected="false" tabindex="-1" data-aller="referentiel">Le référentiel</button>
+      <button type="button" class="onglet" role="tab" id="onglet-sites" aria-controls="panneau-sites" aria-selected="false" tabindex="-1" data-aller="sites">La jauge des sites</button>
+      <button type="button" class="onglet" role="tab" id="onglet-charte" aria-controls="panneau-charte" aria-selected="false" tabindex="-1" data-aller="charte">La charte</button>
+    </nav>
+  </div>
+</header>
+
+<div class="regle" role="note">
+  <div class="cadre">
+    <span class="ico regle__icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.4 4.4 5.4v6.2c0 4.6 3.2 8.5 7.6 10 4.4-1.5 7.6-5.4 7.6-10V5.4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m8.6 12.2 2.4 2.4 4.6-4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <p><strong>L'évaluation annuelle ne lit jamais le jeu.</strong> La RH voit l'avancement du parcours et les compétences attestées par un manager&nbsp;; jamais les messages, ni le détail des réponses, ni un classement.</p>
+    <button type="button" class="lien-bouton" data-aller="charte">Lire la charte</button>
+  </div>
+</div>
+
+<main id="contenu" class="cadre" tabindex="-1">
+  <noscript><p class="carte">Cette maquette a besoin de JavaScript pour afficher ses données de démonstration.</p></noscript>
+
+  <section class="section" id="panneau-vue-ensemble" role="tabpanel" aria-labelledby="onglet-vue-ensemble"></section>
+  <section class="section" id="panneau-nouveaux" role="tabpanel" aria-labelledby="onglet-nouveaux" hidden></section>
+  <section class="section" id="panneau-a-attester" role="tabpanel" aria-labelledby="onglet-a-attester" hidden></section>
+  <section class="section" id="panneau-referentiel" role="tabpanel" aria-labelledby="onglet-referentiel" hidden></section>
+  <section class="section" id="panneau-sites" role="tabpanel" aria-labelledby="onglet-sites" hidden></section>
+
+  <section class="section" id="panneau-charte" role="tabpanel" aria-labelledby="onglet-charte" hidden>
+    <div class="charte">
+      <div class="charte__regle">
+        <p class="charte__surtitre">La charte d'Au Courant</p>
+        <p class="charte__grand">L’évaluation annuelle ne lit jamais le jeu.</p>
+        <p class="charte__sous">C'est une règle du produit, pas une option. Le jeu sert à accueillir et à apprendre&nbsp;; il ne sert pas à noter les personnes.</p>
+      </div>
+      <div class="charte__colonnes">
+        <section class="carte charte__col charte__col--voit" aria-labelledby="charte-voit">
+          <h3 id="charte-voit"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2.3 12C3.6 9 7.2 5.2 12 5.2S20.4 9 21.7 12c-1.3 3-4.9 6.8-9.7 6.8S3.6 15 2.3 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.1" fill="currentColor"/></svg></span>Ce que la RH voit</h3>
+          <ul>
+            <li>L'avancement du parcours&nbsp;: le jour, l'étape, la prochaine marche.</li>
+            <li>Les compétences attestées par un manager, avec le livrable qui les prouve.</li>
+            <li>Les jauges collectives des sites, et la culture découverte par la promotion.</li>
+          </ul>
+        </section>
+        <section class="carte charte__col charte__col--jamais" aria-labelledby="charte-jamais">
+          <h3 id="charte-jamais"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 3.5l17 17"/><path d="M10.3 5.4A9 9 0 0 1 12 5.2c4.8 0 8.4 3.8 9.7 6.8a12.8 12.8 0 0 1-2.6 3.8M6.7 6.9A12.5 12.5 0 0 0 2.3 12c1.3 3 4.9 6.8 9.7 6.8 1.7 0 3.2-.5 4.5-1.2"/><path d="M9.9 9.9a3.1 3.1 0 0 0 4.2 4.2"/></g></svg></span>Ce que la RH ne voit jamais</h3>
+          <ul>
+            <li>Les messages échangés dans le jeu.</li>
+            <li>Le détail des réponses au quiz du jour et aux défis de métier.</li>
+            <li>Un classement individuel, sous aucune forme.</li>
+          </ul>
+        </section>
+      </div>
+      <div class="principes">
+        <section class="carte principe">
+          <h3>Trois axes qui ne s'additionnent jamais</h3>
+          <p>Lumière, Puissance et Réseau restent trois mesures séparées, chacune dans son unité&nbsp;: il n'existe pas de note unique d'une personne.</p>
+        </section>
+        <section class="carte principe">
+          <h3>Un registre qui appartient au collaborateur</h3>
+          <p>Ses compétences attestées le suivent s'il change de poste. C'est son manager qui atteste, sur un livrable, jamais le jeu.</p>
+        </section>
+        <section class="carte principe">
+          <h3>Une base par entreprise</h3>
+          <p>Les données de Nareva vivent dans une base à elle, séparée de toutes les autres, dans le cadre de la loi 09-08.</p>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pied">
+  <div class="cadre">
+    <p class="pied__signature">Bab · une création Ai4x</p>
+    <div class="pied__droite">
+      <span>Démo — données fictives&nbsp;: personnes, chiffres et livrables sont inventés.</span>
+      <button type="button" class="lien-bouton" id="remise">Remettre la démo à zéro</button>
+    </div>
+  </div>
+</footer>
+
+<div class="infobulle" id="infobulle" role="tooltip" hidden></div>
+<div class="sr-only" id="annonce" aria-live="polite"></div>
+
+<script src="assets/maisons/nareva/contenu.js"></script>
+<script id="au-courant">
+(function (racine) {
+  "use strict";
+
+  /* ───────────── Les données de la démo — toutes inventées ───────────── */
+
+  const DATE_DES_DONNEES = "2026-09-25";
+  const DUREE = 40;
+  const RENCONTRES_VISEES = 10;
+  const MOT_MIN = 10;
+  const MOT_MAX = 280;
+  const MEMOIRE = "bab-au-courant-console-rh-demo";
+  const LOGOS = ["assets/maisons/nareva/logo.svg", "assets/maisons/nareva/logo.png"];
+
+  /* Les cinq valeurs de Nareva. Leur source unique est le contenu de la maison
+     (assets/maisons/nareva/contenu.js, relevé sur nareva.ma) : la page les y lit.
+     Ce repli ne sert que si ce fichier ne se charge pas — mêmes mots, mêmes clés. */
+  const VALEURS_REPLI = [
+    { cle: "audace", nom: "Audace", phrase: "Entreprendre avec confiance et vision éclairée des enjeux" },
+    { cle: "innovation", nom: "Innovation", phrase: "Créer des solutions adaptées aux besoins de demain" },
+    { cle: "equipe", nom: "Esprit d'équipe", phrase: "Cohérence, solidarité et intelligence collective au quotidien" },
+    { cle: "responsabilite", nom: "Responsabilité", phrase: "Valeur partagée et solutions durables pour l'avenir" },
+    { cle: "respect", nom: "Respect", phrase: "Écoute, éthique et considération dans toutes nos interactions" }
+  ];
+
+  /* Les cinq premières valeurs du contenu de la maison, si le fichier s'est chargé et parle des mêmes valeurs */
+  function valeursDeLaMaison(r) {
+    try {
+      const c = r && r.ZWJ_MAISON_CONTENU;
+      const lues = c && Array.isArray(c.valeurs) ? c.valeurs.slice(0, 5) : [];
+      if (lues.length !== VALEURS_REPLI.length) return null;
+      const propres = lues.map((v) => ({ cle: String(v && v.cle || ""), nom: String(v && v.nom || ""), phrase: String(v && v.phrase || "") }));
+      const attendues = VALEURS_REPLI.map((v) => v.cle).sort().join(",");
+      if (propres.map((v) => v.cle).sort().join(",") !== attendues) return null;
+      if (propres.some((v) => !v.nom.trim() || !v.phrase.trim())) return null;
+      return propres;
+    } catch (e) {
+      return null;
+    }
+  }
+  const VALEURS_DE_LA_MAISON = valeursDeLaMaison(racine);
+  const VALEURS = VALEURS_DE_LA_MAISON || VALEURS_REPLI;
+  const VALEURS_SOURCE = VALEURS_DE_LA_MAISON ? "contenu.js" : "repli";
+
+  /* Les pages de culture, lues aux archives du jeu : les mêmes familles et les mêmes nombres que le jeu */
+  const CULTURE = [
+    { cle: "histoire", nom: "L'histoire", sens: "De la naissance de la maison à ses projets de demain.", pages: 13 },
+    { cle: "codes", nom: "Les codes", sens: "De « la sécurité avant la vitesse » à « un site a des voisins ».", pages: 8 },
+    { cle: "rituels", nom: "Les rituels", sens: "Quand ils ont lieu, et à quoi ils servent.", pages: 4 },
+    { cle: "metiers", nom: "Les métiers et les gens", sens: "Six métiers, racontés par ceux qui les font.", pages: 6 }
+  ];
+
+  /* Les rituels de la maison : ils se présentent, aucun compteur ne les lit */
+  const RITUELS = [
+    { cle: "moment-securite", icone: "casque", titre: "Le moment sécurité du lundi", quand: "Chaque lundi, en ouverture de semaine", texte: "Quelques minutes sur un risque de la semaine, un geste, un presque-accident. Court, concret, et sans chercher de coupable." },
+    { cle: "reunion-equipe", icone: "parrain", titre: "La réunion d'équipe", quand: "Chaque semaine", texte: "Où on en est, ce qui bloque, qui peut aider. On en sort avec des actions, chacune avec un nom et une date." },
+    { cle: "accueil-nouveau", icone: "porte", titre: "L'accueil d'un nouveau", quand: "Le premier jour, puis pendant ses 40 jours", texte: "L'accueil sécurité du site, l'équipe, le parrain d'intégration ; puis on lui montre, on l'écoute, on le laisse refaire." },
+    { cle: "retour-experience", icone: "idee", titre: "Le retour d'expérience", quand: "Après chaque incident ou presque-accident", texte: "Les faits dans l'ordre, sans coupable ; les causes ; ce qui change. Ce qu'un site apprend, toute la maison le sait." }
+  ];
+
+  /* Les paliers, dans l'ordre du jeu. Pendant ses 40 jours, chacun est au premier. */
+  const PALIERS = ["Nouvel arrivant", "Équipier", "Pilier", "Référent", "Mentor"];
+
+  /* Les sites, du nord au sud. `carte` : le nom de sa carte dans le jeu (le jeu n'en a pas pour le siège ni pour Midelt). */
+  const SITES = [
+    { cle: "haouma", nom: "Haouma", genre: "eolien", detail: "Éolien · Tanger", carte: "Le veilleur du Nord" },
+    { cle: "siege", nom: "Siège", genre: "siege", detail: "Casablanca", carte: null },
+    { cle: "midelt", nom: "Midelt", genre: "eolien", detail: "Éolien", carte: null },
+    { cle: "safi", nom: "Safi", genre: "thermique", detail: "Centrale thermique", carte: "Le cœur régulier" },
+    { cle: "guerdane", nom: "Sebt El Guerdane", genre: "irrigation", detail: "Eau d'irrigation", carte: "Le jardinier" },
+    { cle: "akhfennir", nom: "Akhfennir", genre: "eolien", detail: "Éolien", carte: "Les jumeaux" },
+    { cle: "tarfaya", nom: "Tarfaya", genre: "eolien", detail: "Éolien", carte: "Le géant" },
+    { cle: "foum", nom: "Foum El Oued", genre: "eolien", detail: "Éolien · Laâyoune", carte: "L'éclaireur" },
+    { cle: "aftissat", nom: "Aftissat", genre: "eolien", detail: "Complexe éolien · Boujdour", carte: "Le bâtisseur" },
+    { cle: "dakhla", nom: "Dakhla", genre: "dessalement", detail: "Dessalement", carte: "La source" }
+  ];
+  const SITES_A_CARTE = SITES.filter((s) => s.carte);
+
+  /* Les repères des 40 jours */
+  const JALONS = [
+    { j: 1, nom: "L'accueil" },
+    { j: 10, nom: "Les valeurs" },
+    { j: 20, nom: "Un premier livrable" },
+    { j: 30, nom: "Dix collègues" },
+    { j: 40, nom: "Le bilan" }
+  ];
+
+  /* Le référentiel : celui de l'atelier métier du jeu. Chaque compétence dit ce qui la PROUVE. */
+  const DOMAINES = [
+    { cle: "exploitation", nom: "Exploitation éolienne", court: "Exploitation éolienne", icone: "eolien", competences: [
+      { cle: "eolien-supervision", nom: "Lire l'écran de supervision d'un parc et dire l'état de chaque machine", preuve: "Le relevé d'une journée de supervision : l'état de chaque turbine, les alarmes vues, ce qui a été signalé et à qui." },
+      { cle: "eolien-alarmes", nom: "Trier les alarmes d'une turbine : ce qui s'efface, ce qui revient, ce qui annonce une panne", preuve: "Un mois d'alarmes classées, avec celles qui reviennent le plus et la suite donnée à chacune." },
+      { cle: "eolien-vent", nom: "Préparer une journée d'intervention avec la prévision de vent et les limites de la procédure", preuve: "Un planning d'interventions ajusté à la prévision de vent, avec les créneaux écartés et la raison de chacun." },
+      { cle: "eolien-arrets", nom: "Analyser les arrêts d'une machine et proposer ce qui les réduit", preuve: "Une note d'une page sur une turbine : ses arrêts du trimestre, leurs causes, et une action proposée puis suivie." }
+    ] },
+    { cle: "maintenance", nom: "Maintenance", court: "Maintenance", icone: "outil", competences: [
+      { cle: "maintenance-consignation", nom: "Consigner un équipement avant d'intervenir : séparer, condamner, identifier, vérifier", preuve: "Une consignation réalisée devant un référent, fiche remplie et signée, cadenas et étiquette en place." },
+      { cle: "maintenance-preventive", nom: "Tenir un plan de maintenance préventive sans laisser glisser une échéance", preuve: "Trois mois de préventif à jour : chaque intervention faite et datée, chaque écart expliqué." },
+      { cle: "maintenance-cause", nom: "Remonter une panne récurrente jusqu'à sa cause première", preuve: "L'analyse de cause d'une vraie panne, et l'action qui l'a fait cesser, vérifiée dans la durée." },
+      { cle: "maintenance-transmettre", nom: "Transmettre une intervention à un nouvel arrivant jusqu'à ce qu'il la fasse seul", preuve: "Un nouvel arrivant nommé qui réalise l'intervention devant toi, et la fiche de transmission signée par vous deux." }
+    ] },
+    { cle: "hse", nom: "Sécurité, santé, environnement (HSE)", court: "Sécurité HSE", icone: "casque", competences: [
+      { cle: "hse-presque-accident", nom: "Déclarer un presque-accident de façon utile : les faits, le lieu, la cause probable, sans coupable", preuve: "Une déclaration réelle, écrite sans nom de coupable, que le service HSE a pu traiter jusqu'à une action." },
+      { cle: "hse-risques", nom: "Analyser les risques d'une intervention avant de commencer", preuve: "Une analyse de risques remplie pour une vraie intervention, avec la mesure prise pour chaque risque." },
+      { cle: "hse-moment", nom: "Animer un moment sécurité à partir d'un cas vécu", preuve: "Un moment sécurité animé devant l'équipe sur un cas vécu, et le geste que chacun en a retenu." },
+      { cle: "hse-incident", nom: "Mener l'analyse d'un incident jusqu'aux actions qui l'empêchent de revenir", preuve: "Un rapport d'incident complet : faits datés, causes, actions avec un porteur et une date, et leur clôture vérifiée." }
+    ] },
+    { cle: "eau", nom: "Eau et dessalement", court: "Eau et dessalement", icone: "dessalement", competences: [
+      { cle: "eau-chemin", nom: "Expliquer le chemin de l'eau d'un projet, de la ressource jusqu'à l'usager", preuve: "Un schéma d'une page, expliqué à un collègue qui ne connaît pas le site, et ses questions notées." },
+      { cle: "eau-qualite", nom: "Suivre la qualité d'une eau produite et signaler un écart à temps", preuve: "Un mois de relevés de qualité, avec l'écart repéré, l'heure du signalement et la suite donnée." },
+      { cle: "eau-ligne", nom: "Lire l'état d'une ligne de dessalement : pressions, débits, encrassement", preuve: "Le relevé commenté d'une ligne : les valeurs lues, ce qui dérive, et l'alerte donnée avant la panne." },
+      { cle: "eau-energie", nom: "Tenir le lien entre l'énergie consommée et l'eau produite", preuve: "Un tableau mensuel de l'énergie consommée et de l'eau produite, tenu trois mois, avec les écarts expliqués." }
+    ] },
+    { cle: "projets", nom: "Développement de projets", court: "Projets", icone: "plan", competences: [
+      { cle: "projet-reunion", nom: "Conduire une réunion de chantier et en sortir des actions", preuve: "Un compte rendu envoyé le jour même : décisions, actions, porteurs, dates." },
+      { cle: "projet-planning", nom: "Tenir un planning de chantier et dire tôt ce qui glisse", preuve: "Un planning suivi sur trois mois, chaque glissement annoncé avant l'échéance, avec sa cause." },
+      { cle: "projet-risques", nom: "Tenir le registre des risques d'un projet", preuve: "Un registre des risques à jour : chaque risque avec son porteur, sa parade et sa date de revue." },
+      { cle: "projet-reception", nom: "Réceptionner un ouvrage : essais, réserves, levée des réserves", preuve: "Un procès-verbal de réception avec la liste des réserves et la date de levée de chacune." }
+    ] },
+    { cle: "support", nom: "Fonctions support", court: "Fonctions support", icone: "dossier", competences: [
+      { cle: "support-procedure", nom: "Écrire une procédure qu'un collègue suit sans toi", preuve: "Une procédure suivie de bout en bout par un collègue, sans appeler son auteur." },
+      { cle: "support-achat", nom: "Préparer un achat conforme : le besoin écrit, les offres comparées, la décision motivée", preuve: "Un dossier d'achat complet et relu : le besoin, les offres comparées, la décision et sa raison." },
+      { cle: "support-donnees", nom: "Protéger les données personnelles d'un dossier, selon la loi 09-08", preuve: "Un traitement décrit sur une fiche : ce qui est collecté, pourquoi, qui y accède, combien de temps." },
+      { cle: "support-accueil", nom: "Accueillir un nouvel arrivant et tenir ses premières semaines", preuve: "Un parcours d'accueil tenu pour un nouvel arrivant nommé, et ce qu'il en dit à la fin." }
+    ] }
+  ];
+
+  /* La jauge des sites : des gestes faits ensemble (se rencontrer, s'entraider), jamais des points, jamais une personne */
+  const JAUGES = {
+    seuil: 2,
+    parNouveau: 8,
+    semaine: "2026-09-21",
+    sites: {
+      siege: { gestes: 19, passees: [false, true, true] },
+      safi: { gestes: 9, passees: [] },
+      tarfaya: { gestes: 16, passees: [true, true] },
+      aftissat: { gestes: 14, passees: [false, true, true] },
+      dakhla: { gestes: 11, passees: [false] }
+    }
+  };
+
+  /* Les trois axes : trois jauges, trois unités, jamais additionnées */
+  const AXES = [
+    { cle: "lumiere", nom: "Lumière", sens: ["ce qu'il sait de la maison", "ce qu'elle sait de la maison"] },
+    { cle: "puissance", nom: "Puissance", sens: ["ce qu'il sait faire, prouvé et attesté", "ce qu'elle sait faire, prouvé et attesté"] },
+    { cle: "reseau", nom: "Réseau", sens: ["ce qu'il apporte aux autres", "ce qu'elle apporte aux autres"] }
+  ];
+
+  /* La marraine d'intégration du jeu : Ghita, du développement de projets, au siège. Elle en accompagne deux ici. */
+  const GHITA = { nom: "Ghita", role: "Développement de projets, au siège de Casablanca", f: true };
+
+  /* La promotion de la rentrée : douze personnes inventées, dans l'ordre des arrivées.
+     Aucune ne porte le prénom d'un collègue du jeu (Ghita, Kawtar, Mbarek, Anas, Touria, Reda…). */
+  const NOUVEAUX = [
+    {
+      id: "siham-idrissi", prenom: "Siham", nom: "Idrissi", f: true,
+      metier: "Technicienne de maintenance éolienne", court: "Maintenance éolienne",
+      site: "aftissat", arrivee: "2026-08-18", palier: 0,
+      parrain: { nom: "Brahim Oulhaj", role: "Chef d'équipe maintenance", f: false },
+      manager: { nom: "Rachid Oubella", role: "Chef du parc d'Aftissat" },
+      lumiere: { valeurs: ["respect", "equipe", "responsabilite", "audace", "innovation"], cartes: ["aftissat", "tarfaya", "akhfennir", "foum", "dakhla", "safi"], culture: { histoire: 11, codes: 8, rituels: 4, metiers: 5 } },
+      competences: [
+        { cle: "maintenance-consignation", etat: "atteste", le: "2026-09-03" },
+        { cle: "maintenance-cause", etat: "atteste", le: "2026-09-12" },
+        { cle: "maintenance-transmettre", etat: "attente", le: "2026-09-22", livrable: "La fiche de transmission du changement des filtres de nacelle, signée avec Ilyas, qui l'a refait seul devant elle." },
+        { cle: "hse-moment", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 10, entraide: 4 },
+      prochaine: "Faire attester sa transmission à Ilyas avant la fin de ses 40 jours, demain.",
+      ensuite: "Animer un moment sécurité à partir d'un cas vécu, son parrain à ses côtés."
+    },
+    {
+      id: "ayman-chafik", prenom: "Ayman", nom: "Chafik", f: false,
+      metier: "Ingénieur d'exploitation", court: "Exploitation",
+      site: "safi", arrivee: "2026-08-20", palier: 0,
+      parrain: { nom: "Latifa Mansouri", role: "Ingénieure de conduite", f: true },
+      manager: { nom: "Hassan Ziani", role: "Chef du service conduite" },
+      lumiere: { valeurs: ["respect", "equipe", "responsabilite", "audace"], cartes: ["safi", "tarfaya", "dakhla", "haouma"], culture: { histoire: 9, codes: 7, rituels: 4, metiers: 4 } },
+      competences: [
+        { cle: "maintenance-consignation", etat: "attente", le: "2026-09-21", livrable: "La consignation de la pompe d'alimentation n° 2, réalisée devant le référent : fiche signée, cadenas et étiquette en place." },
+        { cle: "hse-risques", etat: "atteste", le: "2026-09-15" },
+        { cle: "support-procedure", etat: "atteste", le: "2026-09-08" },
+        { cle: "hse-incident", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 8, entraide: 2 },
+      prochaine: "Faire attester sa consignation, puis découvrir la valeur Innovation, la seule qui lui manque.",
+      ensuite: "Découvrir la valeur Innovation, la seule qui lui manque, puis suivre l'analyse d'un incident jusqu'à ses actions."
+    },
+    {
+      id: "imane-rachidi", prenom: "Imane", nom: "Rachidi", f: true,
+      metier: "Chargée HSE", court: "HSE",
+      site: "tarfaya", arrivee: "2026-08-25", palier: 0,
+      parrain: { nom: "Houda Zerhouni", role: "Chargée HSE confirmée", f: true },
+      manager: { nom: "Abdelkader Naciri", role: "Responsable HSE des parcs du Sud" },
+      lumiere: { valeurs: ["respect", "equipe", "responsabilite", "innovation", "audace"], cartes: ["tarfaya", "akhfennir", "foum", "aftissat", "dakhla"], culture: { histoire: 10, codes: 8, rituels: 4, metiers: 5 } },
+      competences: [
+        { cle: "hse-presque-accident", etat: "atteste", le: "2026-09-07" },
+        { cle: "hse-moment", etat: "atteste", le: "2026-09-14" },
+        { cle: "hse-risques", etat: "attente", le: "2026-09-23", livrable: "L'analyse de risques du remplacement d'un roulement de pale, avec la mesure prise pour chaque risque." },
+        { cle: "hse-incident", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 10, entraide: 5 },
+      prochaine: "Faire attester son analyse de risques, puis suivre l'analyse d'un incident jusqu'à ses actions.",
+      ensuite: "Mener l'analyse d'un incident jusqu'aux actions qui l'empêchent de revenir, avec sa marraine."
+    },
+    {
+      id: "hicham-tahiri", prenom: "Hicham", nom: "Tahiri", f: false,
+      metier: "Contrôleur de gestion", court: "Contrôle de gestion",
+      site: "siege", arrivee: "2026-08-27", palier: 0,
+      parrain: { nom: "Amine Lazrak", role: "Contrôleur de gestion senior", f: false },
+      manager: { nom: "Souad Filali", role: "Responsable du contrôle de gestion" },
+      lumiere: { valeurs: ["respect", "equipe", "responsabilite", "innovation"], cartes: ["safi", "tarfaya", "aftissat", "dakhla"], culture: { histoire: 8, codes: 6, rituels: 3, metiers: 4 } },
+      competences: [
+        { cle: "support-procedure", etat: "atteste", le: "2026-09-10" },
+        { cle: "support-donnees", etat: "attente", le: "2026-09-24", livrable: "La fiche du traitement « notes de frais » : ce qui est collecté, pourquoi, qui y accède, combien de temps." },
+        { cle: "eau-energie", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 9, entraide: 3 },
+      prochaine: "Faire attester sa fiche de traitement, puis visiter la centrale de Safi dans le jeu.",
+      ensuite: "Visiter la centrale de Safi dans le jeu et rencontrer son chef de quart."
+    },
+    {
+      id: "hajar-ouazzani", prenom: "Hajar", nom: "Ouazzani", f: true,
+      metier: "Ingénieure procédés dessalement", court: "Procédés dessalement",
+      site: "dakhla", arrivee: "2026-09-01", palier: 0,
+      parrain: { nom: "Nabil Ezzahraoui", role: "Chef de poste", f: false },
+      manager: { nom: "Mohamed Lemrabet", role: "Chef de l'usine de Dakhla" },
+      lumiere: { valeurs: ["respect", "equipe", "responsabilite"], cartes: ["dakhla", "guerdane", "aftissat"], culture: { histoire: 7, codes: 5, rituels: 3, metiers: 3 } },
+      competences: [
+        { cle: "eau-chemin", etat: "atteste", le: "2026-09-16" },
+        { cle: "eau-ligne", etat: "attente", le: "2026-09-19", livrable: "Le relevé commenté de la ligne 3 : pressions, débits, ce qui dérive, et l'alerte donnée avant la panne." },
+        { cle: "eau-qualite", etat: "a_prouver" },
+        { cle: "hse-risques", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 7, entraide: 2 },
+      prochaine: "Faire attester son relevé de la ligne 3, puis tenir un mois de relevés de qualité.",
+      ensuite: "Tenir un mois de relevés de qualité de l'eau, et signaler chaque écart à temps."
+    },
+    {
+      id: "ilyas-el-ghazi", prenom: "Ilyas", nom: "El Ghazi", f: false,
+      metier: "Technicien de maintenance éolienne", court: "Maintenance éolienne",
+      site: "aftissat", arrivee: "2026-09-01", palier: 0,
+      parrain: { nom: "Mustapha Aït Ouhmad", role: "Technicien de maintenance confirmé", f: false },
+      manager: { nom: "Rachid Oubella", role: "Chef du parc d'Aftissat" },
+      lumiere: { valeurs: ["respect", "equipe", "audace"], cartes: ["aftissat", "foum", "akhfennir", "tarfaya"], culture: { histoire: 6, codes: 5, rituels: 2, metiers: 3 } },
+      competences: [
+        { cle: "maintenance-consignation", etat: "atteste", le: "2026-09-17" },
+        { cle: "eolien-supervision", etat: "attente", le: "2026-09-18", livrable: "Le relevé d'une journée de supervision du parc : l'état de chaque turbine, les alarmes vues, ce qui a été signalé." },
+        { cle: "maintenance-cause", etat: "a_prouver" },
+        { cle: "maintenance-preventive", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 6, entraide: 3 },
+      prochaine: "Faire attester son relevé de supervision, puis suivre une intervention préventive avec son parrain.",
+      ensuite: "Suivre une intervention préventive complète avec son parrain."
+    },
+    {
+      id: "loubna-bennis", prenom: "Loubna", nom: "Bennis", f: true,
+      metier: "Ingénieure projets éoliens", court: "Projets éoliens",
+      site: "siege", arrivee: "2026-09-03", palier: 0,
+      parrain: GHITA,
+      manager: { nom: "Tarik Benomar", role: "Directeur de projets" },
+      lumiere: { valeurs: ["audace", "innovation", "responsabilite", "equipe"], cartes: ["haouma", "tarfaya", "aftissat"], culture: { histoire: 8, codes: 5, rituels: 3, metiers: 4 } },
+      competences: [
+        { cle: "projet-reunion", etat: "atteste", le: "2026-09-18" },
+        { cle: "projet-risques", etat: "attente", le: "2026-09-24", livrable: "Le registre des risques du lot génie civil : chaque risque avec son porteur, sa parade et sa date de revue." },
+        { cle: "projet-planning", etat: "a_prouver" },
+        { cle: "projet-reception", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 7, entraide: 1 },
+      prochaine: "Faire attester son registre des risques, puis préparer la réception d'un ouvrage avec sa marraine.",
+      ensuite: "Préparer avec sa marraine la réception d'un ouvrage : essais, réserves, levée des réserves."
+    },
+    {
+      id: "soufiane-amraoui", prenom: "Soufiane", nom: "Amraoui", f: false,
+      metier: "Technicien d'exploitation", court: "Supervision",
+      site: "haouma", arrivee: "2026-09-08", palier: 0,
+      parrain: { nom: "Hind Loukili", role: "Technicienne de supervision", f: true },
+      manager: { nom: "Mounir Hajji", role: "Chef du parc de Haouma" },
+      lumiere: { valeurs: ["respect", "equipe", "innovation"], cartes: ["haouma", "tarfaya"], culture: { histoire: 5, codes: 4, rituels: 2, metiers: 2 } },
+      competences: [
+        { cle: "eolien-supervision", etat: "atteste", le: "2026-09-22" },
+        { cle: "eolien-vent", etat: "a_prouver" },
+        { cle: "maintenance-consignation", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 5, entraide: 1 },
+      prochaine: "Préparer une journée d'intervention avec la prévision de vent, et la montrer à son chef de parc."
+    },
+    {
+      id: "zineb-chakiri", prenom: "Zineb", nom: "Chakiri", f: true,
+      metier: "Électromécanicienne", court: "Électromécanique",
+      site: "tarfaya", arrivee: "2026-09-08", palier: 0,
+      parrain: { nom: "Rachid Bouzidi", role: "Électromécanicien confirmé", f: false },
+      manager: { nom: "Mourad Chentouf", role: "Chef du parc de Tarfaya" },
+      lumiere: { valeurs: ["respect", "equipe", "responsabilite"], cartes: ["tarfaya", "akhfennir", "aftissat"], culture: { histoire: 4, codes: 4, rituels: 2, metiers: 2 } },
+      competences: [
+        { cle: "maintenance-consignation", etat: "atteste", le: "2026-09-15" },
+        { cle: "maintenance-cause", etat: "a_revoir", le: "2026-09-17", mot: "Il manque les mesures d'isolement du générateur : ajoute-les et je signe." },
+        { cle: "maintenance-preventive", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 6, entraide: 2 },
+      prochaine: "Reprendre son analyse de panne avec les mesures d'isolement, comme son manager l'a demandé."
+    },
+    {
+      id: "othmane-bakkali", prenom: "Othmane", nom: "Bakkali", f: false,
+      metier: "Technicien d'usine de dessalement", court: "Usine de dessalement",
+      site: "dakhla", arrivee: "2026-09-14", palier: 0,
+      parrain: { nom: "Salah Eddine Moubarik", role: "Technicien d'usine confirmé", f: false },
+      manager: { nom: "Mohamed Lemrabet", role: "Chef de l'usine de Dakhla" },
+      lumiere: { valeurs: ["respect", "equipe"], cartes: ["dakhla", "guerdane"], culture: { histoire: 3, codes: 3, rituels: 1, metiers: 1 } },
+      competences: [
+        { cle: "eau-ligne", etat: "a_prouver" },
+        { cle: "eau-qualite", etat: "a_prouver" },
+        { cle: "maintenance-consignation", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 4, entraide: 1 },
+      prochaine: "Relever une ligne de dessalement avec son parrain, et noter ce qui dérive."
+    },
+    {
+      id: "sanaa-lahlou", prenom: "Sanaa", nom: "Lahlou", f: true,
+      metier: "Acheteuse", court: "Achats",
+      site: "siege", arrivee: "2026-09-15", palier: 0,
+      parrain: GHITA,
+      manager: { nom: "Meryem Alami", role: "Responsable des achats" },
+      lumiere: { valeurs: ["respect", "responsabilite"], cartes: ["safi"], culture: { histoire: 2, codes: 3, rituels: 1, metiers: 1 } },
+      competences: [
+        { cle: "support-achat", etat: "a_prouver" },
+        { cle: "support-procedure", etat: "a_prouver" },
+        { cle: "support-donnees", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 3, entraide: 0 },
+      prochaine: "Monter son premier dossier d'achat complet, et le montrer à sa marraine."
+    },
+    {
+      id: "adil-zerouali", prenom: "Adil", nom: "Zerouali", f: false,
+      metier: "Ingénieur maintenance", court: "Maintenance",
+      site: "safi", arrivee: "2026-09-21", palier: 0,
+      parrain: { nom: "Saïd Ennaji", role: "Technicien principal de maintenance", f: false },
+      manager: { nom: "Jamal Kadiri", role: "Chef du service maintenance" },
+      lumiere: { valeurs: ["respect"], cartes: ["safi"], culture: { histoire: 1, codes: 1, rituels: 0, metiers: 1 } },
+      competences: [
+        { cle: "maintenance-consignation", etat: "a_prouver" },
+        { cle: "maintenance-preventive", etat: "a_prouver" },
+        { cle: "maintenance-cause", etat: "a_prouver" }
+      ],
+      reseau: { rencontres: 2, entraide: 0 },
+      prochaine: "Rencontrer son équipe d'atelier et lire les cinq valeurs dans la cour."
+    }
+  ];
+
+  const PAGES_DE_CULTURE = CULTURE.reduce((n, f) => n + f.pages, 0);
+
+  /* ───────────── Les pictogrammes (dessinés ici, aucune image) ───────────── */
+
+  const ICONES = {
+    lumiere: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.3" fill="currentColor"/><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M5.2 18.8l1.7-1.7M17.1 6.9l1.7-1.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    puissance: '<svg viewBox="0 0 24 24"><path d="M13.4 2 4.6 13.6h6.2L9.9 22l9.1-12h-6.4L13.4 2z" fill="currentColor"/></svg>',
+    reseau: '<svg viewBox="0 0 24 24"><path d="M8.2 6.4h7.6M7.3 8.9l3.4 6.5M16.7 8.9l-3.4 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="5.8" cy="6.4" r="2.8" fill="currentColor"/><circle cx="18.2" cy="6.4" r="2.8" fill="currentColor"/><circle cx="12" cy="17.9" r="2.8" fill="currentColor"/></svg>',
+    eolien: '<svg viewBox="0 0 24 24"><g fill="currentColor"><path d="M10.8 10.4h2.4l1.2 11.4H9.6z"/><path d="M8.2 21.8h7.6v1.4H8.2z"/><path d="M12 9C10.3 6.6 10 3.7 11.3 1.1c.3-.5 1.1-.5 1.4 0 1.3 2.6 1 5.5-.7 7.9z"/><path d="M12 9C10.3 6.6 10 3.7 11.3 1.1c.3-.5 1.1-.5 1.4 0 1.3 2.6 1 5.5-.7 7.9z" transform="rotate(120 12 9)"/><path d="M12 9C10.3 6.6 10 3.7 11.3 1.1c.3-.5 1.1-.5 1.4 0 1.3 2.6 1 5.5-.7 7.9z" transform="rotate(240 12 9)"/><circle cx="12" cy="9" r="2.3"/></g></svg>',
+    thermique: '<svg viewBox="0 0 24 24"><path d="M2.8 21.2V12l5 3.1V12l5 3.1V3.6H16v6.6h2V6.4h3v14.8z" fill="currentColor"/></svg>',
+    dessalement: '<svg viewBox="0 0 24 24"><path d="M12 2.6c3.7 4.4 6.3 7.8 6.3 11.2a6.3 6.3 0 0 1-12.6 0c0-3.4 2.6-6.8 6.3-11.2z" fill="currentColor"/><path d="M8.6 14.6c1.1.8 2.3.8 3.4 0s2.3-.8 3.4 0" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    irrigation: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18.5v-7.2"/><path d="M12 11.3c.2-3.4 2.4-5.6 6-5.9-.1 3.6-2.4 5.8-6 5.9z" fill="currentColor"/><path d="M12 14c-.1-2.7-2-4.6-4.9-4.8.1 2.9 2 4.7 4.9 4.8z" fill="currentColor"/><path d="M3 21.4c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0 3 1 4.5 0"/></g></svg>',
+    siege: '<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M4 21.6V4.2L14.4 1.8v19.8zM6.6 6.4h2.2v2.2H6.6zm4.1 0h2.2v2.2h-2.2zM6.6 10.6h2.2v2.2H6.6zm4.1 0h2.2v2.2h-2.2zM6.6 14.8h2.2V17H6.6zm4.1 0h2.2V17h-2.2zM15.8 21.6V8.4H20v13.2z"/></svg>',
+    outil: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M20.6 6.5a5.4 5.4 0 0 1-7.1 6.3l-7.3 7.4a2.2 2.2 0 0 1-3.1-3.1l7.4-7.3a5.4 5.4 0 0 1 6.3-7.1l-3.2 3.2.5 2.5 2.5.5z"/></svg>',
+    casque: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.3 4.2h3.4v1.2a7.4 7.4 0 0 1 5.6 7.1V15h1.6v2.8H3.1V15h1.6v-2.5a7.4 7.4 0 0 1 5.6-7.1z"/><path fill="currentColor" opacity=".5" d="M2.4 19.3h19.2v1.5H2.4z"/></svg>',
+    plan: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16.5" rx="2.5"/><path d="M7 9.2h5.5M9.5 13.2h7.5M7.5 17.2h4.5"/></g></svg>',
+    dossier: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13.2" rx="2.4"/><path d="M8.8 7V5.2a1.4 1.4 0 0 1 1.4-1.4h3.6a1.4 1.4 0 0 1 1.4 1.4V7M3 12.4h18"/></g></svg>',
+    check: '<svg viewBox="0 0 24 24"><path d="M5 12.6 9.6 17 19 7.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    horloge: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 7.4V12l3.1 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    revoir: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 12.2A7.6 7.6 0 1 0 7 6.6"/><path d="M4 3.6v4.6h4.6"/></g></svg>',
+    vide: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="3.2 3"/></svg>',
+    fleche: '<svg viewBox="0 0 24 24"><path d="M4.5 12h14m-5.2-5.4L18.7 12l-5.4 5.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    parrain: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.8 20.2c.4-3.4 3-5.8 6.2-5.8s5.8 2.4 6.2 5.8"/><circle cx="17.2" cy="9.2" r="2.6"/><path d="M16.4 14.6c2.6-.3 4.6 1.6 4.9 4.6"/></g></svg>',
+    etape: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4.6h11.4l-2.2 3.6 2.2 3.6H5"/></g></svg>',
+    etincelle: '<svg viewBox="0 0 24 24"><path d="M12 1.8l2.3 7.9 7.9 2.3-7.9 2.3-2.3 7.9-2.3-7.9L1.8 12l7.9-2.3z" fill="currentColor"/></svg>',
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5.4M12 7.6v.1" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    veille: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.6a8 8 0 1 0 11.4 0"/></g></svg>',
+    reglage: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 6.5h9.5M18.5 6.5H20M4 12h3.5M12.5 12H20M4 17.5h11.5M20 17.5h0"/><circle cx="16" cy="6.5" r="2.3"/><circle cx="10" cy="12" r="2.3"/><circle cx="18" cy="17.5" r="2.3"/></g></svg>',
+    jouer: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 8.3v7.4l6.1-3.7z" fill="currentColor"/></svg>',
+    porte: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 21V4.6c0-.9.7-1.6 1.6-1.6h7.8c.9 0 1.6.7 1.6 1.6V21"/><path d="M3.5 21h17"/></g><circle cx="14.4" cy="12.4" r="1.25" fill="currentColor"/></svg>',
+    idee: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 17.6h5.6M10.2 21h3.6"/><path d="M12 2.8a6.2 6.2 0 0 0-3.8 11.1c.8.6 1.2 1.4 1.2 2.3v.2h5.2v-.2c0-.9.4-1.7 1.2-2.3A6.2 6.2 0 0 0 12 2.8z"/></g></svg>',
+    oeilBarre: '<svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 3.5l17 17"/><path d="M10.3 5.4A9 9 0 0 1 12 5.2c4.8 0 8.4 3.8 9.7 6.8a12.8 12.8 0 0 1-2.6 3.8M6.7 6.9A12.5 12.5 0 0 0 2.3 12c1.3 3 4.9 6.8 9.7 6.8 1.7 0 3.2-.5 4.5-1.2"/><path d="M9.9 9.9a3.1 3.1 0 0 0 4.2 4.2"/></g></svg>'
+  };
+
+  /* ───────────── Petits outils ───────────── */
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const ico = (nom, classe = "") => `<span class="ico${classe ? ` ${classe}` : ""}" aria-hidden="true">${ICONES[nom] || ""}</span>`;
+  const pl = (n, un, plusieurs) => `${n} ${n > 1 ? plusieurs : un}`;
+  const guillemets = (s) => `«\u00a0${s}\u00a0»`;
+  const typo = (html) => html.replace(/ ([:;!?»])/g, "\u00a0$1").replace(/« /g, "«\u00a0");
+  const minuscule = (s) => s.charAt(0).toLowerCase() + s.slice(1);
+  const pourcent = (n, max) => (max ? Math.round((n / max) * 1000) / 10 : 0);
+  const MOIS_COURTS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+  const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+
+  const jourAbsolu = (iso) => { const [a, m, j] = iso.split("-").map(Number); return Date.UTC(a, m - 1, j) / 864e5; };
+  const jourDuParcours = (arrivee, ref = DATE_DES_DONNEES) => jourAbsolu(ref) - jourAbsolu(arrivee) + 1;
+  const joursEntre = (a, b) => jourAbsolu(b) - jourAbsolu(a);
+  const dateLongue = (iso) => { const [, m, j] = iso.split("-").map(Number); return `${j === 1 ? "1er" : j} ${MOIS[m - 1]}`; };
+  const dateCourte = (iso) => { const [, m, j] = iso.split("-").map(Number); return `${j === 1 ? "1er" : j} ${MOIS_COURTS[m - 1]}`; };
+  const jourSemaine = (iso) => JOURS[new Date(jourAbsolu(iso) * 864e5).getUTCDay()];
+  const decaler = (iso, n) => new Date((jourAbsolu(iso) + n) * 864e5).toISOString().slice(0, 10);
+
+  const nomComplet = (p) => `${p.prenom} ${p.nom}`;
+  const initiales = (p) => (p.prenom.charAt(0) + p.nom.charAt(0)).toUpperCase();
+  const accord = (p, masculin, feminin) => (p.f ? feminin : masculin);
+  const site = (cle) => SITES.find((s) => s.cle === cle);
+  const parArrivee = () => NOUVEAUX.slice().sort((a, b) => a.arrivee.localeCompare(b.arrivee) || a.nom.localeCompare(b.nom));
+  const trouver = (id) => NOUVEAUX.find((p) => p.id === id);
+  function competence(cle) {
+    for (const d of DOMAINES) {
+      const c = d.competences.find((x) => x.cle === cle);
+      if (c) return { cle: c.cle, nom: c.nom, preuve: c.preuve, domaine: d.court };
+    }
+    return null;
+  }
+
+  /* ───────────── L'état : les décisions prises pendant la démo ───────────── */
+
+  const ETATS = {
+    atteste: { libelle: "Attestée", icone: "check", classe: "ok" },
+    attente: { libelle: "En attente d'un manager", icone: "horloge", classe: "attente" },
+    a_revoir: { libelle: "À revoir", icone: "revoir", classe: "revoir" },
+    a_prouver: { libelle: "À prouver", icone: "vide", classe: "a-faire" }
+  };
+
+  const etatVide = () => ({ decisions: {} });
+  const copie = (etat) => JSON.parse(JSON.stringify(etat || etatVide()));
+  const cleDemande = (id, cleComp) => `${id}/${cleComp}`;
+
+  /* Ce qu'une compétence est MAINTENANT : la décision de la démo, sinon la donnée */
+  function etatDe(p, c, etat) {
+    const d = c.etat === "attente" && etat && etat.decisions ? etat.decisions[cleDemande(p.id, c.cle)] : null;
+    if (d) return { etat: d.etat, mot: d.mot || "", le: DATE_DES_DONNEES, aujourdhui: true, livrable: c.livrable };
+    return { etat: c.etat, mot: c.mot || "", le: c.le || null, aujourdhui: false, livrable: c.livrable || "" };
+  }
+
+  /* La file des livrables qui attendaient un manager, la plus ancienne d'abord */
+  function demandes(etat) {
+    const file = [];
+    for (const p of NOUVEAUX) {
+      for (const c of p.competences) {
+        if (c.etat === "attente") file.push({ cle: cleDemande(p.id, c.cle), p, c, e: etatDe(p, c, etat) });
+      }
+    }
+    return file.sort((a, b) => a.c.le.localeCompare(b.c.le) || a.p.nom.localeCompare(b.p.nom));
+  }
+  const demandeExiste = (cle) => demandes(etatVide()).some((d) => d.cle === cle);
+
+  function attester(etat, cle) {
+    if (!demandeExiste(cle)) return { ok: false, erreur: "Ce livrable n'attend aucune attestation." };
+    const suivant = copie(etat);
+    suivant.decisions[cle] = { etat: "atteste" };
+    return { ok: true, etat: suivant };
+  }
+
+  function renvoyer(etat, cle, mot) {
+    if (!demandeExiste(cle)) return { ok: false, erreur: "Ce livrable n'attend aucune décision." };
+    const propre = String(mot == null ? "" : mot).replace(/\s+/g, " ").trim();
+    if (propre.length < MOT_MIN) {
+      return { ok: false, erreur: "Écrivez ce qui manque, en une phrase : un « à revoir » sans explication n'aide personne." };
+    }
+    const suivant = copie(etat);
+    suivant.decisions[cle] = { etat: "a_revoir", mot: propre.slice(0, MOT_MAX) };
+    return { ok: true, etat: suivant };
+  }
+
+  function annuler(etat, cle) {
+    const suivant = copie(etat);
+    delete suivant.decisions[cle];
+    return { ok: true, etat: suivant };
+  }
+
+  /* Une mémoire relue du navigateur n'est jamais crue sur parole */
+  function nettoyer(lu) {
+    const propre = etatVide();
+    if (!lu || typeof lu !== "object" || !lu.decisions || typeof lu.decisions !== "object") return propre;
+    const valides = new Set(demandes(etatVide()).map((d) => d.cle));
+    for (const [cle, d] of Object.entries(lu.decisions)) {
+      if (!valides.has(cle) || !d || typeof d !== "object") continue;
+      if (d.etat === "atteste") propre.decisions[cle] = { etat: "atteste" };
+      if (d.etat === "a_revoir" && typeof d.mot === "string") {
+        const mot = d.mot.replace(/\s+/g, " ").trim();
+        if (mot.length >= MOT_MIN) propre.decisions[cle] = { etat: "a_revoir", mot: mot.slice(0, MOT_MAX) };
+      }
+    }
+    return propre;
+  }
+
+  /* ───────────── Les mesures : chaque axe dans son unité ───────────── */
+
+  const pagesLues = (lues) => CULTURE.reduce((n, f) => n + (lues[f.cle] || 0), 0);
+
+  const MESURES = {
+    lumiere(p) {
+      const l = p.lumiere;
+      const lues = pagesLues(l.culture);
+      return {
+        valeur: lues,
+        max: PAGES_DE_CULTURE,
+        unite: `${lues > 1 ? "pages de culture lues" : "page de culture lue"} sur ${PAGES_DE_CULTURE}`,
+        details: [
+          `${pl(l.valeurs.length, "valeur découverte", "valeurs découvertes")} sur ${VALEURS.length}`,
+          `${pl(l.cartes.length, "carte de site", "cartes de site")} sur ${SITES_A_CARTE.length}`
+        ]
+      };
+    },
+    puissance(p, etat) {
+      const etats = p.competences.map((c) => etatDe(p, c, etat).etat);
+      const n = (e) => etats.filter((x) => x === e).length;
+      const details = [];
+      if (n("attente")) details.push(`${n("attente")} en attente d'un manager`);
+      if (n("a_revoir")) details.push(`${n("a_revoir")} à revoir`);
+      if (n("a_prouver")) details.push(`${n("a_prouver")} à prouver`);
+      if (!details.length) details.push("tout le parcours du poste est attesté");
+      return {
+        valeur: n("atteste"),
+        max: etats.length,
+        unite: `${n("atteste") > 1 ? "compétences attestées" : "compétence attestée"} sur ${etats.length}`,
+        details
+      };
+    },
+    reseau(p) {
+      const r = p.reseau;
+      const valeur = Math.min(r.rencontres, RENCONTRES_VISEES);
+      return {
+        valeur,
+        max: RENCONTRES_VISEES,
+        unite: `${valeur > 1 ? "collègues rencontrés" : "collègue rencontré"} sur ${RENCONTRES_VISEES}`,
+        details: [pl(r.entraide, "coup de main donné", "coups de main donnés")]
+      };
+    }
+  };
+
+  const axesDe = (p, etat) => AXES.map((a) => Object.assign({ cle: a.cle, nom: a.nom, sens: a.sens[p.f ? 1 : 0] }, MESURES[a.cle](p, etat || etatVide())));
+
+  function prochaineEtape(p, etat) {
+    const enAttente = p.competences.find((c) => c.etat === "attente");
+    if (!enAttente) return p.prochaine;
+    const d = etat && etat.decisions ? etat.decisions[cleDemande(p.id, enAttente.cle)] : null;
+    if (!d) return p.prochaine;
+    if (d.etat === "a_revoir") return `Reprendre son livrable ${guillemets(competence(enAttente.cle).nom)} avec le mot de son manager.`;
+    return p.ensuite || p.prochaine;
+  }
+
+  /* Ce que la promotion a lu aux archives, famille par famille : chaque page comptée une fois par lecteur */
+  function culturePromotion() {
+    return CULTURE.map((f) => {
+      let lues = 0;
+      for (const p of NOUVEAUX) lues += p.lumiere.culture[f.cle] || 0;
+      return { cle: f.cle, nom: f.nom, sens: f.sens, lues, possibles: f.pages * NOUVEAUX.length };
+    });
+  }
+
+  /* Les compétences des parcours, domaine par domaine : ce qui est attesté, ce qui attend */
+  function competencesParDomaine(etat) {
+    return DOMAINES.map((d) => {
+      let dans = 0;
+      let attestees = 0;
+      let enAttente = 0;
+      for (const p of NOUVEAUX) {
+        for (const c of p.competences) {
+          if (!d.competences.some((x) => x.cle === c.cle)) continue;
+          dans += 1;
+          const e = etatDe(p, c, etat).etat;
+          if (e === "atteste") attestees += 1;
+          if (e === "attente") enAttente += 1;
+        }
+      }
+      return { cle: d.cle, nom: d.court, icone: d.icone, dans, attestees, enAttente };
+    });
+  }
+
+  function jaugesSites() {
+    return SITES.map((s) => {
+      const n = NOUVEAUX.filter((p) => p.site === s.cle).length;
+      const j = JAUGES.sites[s.cle] || { gestes: 0, passees: [] };
+      const objectif = n * JAUGES.parNouveau;
+      return { site: s, n, ouverte: n >= JAUGES.seuil, gestes: Math.min(j.gestes, objectif), objectif, passees: j.passees };
+    });
+  }
+
+  /* ───────────── Les vues (des chaînes, pour être testées sans navigateur) ───────────── */
+
+  const jauge = (valeur, max, genre, libelle) =>
+    `<div class="jauge${genre ? ` jauge--${genre}` : ""}" role="meter" aria-valuemin="0" aria-valuemax="${max}" aria-valuenow="${valeur}" aria-label="${esc(libelle)}"><span style="width:${pourcent(valeur, max)}%"></span></div>`;
+
+  const puce = (cle) => {
+    const a = AXES.find((x) => x.cle === cle);
+    return `<span class="puce puce--${a.cle}" title="Axe ${a.nom}">${ico(a.cle)}<span class="puce__nom">${a.nom}</span></span>`;
+  };
+
+  function teteSection(surtitre, titre, chapo, droite = "") {
+    return `<header class="section__tete"><div><p class="surtitre">${surtitre}</p><h2>${titre}</h2>${chapo ? `<p class="chapo">${chapo}</p>` : ""}</div>${droite}</header>`;
+  }
+
+  function vueEnsembleHTML(etat) {
+    const file = demandes(etat);
+    const enAttente = file.filter((d) => d.e.etat === "attente").length;
+    let attestees = 0;
+    for (const p of NOUVEAUX) for (const c of p.competences) if (etatDe(p, c, etat).etat === "atteste") attestees += 1;
+    const ordre = parArrivee();
+    const culture = culturePromotion();
+    let luesPromo = 0;
+    let possiblesPromo = 0;
+    for (const f of culture) { luesPromo += f.lues; possiblesPromo += f.possibles; }
+
+    const blocAxe = (cle, titre, sens, axe, contenu, central) => `
+      <section class="bloc${central ? " bloc--central" : ""}" data-bloc="${cle}" aria-labelledby="bloc-${cle}">
+        <header class="bloc__tete"><div><h3 id="bloc-${cle}">${titre}</h3><p>${sens}</p></div>${axe ? puce(axe) : ""}</header>
+        ${contenu}
+      </section>`;
+
+    const indicateurs = `
+      <div class="indicateurs">
+        <div class="carte indicateur">
+          <p class="indicateur__libelle">Nouveaux arrivants</p>
+          <p class="indicateur__valeur">${NOUVEAUX.length}</p>
+          <p class="indicateur__detail">arrivés du ${dateLongue(ordre[0].arrivee)} au ${dateLongue(ordre[ordre.length - 1].arrivee)}</p>
+        </div>
+        <div class="carte indicateur">
+          <p class="indicateur__libelle">Pages de culture lues ${puce("lumiere")}</p>
+          <p class="indicateur__valeur">${luesPromo}</p>
+          <p class="indicateur__detail">sur ${possiblesPromo} possibles, lues aux archives du jeu</p>
+        </div>
+        <div class="carte indicateur">
+          <p class="indicateur__libelle">Compétences attestées ${puce("puissance")}</p>
+          <p class="indicateur__valeur">${attestees}</p>
+          <p class="indicateur__detail">prouvées par un livrable, devant un témoin</p>
+        </div>
+        <button type="button" class="carte indicateur" data-aller="a-attester">
+          <span class="indicateur__libelle">À attester ${puce("puissance")}</span>
+          <span class="indicateur__valeur">${enAttente}</span>
+          <span class="indicateur__detail">${enAttente > 1 ? "livrables attendent" : enAttente === 1 ? "livrable attend" : "livrable n'attend"} un manager</span>
+          <span class="indicateur__aller">Ouvrir la file ${ico("fleche")}</span>
+        </button>
+      </div>`;
+
+    /* ——— La culture de la maison : l'axe central ——— */
+    const decouvertes = VALEURS.map((v, i) => ({ v, i, n: NOUVEAUX.filter((p) => p.lumiere.valeurs.includes(v.cle)).length }))
+      .sort((a, b) => b.n - a.n || a.i - b.i);
+    const moins = decouvertes.filter((x) => x.n === decouvertes[decouvertes.length - 1].n).map((x) => x.v.nom);
+    const valeurs = `
+      <section class="carte" aria-labelledby="titre-valeurs">
+        <div class="carte__tete"><div><h3 id="titre-valeurs">Les valeurs les plus découvertes</h3><p class="carte__note">Combien de nouveaux arrivants ont trouvé chaque valeur dans la cour du jeu, sur ${NOUVEAUX.length}.</p></div></div>
+        <ol class="valeurs">${decouvertes.map((x) => `
+          <li class="valeur" data-infobulle="${esc(`${x.v.nom} — trouvée par ${x.n} nouveaux arrivants sur ${NOUVEAUX.length}`)}">
+            <div class="valeur__texte"><strong>${esc(x.v.nom)}</strong><span>${esc(guillemets(x.v.phrase))}</span></div>
+            <div class="mesure">${jauge(x.n, NOUVEAUX.length, "lumiere", `${x.v.nom} : ${x.n} nouveaux arrivants sur ${NOUVEAUX.length}`)}<span class="chiffre">${x.n} <small>sur ${NOUVEAUX.length}</small></span></div>
+          </li>`).join("")}
+        </ol>
+        <p class="a-retenir">${ico("lumiere")}<span>${esc(moins.join(" et "))} ${moins.length > 1 ? "sont les moins découvertes" : "est la moins découverte"} à ce jour.</span></p>
+      </section>`;
+
+    const parTaux = culture.slice().sort((a, b) => b.lues / b.possibles - a.lues / a.possibles);
+    const pages = `
+      <section class="carte" aria-labelledby="titre-culture">
+        <div class="carte__tete"><div><h3 id="titre-culture">Les pages de culture lues</h3><p class="carte__note">Aux archives du jeu, par toute la promotion : chaque page compte une fois par lecteur.</p></div></div>
+        <ol class="valeurs">${culture.map((f) => `
+          <li class="valeur" data-infobulle="${esc(`${f.nom} — ${f.lues} lectures sur ${f.possibles} possibles`)}">
+            <div class="valeur__texte"><strong>${esc(f.nom)}</strong><span>${esc(f.sens)}</span></div>
+            <div class="mesure">${jauge(f.lues, f.possibles, "lumiere", `${f.nom} : ${f.lues} pages lues sur ${f.possibles}`)}<span class="chiffre">${f.lues} <small>sur ${f.possibles}</small></span></div>
+          </li>`).join("")}
+        </ol>
+        <p class="a-retenir">${ico("lumiere")}<span>${esc(parTaux[0].nom)} : la famille la plus lue. ${esc(parTaux[parTaux.length - 1].nom)} : la moins lue, à ce jour.</span></p>
+      </section>`;
+
+    const cartes = `
+      <section class="carte" aria-labelledby="titre-cartes">
+        <div class="carte__tete"><div><h3 id="titre-cartes">Les cartes de site gagnées</h3><p class="carte__note">Les ${SITES_A_CARTE.length} cartes du jeu, du nord au sud. Une carte se gagne en découvrant l'histoire d'un site : chacun apprend toute la maison, pas seulement la sienne.</p></div></div>
+        <ul class="tuiles">${SITES_A_CARTE.map((s) => {
+          const n = NOUVEAUX.filter((p) => p.lumiere.cartes.includes(s.cle)).length;
+          return `<li class="tuile" data-infobulle="${esc(`${s.nom} — carte gagnée par ${n} nouveaux arrivants sur ${NOUVEAUX.length}`)}">
+            <div class="tuile__tete">${ico(s.genre, "tuile__icone")}<div><h4>${esc(s.nom)}</h4><p>${esc(s.carte)} · ${esc(s.detail)}</p></div></div>
+            <div class="mesure">${jauge(n, NOUVEAUX.length, "lumiere", `${s.nom} : ${n} cartes sur ${NOUVEAUX.length}`)}<span class="chiffre">${n} <small>sur ${NOUVEAUX.length}</small></span></div>
+          </li>`;
+        }).join("")}</ul>
+      </section>`;
+
+    /* ——— Le métier ——— */
+    const domaines = competencesParDomaine(etat);
+    const metier = `
+      <section class="carte" aria-labelledby="titre-domaines">
+        <div class="carte__tete"><div><h3 id="titre-domaines">Les compétences, par domaine</h3><p class="carte__note">Dans les parcours des ${NOUVEAUX.length} nouveaux arrivants : attestées par un manager, sur un livrable.</p></div><button type="button" class="lien-bouton" data-aller="a-attester">Ouvrir la file à attester ${ico("fleche")}</button></div>
+        <ol class="domaines-resume">${domaines.map((d) => `
+          <li class="domaine-ligne">
+            <span class="domaine-ligne__nom">${ico(d.icone, "domaine-ligne__icone")}<span><b>${esc(d.nom)}</b><small>${d.dans ? (d.enAttente ? `${d.enAttente} en attente d'un manager` : "rien en attente") : "hors des parcours de cette promotion"}</small></span></span>
+            <div class="mesure">${jauge(d.attestees, d.dans, "puissance", `${d.nom} : ${d.attestees} compétences attestées sur ${d.dans}`)}<span class="chiffre">${d.attestees} <small>sur ${d.dans}</small></span></div>
+          </li>`).join("")}
+        </ol>
+      </section>`;
+
+    /* ——— La communauté ——— */
+    const rituels = `
+      <section class="carte" aria-labelledby="titre-rituels">
+        <div class="carte__tete"><div><h3 id="titre-rituels">Les rituels de la maison</h3><p class="carte__note">Présentés aux archives et dans la salle de réunion du jeu.</p></div></div>
+        <ul class="rituels">${RITUELS.map((r) => `
+          <li class="rituel">${ico(r.icone, "rituel__icone")}<div><strong>${esc(r.titre)}</strong><span class="rituel__quand">${esc(r.quand)}</span><p>${esc(r.texte)}</p></div></li>`).join("")}
+        </ul>
+        <p class="rituels__regle">${ico("info")}<span>Aucun compteur ne les lit : un rituel se vit, il ne se pointe pas.</span></p>
+      </section>`;
+
+    const ouvertes = jaugesSites().filter((x) => x.ouverte);
+    const jaugeResume = `
+      <section class="carte" aria-labelledby="titre-jauge-resume">
+        <div class="carte__tete"><div><h3 id="titre-jauge-resume">La jauge des sites, cette semaine</h3><p class="carte__note">Des gestes faits ensemble — se rencontrer, s'entraider —, jamais une personne.</p></div></div>
+        <ol class="jauges-resume">${ouvertes.map((x) => `
+          <li class="jauge-resume">
+            <span class="jauge-resume__nom">${ico(x.site.genre, "jauge-resume__icone")}<b>${esc(x.site.nom)}</b></span>
+            <div class="mesure">${jauge(x.gestes, x.objectif, "reseau", `${x.site.nom} : ${x.gestes} gestes sur ${x.objectif}`)}<span class="chiffre">${x.gestes} <small>sur ${x.objectif}</small></span></div>
+            <span class="jauge-resume__etat">${x.gestes >= x.objectif ? `<span class="allumee">${ico("etincelle")}Pleine</span>` : ""}</span>
+          </li>`).join("")}
+        </ol>
+        <button type="button" class="lien-bouton jauges-resume__lien" data-aller="sites">Voir la jauge des sites ${ico("fleche")}</button>
+      </section>`;
+
+    /* ——— Les 40 jours ——— */
+    const echelle = JALONS.map((x) => `<span style="--d:${x.j}"><b>J${x.j}</b><i>${esc(x.nom)}</i></span>`).join("");
+    const lignes = ordre.map((p) => {
+      const j = jourDuParcours(p.arrivee);
+      const s = site(p.site);
+      const info = `${accord(p, "Arrivé", "Arrivée")} le ${dateLongue(p.arrivee)} · ${s.nom} — prochaine étape : ${prochaineEtape(p, etat)}`;
+      const crans = [10, 20, 30].map((d) => `<span class="frise__cran" style="--d:${d}"></span>`).join("");
+      return `<li><button type="button" class="frise__ligne" data-nouveau="${p.id}" data-infobulle="${esc(info)}" aria-label="${esc(`${nomComplet(p)}, jour ${j} sur ${DUREE} — ouvrir son parcours`)}">
+        <span class="frise__qui"><strong>${esc(nomComplet(p))}</strong><span>${esc(s.nom)} · ${esc(p.court)}</span></span>
+        <span class="frise__piste" style="--j:${j}"><span class="frise__rempli"></span>${crans}<span class="frise__point"></span></span>
+        <span class="frise__jour">J${j}</span>
+      </button></li>`;
+    }).join("");
+    const frise = `
+      <section class="carte" aria-labelledby="titre-frise">
+        <div class="carte__tete"><div><h3 id="titre-frise">Où en est chacun dans ses 40 jours</h3><p class="carte__note">Dans l'ordre des arrivées : la console ne classe personne. Une ligne ouvre le parcours.</p></div></div>
+        <div class="frise">
+          <div class="frise__tete" aria-hidden="true"><span></span><div class="frise__echelle">${echelle}</div><span></span></div>
+          <ol class="frise__liste">${lignes}</ol>
+        </div>
+      </section>`;
+
+    return `${teteSection("Vue d'ensemble", "La promotion de la rentrée 2026", "Douze nouveaux arrivants vivent leurs 40 premiers jours dans le riad d'Au Courant — la cour, les archives, l'atelier métier, la salle de réunion. Ils y découvrent la maison, prouvent leur métier devant un témoin et se font une place.")}
+      ${indicateurs}
+      ${blocAxe("culture", "La culture de la maison", "L'axe central du jeu : ce que chacun découvre de Nareva, de ses valeurs à ses sites.", "lumiere", `<div class="grille-2">${valeurs}${pages}</div>${cartes}`, true)}
+      ${blocAxe("metier", "Le métier", "Ce que chacun sait faire, prouvé par un livrable et attesté par un manager.", "puissance", metier)}
+      ${blocAxe("communaute", "La communauté", "Ce que chacun apporte aux autres, et les rituels qui font vivre la maison.", "reseau", `<div class="grille-2">${rituels}${jaugeResume}</div>`)}
+      ${blocAxe("parcours", "Les 40 jours", "Le parcours de chacun, jour après jour, avec son programme du jour.", null, frise)}`;
+  }
+
+  function listeHTML(choisi, etat) {
+    return `<ol class="personnes">${parArrivee().map((p) => {
+      const j = jourDuParcours(p.arrivee);
+      const attente = p.competences.filter((c) => etatDe(p, c, etat).etat === "attente").length;
+      return `<li><button type="button" class="personne" data-nouveau="${p.id}"${p.id === choisi ? ' aria-current="true"' : ""}>
+        <span class="avatar" aria-hidden="true">${esc(initiales(p))}</span>
+        <span class="personne__texte"><b>${esc(nomComplet(p))}</b><span>${esc(p.metier)}</span><span>${esc(site(p.site).nom)} · jour ${j}</span></span>
+        ${attente ? `<span class="personne__attente" title="${attente} livrable en attente d'un manager">${ico("horloge")}${attente}<span class="sr-only"> livrable en attente d'un manager</span></span>` : ""}
+      </button></li>`;
+    }).join("")}</ol>`;
+  }
+
+  function parcoursHTML(j) {
+    return `<div class="parcours" style="--j:${j}">
+      <div class="parcours__piste" role="img" aria-label="Jour ${j} sur ${DUREE}">
+        <span class="parcours__rempli"></span>
+        ${[10, 20, 30].map((d) => `<span class="parcours__cran" style="--d:${d}"></span>`).join("")}
+        <span class="parcours__point"></span>
+      </div>
+      <ol class="parcours__jalons">${JALONS.map((x) => `<li class="${x.j <= j ? "passe" : ""}" style="--d:${x.j}"><b>J${x.j}</b><i>${esc(x.nom)}</i></li>`).join("")}</ol>
+    </div>`;
+  }
+
+  function axeHTML(a) {
+    return `<section class="axe axe--${a.cle}" data-axe="${a.cle}" aria-label="${esc(a.nom)}">
+      <header class="axe__tete">${ico(a.cle, "axe__icone")}<div><h4>${esc(a.nom)}</h4><p>${esc(a.sens)}</p></div></header>
+      <p class="axe__chiffre"><strong>${a.valeur}</strong> <span>${esc(a.unite)}</span></p>
+      <div class="jauge" role="meter" aria-valuemin="0" aria-valuemax="${a.max}" aria-valuenow="${a.valeur}" aria-label="${esc(`${a.nom} : ${a.valeur} ${a.unite}`)}" style="--jauge-couleur: var(--axe-couleur); --jauge-piste: var(--axe-${a.cle}-piste)"><span style="width:${pourcent(a.valeur, a.max)}%"></span></div>
+      <ul class="axe__details">${a.details.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>
+    </section>`;
+  }
+
+  function competenceHTML(p, c, etat) {
+    const ref = competence(c.cle);
+    const e = etatDe(p, c, etat);
+    const st = ETATS[e.etat];
+    const temoin = `${p.manager.nom}, ${minuscule(p.manager.role)}`;
+    let detail;
+    if (e.etat === "atteste") detail = `${e.aujourdhui ? "Attestée aujourd'hui" : `Attestée le ${dateLongue(e.le)}`} par ${esc(temoin)}.`;
+    else if (e.etat === "attente") detail = `Livrable déposé le ${dateLongue(e.le)} : ${esc(e.livrable)} Témoin attendu : ${esc(temoin)}.`;
+    else if (e.etat === "a_revoir") detail = `Renvoyée ${e.aujourdhui ? "aujourd'hui" : `le ${dateLongue(e.le)}`} par ${esc(p.manager.nom)} : <q>${esc(guillemets(e.mot))}</q>`;
+    else detail = `Preuve attendue : ${esc(ref.preuve)}`;
+    return `<li class="competence statut--${st.classe}">
+      ${ico(st.icone, "competence__icone")}
+      <p class="competence__titre">${esc(ref.nom)} <span class="statut statut--${st.classe}">${st.libelle}</span><span class="domaine-etiquette">${esc(ref.domaine)}</span></p>
+      <p class="competence__detail">${detail}</p>
+    </li>`;
+  }
+
+  function panneauHTML(p, etat) {
+    etat = etat || etatVide();
+    const s = site(p.site);
+    const j = jourDuParcours(p.arrivee);
+    const cartesGagnees = p.lumiere.cartes.length;
+    const palier = PALIERS[p.palier || 0];
+    return `<article class="carte dossier" id="dossier" aria-labelledby="dossier-nom">
+      <header class="dossier__tete">
+        <span class="avatar avatar--grand" aria-hidden="true">${esc(initiales(p))}</span>
+        <div><h3 id="dossier-nom">${esc(nomComplet(p))}</h3><p>${esc(p.metier)} · ${esc(s.nom)}</p><p class="dossier__palier"><span class="palier" title="Les paliers : ${esc(PALIERS.join(", "))}">Palier : ${esc(palier)}</span></p></div>
+        <div class="dossier__jour"><strong>Jour ${j}</strong><span>sur ${DUREE} · ${accord(p, "arrivé", "arrivée")} le ${dateLongue(p.arrivee)}</span></div>
+      </header>
+      ${parcoursHTML(j)}
+      <section aria-labelledby="titre-axes">
+        <h4 class="dossier__titre" id="titre-axes">Ses trois axes</h4>
+        <div class="axes">${axesDe(p, etat).map(axeHTML).join("")}</div>
+        <p class="axes__note">${ico("info")}<span>Trois mesures séparées, chacune dans son unité : elles ne s'additionnent jamais, et aucune ne se convertit dans une autre.</span></p>
+      </section>
+      <div class="dossier__duo">
+        <section class="encart">${ico("parrain", "encart__icone")}<div><p class="encart__titre">${p.parrain.f ? "Marraine" : "Parrain"} d'intégration</p><p><b>${esc(p.parrain.nom)}</b></p><p>${esc(p.parrain.role)} · à ses côtés depuis le ${dateLongue(p.arrivee)}</p></div></section>
+        <section class="encart encart--etape">${ico("etape", "encart__icone")}<div><p class="encart__titre">Prochaine étape <small>au programme du jour</small></p><p><b>${esc(prochaineEtape(p, etat))}</b></p></div></section>
+      </div>
+      <section aria-labelledby="titre-cartes-perso">
+        <h4 class="dossier__titre" id="titre-cartes-perso">Ses cartes de site <small>${cartesGagnees} sur ${SITES_A_CARTE.length}</small></h4>
+        <ul class="mini-cartes">${SITES_A_CARTE.map((x) => {
+          const gagnee = p.lumiere.cartes.includes(x.cle);
+          return `<li class="mini-carte${gagnee ? " mini-carte--gagnee" : ""}">${ico(x.genre)}<span><b>${esc(x.nom)}</b><small>${gagnee ? "gagnée" : "pas encore"}</small></span></li>`;
+        }).join("")}</ul>
+      </section>
+      <section aria-labelledby="titre-competences">
+        <h4 class="dossier__titre" id="titre-competences">Ses compétences <small>le parcours de son poste, dans le référentiel</small></h4>
+        <ul class="competences">${p.competences.map((c) => competenceHTML(p, c, etat)).join("")}</ul>
+      </section>
+      <p class="dossier__limite">${ico("oeilBarre")}<span>Ce dossier ne montre jamais ses messages, le détail de ses réponses, ni une comparaison avec les autres.</span></p>
+    </article>`;
+  }
+
+  function nouveauxHTML(choisi, etat) {
+    const p = trouver(choisi) || parArrivee()[0];
+    return `${teteSection("Les nouveaux arrivants", "Douze parcours, un par personne", "Choisissez un nouvel arrivant pour ouvrir son parcours. La liste suit l'ordre des arrivées : la console ne classe personne.")}
+      <div class="nouveaux">
+        <nav class="carte liste-nouveaux" aria-label="Les nouveaux arrivants, par date d'arrivée">
+          <p class="liste-nouveaux__tete"><b>${NOUVEAUX.length} nouveaux arrivants</b>par date d'arrivée</p>
+          ${listeHTML(p.id, etat)}
+        </nav>
+        ${panneauHTML(p, etat)}
+      </div>`;
+  }
+
+  function demandeHTML(d, formOuvert) {
+    const { p, c, e } = d;
+    const ref = competence(c.cle);
+    const s = site(p.site);
+    const id = d.cle.replace(/[^a-z0-9]+/gi, "-");
+    const attend = joursEntre(c.le, DATE_DES_DONNEES);
+    const temoin = `${p.manager.nom}, ${minuscule(p.manager.role)}`;
+    let actions;
+    if (e.etat === "atteste") {
+      actions = `<div class="decision statut--ok">${ico("check")}<div><b>Attestée aujourd'hui</b><span>par ${esc(p.manager.nom)}</span></div></div>
+        <button type="button" class="lien-bouton" data-annuler="${d.cle}">Annuler</button>`;
+    } else if (e.etat === "a_revoir") {
+      actions = `<div class="decision statut--revoir">${ico("revoir")}<div><b>Renvoyée à revoir</b><span><q>${esc(guillemets(e.mot))}</q></span></div></div>
+        <button type="button" class="lien-bouton" data-annuler="${d.cle}">Annuler</button>`;
+    } else if (formOuvert) {
+      actions = "";
+    } else {
+      actions = `<button type="button" class="bouton bouton--attester" data-attester="${d.cle}">${ico("check")}Attester</button>
+        <button type="button" class="bouton bouton--revoir" data-revoir="${d.cle}">${ico("revoir")}À revoir</button>`;
+    }
+    const formulaire = formOuvert && e.etat === "attente" ? `
+      <form class="revoir" data-renvoyer="${d.cle}" novalidate>
+        <label class="revoir__label" for="mot-${id}">Ce qui manque — un mot pour ${esc(p.prenom)} <span>(obligatoire)</span></label>
+        <textarea id="mot-${id}" name="mot" rows="3" maxlength="${MOT_MAX}" aria-describedby="aide-${id} erreur-${id}" placeholder="Par exemple : il manque les mesures d'isolement ; ajoute-les et je signe."></textarea>
+        <p class="revoir__aide" id="aide-${id}">Ce mot part vers ${esc(p.prenom)}, avec son livrable. Il n'entre dans aucune évaluation.</p>
+        <p class="revoir__erreur" id="erreur-${id}" role="alert" hidden></p>
+        <div class="revoir__actions">
+          <button type="submit" class="bouton bouton--envoi">${ico("revoir")}Renvoyer avec ce mot</button>
+          <button type="button" class="lien-bouton" data-fermer="${d.cle}">Annuler</button>
+        </div>
+      </form>` : "";
+    return `<li class="carte demande demande--${ETATS[e.etat].classe}">
+      <div class="demande__corps">
+        <div class="demande__qui"><span class="avatar" aria-hidden="true">${esc(initiales(p))}</span><div><b>${esc(nomComplet(p))}</b><span>${esc(p.metier)} · ${esc(s.nom)}</span></div></div>
+        <p class="demande__competence">${esc(ref.nom)} <span class="domaine-etiquette">${esc(ref.domaine)}</span></p>
+        <p class="demande__livrable"><span class="etiquette">Livrable</span>${esc(c.livrable)}</p>
+        <p class="demande__meta">Déposé le ${dateLongue(c.le)} · ${attend > 0 ? `attend depuis ${pl(attend, "jour", "jours")}` : "aujourd'hui"} · Témoin : ${esc(temoin)}</p>
+      </div>
+      ${actions ? `<div class="demande__actions">${actions}</div>` : ""}
+      ${formulaire}
+    </li>`;
+  }
+
+  function attesterHTML(etat, ouvert) {
+    const file = demandes(etat);
+    const n = (x) => file.filter((d) => d.e.etat === x).length;
+    return `${teteSection("À attester", "Les livrables qui attendent un manager", "Chaque compétence se prouve par un livrable. Le manager le regarde, puis atteste, ou le renvoie à revoir avec un mot qui dit ce qui manque.")}
+      <div class="compteurs" role="status">
+        <span class="compteur">En attente <b>${n("attente")}</b></span>
+        <span class="compteur">Attestées aujourd'hui <b>${n("atteste")}</b></span>
+        <span class="compteur">Renvoyées à revoir <b>${n("a_revoir")}</b></span>
+      </div>
+      <p class="note-demo">${ico("info")}<span>Démo : ici, vous cliquez à la place du manager. La RH voit la file et son état ; elle ne note personne.</span></p>
+      <ol class="demandes">${file.map((d) => demandeHTML(d, ouvert === d.cle)).join("")}</ol>`;
+  }
+
+  function referentielHTML(etat) {
+    const usage = (cle) => {
+      let dans = 0;
+      let attestees = 0;
+      let enAttente = 0;
+      for (const p of NOUVEAUX) {
+        for (const c of p.competences) {
+          if (c.cle !== cle) continue;
+          dans += 1;
+          const e = etatDe(p, c, etat).etat;
+          if (e === "atteste") attestees += 1;
+          if (e === "attente") enAttente += 1;
+        }
+      }
+      if (!dans) return "Hors des parcours de cette promotion";
+      const morceaux = [`Dans ${pl(dans, "parcours", "parcours")}`];
+      if (attestees) morceaux.push(pl(attestees, "attestation", "attestations"));
+      if (enAttente) morceaux.push(`${enAttente} en attente`);
+      return morceaux.join(" · ");
+    };
+    return `${teteSection("Le référentiel · GPEC", "Ce qui prouve une compétence", "Le référentiel de l'atelier métier du jeu : six domaines, et pour chaque compétence ce qui la prouve, un livrable qu'un témoin regarde, jamais une déclaration. Les défis de métier et le quiz du jour entraînent ; seul un livrable attesté par un manager prouve. Le collaborateur garde son registre.", puce("puissance"))}
+      <div class="domaines">${DOMAINES.map((d) => `
+        <section class="carte domaine" aria-labelledby="domaine-${d.cle}">
+          <header class="domaine__tete">${ico(d.icone, "domaine__icone")}<div><h3 id="domaine-${d.cle}">${esc(d.nom)}</h3><p>${pl(d.competences.length, "compétence", "compétences")}</p></div></header>
+          <ol class="domaine__liste">${d.competences.map((c) => `
+            <li><strong>${esc(c.nom)}</strong>
+              <p class="preuve"><span class="etiquette">Preuve</span>${esc(c.preuve)}</p>
+              <p class="usage">${ico("parrain")}${esc(usage(c.cle))}</p></li>`).join("")}
+          </ol>
+        </section>`).join("")}
+      </div>`;
+  }
+
+  function sitesHTML() {
+    const tous = jaugesSites();
+    const ouvertes = tous.filter((x) => x.ouverte);
+    const veille = tous.filter((x) => !x.ouverte);
+    const pleinesPassees = (liste) => { const n = liste.filter(Boolean).length; return `${n} ${n > 1 ? "pleines" : "pleine"} sur ${liste.length}`; };
+    const semaineDu = (k, combien) => decaler(JAUGES.semaine, -7 * (combien - k));
+    const carte = (x) => {
+      const pleine = x.gestes >= x.objectif;
+      const crans = Array.from({ length: x.objectif }, (_, i) => `<span class="cran${i < x.gestes ? " cran--plein" : ""}"></span>`).join("");
+      const passees = x.passees.length ? `<div class="semaines"><span>Semaines passées</span>${x.passees.map((b, k) => `<span class="semaine${b ? " semaine--pleine" : ""}" data-infobulle="${esc(`Semaine du ${dateLongue(semaineDu(k, x.passees.length))} : ${b ? "pleine" : "pas pleine"}`)}" role="img" aria-label="${esc(`Semaine du ${dateLongue(semaineDu(k, x.passees.length))} : ${b ? "pleine" : "pas pleine"}`)}"></span>`).join("")}<span>${pleinesPassees(x.passees)}</span></div>`
+        : `<div class="semaines"><span>Ouverte cette semaine : ${esc(x.site.nom)} accueille un deuxième nouvel arrivant.</span></div>`;
+      return `<section class="carte site-jauge" data-jauge-site="${x.site.cle}" aria-labelledby="jauge-${x.site.cle}">
+        <header class="site-jauge__tete">${ico(x.site.genre, "site-jauge__icone")}<div><h3 id="jauge-${x.site.cle}">${esc(x.site.nom)}</h3><p>${esc(x.site.detail)}</p></div><span class="site-jauge__nombre">${pl(x.n, "nouvel arrivant", "nouveaux arrivants")}</span></header>
+        <div class="crans" role="meter" aria-valuemin="0" aria-valuemax="${x.objectif}" aria-valuenow="${x.gestes}" aria-label="${esc(`${x.site.nom} : ${x.gestes} gestes sur ${x.objectif} cette semaine`)}">${crans}</div>
+        <div class="site-jauge__ligne"><span class="chiffre">${x.gestes} <small>gestes sur ${x.objectif} cette semaine</small></span>${pleine ? `<span class="allumee">${ico("etincelle")}Pleine : le site s'allume</span>` : ""}</div>
+        ${passees}
+      </section>`;
+    };
+    const enVeille = (x) => `<li class="veille__site">${ico("veille")}<div><b>${esc(x.site.nom)}</b><span>${x.n === 0 ? "Pas de nouvel arrivant en ce moment." : "Un seul nouvel arrivant : la jauge reste au site. Seule, elle dirait ce que fait une personne."}</span></div></li>`;
+    return `${teteSection("La jauge des sites", "Chaque site se charge ensemble", `Une jauge par site, que ses nouveaux arrivants remplissent ensemble, semaine après semaine : se rencontrer, s'entraider. Semaine du ${dateLongue(JAUGES.semaine)}.`, puce("reseau"))}
+      <p class="jauges-regle">${ico("info")}<span>Elle compte des gestes faits ensemble, jamais des points, jamais une personne. Elle ne s'ouvre qu'à partir de ${JAUGES.seuil} nouveaux arrivants sur un site. Pleine, elle allume le site sur la carte du jeu, pour toute la promotion.</span></p>
+      <div class="jauges-sites">${ouvertes.map(carte).join("")}</div>
+      <section aria-labelledby="titre-veille">
+        <h3 class="dossier__titre" id="titre-veille">En veille <small>du nord au sud</small></h3>
+        <ul class="veille">${veille.map(enVeille).join("")}</ul>
+      </section>`;
+  }
+
+  /* ───────────── La page : onglets, gestes, mémoire ───────────── */
+
+  const SECTIONS = ["vue-ensemble", "nouveaux", "a-attester", "referentiel", "sites", "charte"];
+
+  function lireMemoire() {
+    try { const lu = window.localStorage.getItem(MEMOIRE); return lu ? JSON.parse(lu) : null; } catch (e) { return null; }
+  }
+  function ecrireMemoire(etat) {
+    try { window.localStorage.setItem(MEMOIRE, JSON.stringify(etat)); } catch (e) { /* sans mémoire, la page garde l'état tant qu'elle est ouverte */ }
+  }
+  function oublierMemoire() {
+    try { window.localStorage.removeItem(MEMOIRE); } catch (e) { /* rien à oublier */ }
+  }
+
+  function brancherLogo() {
+    const place = document.getElementById("logo-maison");
+    const essayer = (i) => {
+      if (i >= LOGOS.length) return; /* aucun fichier : le mot NAREVA reste */
+      const img = new Image();
+      img.alt = "Nareva";
+      img.onload = () => { place.replaceChildren(img); place.classList.add("logo-maison--image"); };
+      img.onerror = () => essayer(i + 1);
+      img.src = LOGOS[i];
+    };
+    essayer(0);
+  }
+
+  function brancherInfobulles() {
+    const bulle = document.getElementById("infobulle");
+    let cible = null;
+    const cacher = () => { cible = null; bulle.hidden = true; };
+    const montrer = (el, x) => {
+      cible = el;
+      bulle.textContent = el.getAttribute("data-infobulle");
+      bulle.hidden = false;
+      const r = el.getBoundingClientRect();
+      const b = bulle.getBoundingClientRect();
+      const centre = typeof x === "number" ? x : r.left + r.width / 2;
+      const gauche = Math.max(8, Math.min(centre - b.width / 2, window.innerWidth - b.width - 8));
+      let haut = r.top - b.height - 10;
+      if (haut < 8) haut = r.bottom + 10;
+      bulle.style.transform = `translate(${Math.round(gauche + window.scrollX)}px, ${Math.round(haut + window.scrollY)}px)`;
+    };
+    document.addEventListener("pointermove", (e) => {
+      const el = e.target.closest && e.target.closest("[data-infobulle]");
+      if (!el) { if (cible) cacher(); return; }
+      if (el !== cible) montrer(el, e.clientX);
+    });
+    document.addEventListener("focusin", (e) => {
+      const el = e.target.closest && e.target.closest("[data-infobulle]");
+      if (el) montrer(el); else cacher();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") cacher(); });
+    window.addEventListener("scroll", cacher, { passive: true });
+  }
+
+  function demarrer() {
+    const $ = (sel) => document.querySelector(sel);
+    const zones = {};
+    SECTIONS.forEach((s) => { zones[s] = document.getElementById(`panneau-${s}`); });
+    const onglets = Array.from(document.querySelectorAll('[role="tab"]'));
+    const etroit = window.matchMedia("(max-width: 1099px)");
+    let etat = nettoyer(lireMemoire());
+    let choisi = parArrivee()[0].id;
+    let ouvert = null;
+    let sectionAffichee = null;
+    let versLeDossier = false;
+
+    const annoncer = (texte) => { const a = $("#annonce"); a.textContent = ""; window.setTimeout(() => { a.textContent = texte; }, 30); };
+    const focaliser = (sel) => { const el = document.querySelector(sel); if (el) el.focus(); };
+
+    function rendreNouveaux() {
+      const liste = zones.nouveaux.querySelector(".liste-nouveaux");
+      const defile = liste ? liste.scrollTop : 0;
+      zones.nouveaux.innerHTML = typo(nouveauxHTML(choisi, etat));
+      const neuve = zones.nouveaux.querySelector(".liste-nouveaux");
+      if (neuve) neuve.scrollTop = defile;
+    }
+
+    function rendre() {
+      zones["vue-ensemble"].innerHTML = typo(vueEnsembleHTML(etat));
+      rendreNouveaux();
+      zones["a-attester"].innerHTML = typo(attesterHTML(etat, ouvert));
+      zones.referentiel.innerHTML = typo(referentielHTML(etat));
+      zones.sites.innerHTML = typo(sitesHTML());
+      const n = demandes(etat).filter((d) => d.e.etat === "attente").length;
+      const pastille = $("#pastille-attester");
+      pastille.textContent = String(n);
+      pastille.hidden = n === 0;
+      $("#onglet-a-attester").setAttribute("aria-label", `À attester, ${n} en attente`);
+    }
+
+    function lireAdresse() {
+      const [section, qui] = decodeURIComponent((window.location.hash || "").slice(1)).split("/");
+      if (SECTIONS.includes(section)) return { section, qui: qui || null };
+      return { section: sectionAffichee || "vue-ensemble", qui: null };
+    }
+
+    function afficher() {
+      const { section, qui } = lireAdresse();
+      if (qui && trouver(qui) && qui !== choisi) { choisi = qui; rendreNouveaux(); }
+      onglets.forEach((o) => {
+        const actif = o.dataset.aller === section;
+        o.setAttribute("aria-selected", String(actif));
+        o.tabIndex = actif ? 0 : -1;
+      });
+      SECTIONS.forEach((s) => { zones[s].hidden = s !== section; });
+      const barre = document.querySelector(".onglets");
+      const actif = onglets.find((o) => o.dataset.aller === section);
+      if (actif && barre.scrollWidth > barre.clientWidth) {
+        const rb = barre.getBoundingClientRect();
+        const ra = actif.getBoundingClientRect();
+        if (ra.left < rb.left || ra.right > rb.right) barre.scrollLeft += ra.left - rb.left - 16;
+      }
+      if (sectionAffichee !== null && section !== sectionAffichee) {
+        const tete = document.querySelector(".tete");
+        if (window.scrollY > tete.offsetHeight) window.scrollTo(0, 0);
+      }
+      sectionAffichee = section;
+      document.body.setAttribute("data-section", section);
+      if (versLeDossier) {
+        versLeDossier = false;
+        const dossier = document.getElementById("dossier");
+        if (dossier) dossier.scrollIntoView({ block: "start" });
+      }
+    }
+
+    function aller(section, qui) {
+      const cible = qui ? `${section}/${qui}` : section;
+      if (decodeURIComponent(window.location.hash.slice(1)) === cible) afficher();
+      else window.location.hash = cible;
+    }
+
+    const sauver = () => ecrireMemoire(etat);
+
+    document.addEventListener("click", (e) => {
+      const t = e.target.closest("[data-aller], [data-nouveau], [data-attester], [data-revoir], [data-fermer], [data-annuler], #remise");
+      if (!t) return;
+      if (t.dataset.aller) { aller(t.dataset.aller); return; }
+      if (t.dataset.nouveau) {
+        versLeDossier = Boolean(t.closest("#panneau-nouveaux")) && etroit.matches;
+        aller("nouveaux", t.dataset.nouveau);
+        return;
+      }
+      if (t.dataset.attester) {
+        const cle = t.dataset.attester;
+        const r = attester(etat, cle);
+        if (!r.ok) return;
+        etat = r.etat; ouvert = null; sauver(); rendre();
+        focaliser(`[data-annuler="${cle}"]`);
+        annoncer("Compétence attestée.");
+        return;
+      }
+      if (t.dataset.revoir) {
+        ouvert = t.dataset.revoir; rendre();
+        focaliser(`form[data-renvoyer="${ouvert}"] textarea`);
+        return;
+      }
+      if (t.dataset.fermer) {
+        const cle = t.dataset.fermer;
+        ouvert = null; rendre();
+        focaliser(`[data-revoir="${cle}"]`);
+        return;
+      }
+      if (t.dataset.annuler) {
+        const cle = t.dataset.annuler;
+        etat = annuler(etat, cle).etat; sauver(); rendre();
+        focaliser(`[data-attester="${cle}"]`);
+        annoncer("Décision annulée : le livrable attend de nouveau.");
+        return;
+      }
+      if (t.id === "remise") {
+        etat = etatVide(); ouvert = null; oublierMemoire(); rendre();
+        annoncer("La démo est remise à zéro.");
+      }
+    });
+
+    document.addEventListener("submit", (e) => {
+      const form = e.target.closest("form[data-renvoyer]");
+      if (!form) return;
+      e.preventDefault();
+      const cle = form.dataset.renvoyer;
+      const zone = form.querySelector("textarea");
+      const r = renvoyer(etat, cle, zone.value);
+      if (!r.ok) {
+        const erreur = form.querySelector(".revoir__erreur");
+        erreur.textContent = r.erreur;
+        erreur.hidden = false;
+        zone.setAttribute("aria-invalid", "true");
+        zone.focus();
+        return;
+      }
+      etat = r.etat; ouvert = null; sauver(); rendre();
+      focaliser(`[data-annuler="${cle}"]`);
+      annoncer("Livrable renvoyé à revoir, avec le mot du manager.");
+    });
+
+    document.addEventListener("input", (e) => {
+      if (!e.target.matches("form[data-renvoyer] textarea")) return;
+      e.target.removeAttribute("aria-invalid");
+      e.target.form.querySelector(".revoir__erreur").hidden = true;
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && e.target.matches("form[data-renvoyer] textarea")) {
+        e.preventDefault();
+        e.target.form.requestSubmit();
+      }
+    });
+
+    document.querySelector(".onglets").addEventListener("keydown", (e) => {
+      const i = onglets.indexOf(document.activeElement);
+      if (i < 0) return;
+      let k = null;
+      if (e.key === "ArrowRight") k = (i + 1) % onglets.length;
+      if (e.key === "ArrowLeft") k = (i - 1 + onglets.length) % onglets.length;
+      if (e.key === "Home") k = 0;
+      if (e.key === "End") k = onglets.length - 1;
+      if (k === null) return;
+      e.preventDefault();
+      onglets[k].focus();
+      aller(onglets[k].dataset.aller);
+    });
+
+    document.querySelector(".evitement").addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("contenu").focus();
+    });
+
+    window.addEventListener("hashchange", afficher);
+    rendre();
+    afficher();
+    brancherLogo();
+    brancherInfobulles();
+  }
+
+  racine.AU_COURANT = {
+    DATE_DES_DONNEES, DUREE, VALEURS, VALEURS_REPLI, VALEURS_SOURCE, CULTURE, RITUELS, PALIERS, SITES, SITES_A_CARTE, DOMAINES, JAUGES, AXES, NOUVEAUX,
+    jourDuParcours, axesDe, demandes, attester, renvoyer, annuler, nettoyer, etatVide,
+    prochaineEtape, culturePromotion, competencesParDomaine, jaugesSites,
+    vueEnsembleHTML: (etat) => typo(vueEnsembleHTML(etat)),
+    nouveauxHTML: (choisi, etat) => typo(nouveauxHTML(choisi, etat)),
+    panneauHTML: (p, etat) => typo(panneauHTML(p, etat)),
+    attesterHTML: (etat, ouvert) => typo(attesterHTML(etat, ouvert)),
+    referentielHTML: (etat) => typo(referentielHTML(etat)),
+    sitesHTML: () => typo(sitesHTML())
+  };
+
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", demarrer);
+    else demarrer();
+  }
+})(typeof window !== "undefined" ? window : this);
+</script>
+</body>
+</html>

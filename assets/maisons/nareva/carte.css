@@ -1,0 +1,47 @@
+/* Au Courant — la maison Nareva : LA CARTE DES SITES (24/09/2026).
+   Le dessin est celui du moteur (assets/css/zawia-kharita.css) ; la maison ne
+   change que ce qui dit la lumière : un site allumé brille, un site éteint reste
+   dans le noir. Les données vivent dans carte.js. */
+
+/* Un site allumé : un halo de lumière autour du médaillon. */
+.bab-maison--nareva .kh-ville:not(.kh-ville--effacee) .kh-ville-halo {
+  fill: #fff4bf;
+  filter: drop-shadow(0 0 9px rgba(255, 206, 0, 0.95)) drop-shadow(0 0 3px rgba(255, 206, 0, 0.8));
+}
+.bab-maison--nareva .kh-ville:not(.kh-ville--effacee) .kh-ville-anneau2 { stroke: #e0a800; stroke-width: 1.6; opacity: 1; }
+.bab-maison--nareva .kh-ville:not(.kh-ville--effacee) .kh-ville-point { filter: drop-shadow(0 0 4px rgba(255, 206, 0, 0.95)); }
+
+/* Un site éteint : un médaillon dans le noir, comme une salle de contrôle hors
+   tension. Le grand disque sombre du moteur (autour du point) se tait : quatre
+   sites serrés sur la côte en faisaient une tache. */
+.bab-maison--nareva .kh-nsyan { display: none; }
+.bab-maison--nareva .kh-ville--effacee .kh-ville-halo { fill: #16263b; opacity: 0.92; }
+.bab-maison--nareva .kh-ville--effacee image { filter: grayscale(1) brightness(0.6); opacity: 0.4; }
+.bab-maison--nareva .kh-ville--effacee .kh-ville-anneau { stroke: #7d8a9b; }
+.bab-maison--nareva .kh-ville--effacee .kh-ville-anneau2 { stroke: #16263b; }
+.bab-maison--nareva .kh-ville-effacee-t { fill: #4a5566; font-weight: 600; }
+
+/* Les noms se lisent de loin (une démo se fait devant une salle) : un cran plus
+   grands que ceux du moteur — 16 px, c'est ce que tient la rangée du Sud sans que
+   deux noms se touchent. Un site éteint garde un nom lisible. */
+.bab-maison--nareva .kh-ville-nom { fill: #173056; font-size: 16px; }
+.bab-maison--nareva .kh-ville-sous { fill: #173056; font-size: 13px; }
+.bab-maison--nareva .kh-ville-effacee-t { font-size: 11.5px; }
+.bab-maison--nareva .kh-ville--effacee .kh-ville-nom { opacity: 0.82; }
+.bab-maison--nareva .kh-ville--effacee .kh-ville-sous { opacity: 0.75; }
+.bab-maison--nareva .kh-ville-fil { stroke: #173056; opacity: 0.55; }
+
+/* Le panneau de la carte prend la largeur de l'écran (jusqu'à 1 320 px) et presque
+   toute sa hauteur : la carte y est lue de près, et défile pour le reste. */
+.bab-maison--nareva #zj-kharita .zj-riwaq__cadre--large { max-width: 1320px; width: min(1320px, calc(100vw - 32px)); max-height: 94vh; }
+.bab-maison--nareva #zj-kharita .zj-kharita__carte { max-height: calc(94vh - 190px); }
+.bab-maison--nareva #zj-kharita .zj-riwaq__lead { margin: 8px 0 6px; }
+
+/* Les textes de la carte, dans la couleur de la maison. */
+.bab-maison--nareva .kh-cart-sur { fill: #005baa; }
+.bab-maison--nareva .kh-cart-titre { fill: #173056; }
+.bab-maison--nareva .kh-mer-t { fill: #173056; opacity: 0.35; }
+
+/* La fiche d'un site encore éteint : son image reste dans le gris. */
+.bab-maison--nareva .kh-fiche--eteint .kh-fiche-portrait img { filter: grayscale(1); opacity: 0.6; }
+.bab-maison--nareva .kh-fiche--site .kh-fiche-etat { color: #00572b; border-color: rgba(0, 87, 43, 0.45); background: rgba(255, 206, 0, 0.18); }

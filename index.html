@@ -1,0 +1,2369 @@
+<!-- Page FABRIQUÉE par scripts/maison.mjs nareva à partir de zawia-jeu.html — ne pas l'éditer à la main. -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  
+  <script>
+    window.ZWJ_CONFIG = {
+      supabaseUrl: "",
+      supabaseAnonKey: ""
+    };
+  </script>
+
+  
+  <script>
+    (function () {
+      var m = /[?&]invitation=([0-9a-fA-F]{32})(?:&|#|$)/.exec(location.search);
+      if (!m) return;
+      try { sessionStorage.setItem("zwj.invitation", m[1].toLowerCase()); } catch (e) { window.ZWJ_INVITATION = m[1].toLowerCase(); }
+      var reste = location.search.replace(/^\?/, "").split("&").filter(function (p) { return p && p.split("=")[0] !== "invitation"; });
+      try { history.replaceState(null, "", location.pathname + (reste.length ? "?" + reste.join("&") : "") + location.hash); } catch (e) { /* tant pis : le code reste visible */ }
+    })();
+  </script>
+
+  
+  <script>
+    (function () {
+      var h = location.hash || "";
+      if (h.indexOf("type=recovery") === -1 && h.indexOf("error_code=") === -1) return;
+      window.ZWJ_RETOUR = h;
+      try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { /* tant pis : le fragment reste visible */ }
+    })();
+  </script>
+
+  <title>Au Courant — le jeu d'accueil de Nareva</title>
+  <meta name="description" content="Au Courant, le jeu d'accueil de Nareva : quarante jours pour découvrir la maison, prouver son métier et se faire une place. Bab, une création Ai4x." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="theme-color" content="#0b1f2e" />
+
+  <link rel="icon" href="assets/maisons/nareva/marque.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/polices/polices.css?h=5bb4a1ec41" />
+  <link rel="stylesheet" href="assets/css/zawia-kharita.css?v=1&amp;h=407501b531" />
+
+<style>
+:root {
+  --night: #081411; --night-2: #0c1e18; --ink: #f2efe4; --muted: #a8b5a6;
+  --gold: #e6b13f; --gold-soft: rgba(230, 177, 63, 0.16); --emerald: #2ee6a8; --emerald-deep: #14684f;
+  --terracotta: #cf6b45; --danger: #ff7a8a; --line: rgba(244, 236, 217, 0.12);
+  --surface: rgba(244, 236, 217, 0.04); --surface-2: rgba(244, 236, 217, 0.07);
+  --parchemin: #f6efdc; --encre: #1d1a2e; --radius: 18px;
+  --font-display: "Cormorant Garamond", Georgia, serif; --font-body: "Inter", -apple-system, "Segoe UI", sans-serif;
+  --font-caps: "Cinzel", serif; --font-ar: "Amiri", serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--night) radial-gradient(ellipse at 50% -10%, rgba(230, 177, 63, 0.09), transparent 55%);
+  color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.12; font-weight: 600; margin: 0; }
+.ar { font-family: var(--font-ar); color: var(--gold); font-weight: 400; }
+a { color: var(--gold); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+button { cursor: pointer; font: inherit; }
+:focus-visible { outline: 2px solid var(--emerald); outline-offset: 2px; }
+canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+/* v3.0 — le monde peint : la cour, l'aperçu et le HUD s'agrandissent AVEC lissage */
+#zj-scene, #zj-apercu, #zj-hud-avatar { image-rendering: auto; }
+/* v3.1 — la version arabe : la page se lit de droite à gauche, en Amiri ; les
+   calligraphies qui doublaient le français (le HUD, le lexique) se taisent. */
+.zj-tete__langue { margin-left: auto; background: transparent; border: 1px solid var(--line); color: var(--gold); border-radius: 999px; padding: 4px 12px; font: inherit; cursor: pointer; }
+.zj-tete__langue:hover { border-color: var(--gold); }
+body[data-ecran="cour"] .zj-tete__langue { display: none; }
+html[lang="ar"] body, html[lang="ar"] button, html[lang="ar"] input, html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3, html[lang="ar"] h4, html[lang="ar"] .zj-kicker { font-family: var(--font-ar), serif; }
+html[lang="ar"] body { font-size: 17px; line-height: 1.7; }
+html[lang="ar"] .zj-kicker { letter-spacing: 0; }
+html[lang="ar"] #zj-hud-rang-ar, html[lang="ar"] .zj-biblio__mot summary .ar, html[lang="ar"] .zj-riwaq__titre .ar, html[lang="ar"] .zj-wird__carte .ar, html[lang="ar"] .zj-riwaq__tete h2 .ar, html[lang="ar"] .zj-rafiq__nom .ar, html[lang="ar"] .zj-tariqa__nom .ar, html[lang="ar"] .zj-bouton--dyaf .ar,
+/* v7.7 — le titre du Mechouar : sinon « متمرّن متمرّن » */
+html[lang="ar"] .zj-mech__moi h3 .ar, html[lang="ar"] .zj-mech__arme .zj-kicker .ar { display: none; }
+html[lang="ar"] .zj-tete__langue { margin-left: 0; margin-right: auto; }
+html[lang="ar"] .zj-tete__langue span { font-family: var(--font-body); }
+html[dir="rtl"] #zj-dialogue-texte, html[dir="rtl"] .zj-riwaq__texte, html[dir="rtl"] .zj-souk__form label { text-align: right; }
+[hidden] { display: none !important; }
+
+/* ---------- en-tête ---------- */
+.zj-tete { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 22px; border-bottom: 1px solid var(--line); }
+.zj-marque { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: var(--font-caps); font-size: 18px; letter-spacing: 0.08em; }
+.zj-marque img { width: 28px; height: 28px; }
+.zj-tete__lieu { color: var(--muted); font-size: 14px; }
+.zj-tete__lieu .ar { margin-left: 8px; font-size: 17px; }
+body[data-ecran="cour"] .zj-tete { display: none; }
+
+/* ---------- boutons, champs, messages ---------- */
+.zj-bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 22px; border-radius: 12px;
+  border: 1px solid var(--gold); background: var(--gold); color: #1a1406; font-weight: 600; font-size: 15px;
+  transition: transform 180ms var(--ease), background 180ms, box-shadow 180ms;
+}
+.zj-bouton:hover { background: #f0c25a; box-shadow: 0 8px 24px rgba(230, 177, 63, 0.22); }
+.zj-bouton:disabled { opacity: 0.6; cursor: wait; }
+.zj-bouton--discret { background: transparent; color: var(--ink); border-color: var(--line); }
+.zj-bouton--discret:hover { background: var(--surface-2); box-shadow: none; }
+label { display: block; font-size: 13.5px; color: var(--muted); letter-spacing: 0.02em; margin-top: 14px; }
+input[type="email"], input[type="password"], input[type="text"], input[type="url"] {
+  display: block; width: 100%; margin-top: 6px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; transition: border-color 180ms, box-shadow 180ms;
+}
+input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+.zj-msg { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; font-size: 14px; background: var(--surface-2); border: 1px solid var(--line); }
+.zj-msg.ok { border-color: rgba(46, 230, 168, 0.4); color: var(--emerald); }
+.zj-msg.ko { border-color: rgba(255, 122, 138, 0.45); color: var(--danger); }
+.zj-legende { color: var(--muted); font-size: 13.5px; margin: 12px 0 0; }
+.zj-note { color: var(--muted); font-size: 13.5px; margin: 18px 0 0; }
+.zj-kicker { font-family: var(--font-caps); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin: 0 0 8px; }
+.zj-bandeau { margin: 16px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--gold-soft); border: 1px solid rgba(230, 177, 63, 0.35); color: var(--ink); font-size: 13.5px; }
+
+/* ---------- l'intro : le voyage dans le temps ---------- */
+.zj-intro { position: fixed; inset: 0; z-index: 60; background: #07100d; cursor: pointer; }
+#zj-intro-scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.zj-intro__passer {
+  position: absolute; right: 14px; top: 14px; z-index: 2; padding: 9px 16px; border-radius: 12px;
+  border: 1px solid var(--line); background: rgba(8, 20, 17, 0.72); color: var(--muted); font-size: 13.5px; backdrop-filter: blur(4px);
+}
+.zj-intro__passer:hover { color: var(--ink); background: rgba(12, 30, 24, 0.9); }
+.zj-intro__texte {
+  position: absolute; left: 50%; bottom: 98px; z-index: 1; width: min(640px, calc(100% - 36px)); text-align: center;
+  opacity: 0; transform: translate(-50%, 10px); transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+}
+.zj-intro__texte.visible { opacity: 1; transform: translate(-50%, 0); }
+.zj-intro__epoque { margin: 0 0 6px; }
+.zj-intro__titre { font-size: clamp(1.6rem, 4.5vw, 2.3rem); }
+.zj-intro__corps { color: var(--muted); font-size: 15.5px; line-height: 1.6; margin: 10px 0 0; }
+.zj-intro__pied {
+  position: absolute; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 2;
+  display: flex; align-items: center; gap: 18px;
+}
+.zj-intro__points { display: flex; gap: 7px; }
+.zj-intro__points span { width: 7px; height: 7px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); transition: background 300ms; }
+.zj-intro__points span.actif { background: var(--gold); border-color: var(--gold); }
+@media (max-width: 520px) { .zj-intro__texte { bottom: 108px; } .zj-intro__corps { font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) { .zj-intro__texte { transition: none; transform: translate(-50%, 0); } }
+
+/* ---------- l'intro, version filmée ----------
+   Le film est servi par la maison (assets/video/), jamais par un lecteur
+   tiers : un lecteur embarqué affiche le nom de la chaîne qui l'héberge, et
+   le voile tomberait pour chaque joueur. Quand le film ne peut pas jouer, la
+   classe --film saute et les six photos dessinées reprennent la main. */
+.zj-intro__film {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; display: block; background: #07100d;
+}
+.zj-intro--film #zj-intro-scene,
+.zj-intro--film .zj-intro__texte,
+.zj-intro--film .zj-intro__pied { display: none; }
+.zj-intro__barre { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; height: 3px; background: rgba(244, 236, 217, 0.14); }
+.zj-intro__barre i { display: block; height: 100%; width: 0; background: var(--gold); }
+.zj-intro__son {
+  position: absolute; right: 14px; top: 60px; z-index: 2; width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid var(--line); background: rgba(8, 20, 17, 0.72); color: var(--muted); font-size: 16px; backdrop-filter: blur(4px);
+}
+.zj-intro__son:hover { color: var(--gold); background: rgba(12, 30, 24, 0.9); }
+.zj-intro__lancer {
+  position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px; padding: 24px;
+  /* l'affiche en fond, et pas seulement l'attribut `poster` : arrêté sur sa
+     première image, le film est encore noir — la porte éclairée est ce qui
+     donne envie d'appuyer. */
+  /* le voile est franc : sous lui passe le faisceau de lumière de la porte,
+     et un texte posé dessus ne se lirait plus. */
+  background:
+    radial-gradient(135% 105% at 50% 50%, rgba(8, 20, 17, 0.74), rgba(8, 20, 17, 0.94)),
+    url("assets/maisons/nareva/video/au-courant-affiche.jpg?v=2") center / cover no-repeat;
+}
+.zj-intro__jouer {
+  width: 86px; height: 86px; border-radius: 50%; cursor: pointer;
+  border: 2px solid var(--gold); background: rgba(8, 20, 17, 0.78); color: var(--gold);
+  font-size: 26px; line-height: 1; display: grid; place-items: center;
+  box-shadow: 0 0 0 6px rgba(8, 20, 17, 0.35), 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: background 220ms var(--ease), transform 220ms var(--ease);
+}
+.zj-intro__jouer:hover { background: rgba(230, 177, 63, 0.22); transform: scale(1.04); }
+.zj-intro__lancer p {
+  margin: 0; color: var(--ink); font-family: var(--font-display);
+  font-size: clamp(1.3rem, 3.4vw, 1.8rem); text-align: center; text-shadow: 0 2px 14px rgba(8, 20, 17, 0.9);
+}
+.zj-intro__lancer small { color: var(--muted); font-size: 13px; text-align: center; text-shadow: 0 1px 10px rgba(8, 20, 17, 0.9); }
+@media (max-width: 520px) { .zj-intro__son { top: 56px; width: 38px; height: 38px; } }
+@media (prefers-reduced-motion: reduce) { .zj-intro__jouer { transition: none; } .zj-intro__jouer:hover { transform: none; } }
+
+/* ---------- le tutoriel : la bannière du mou'allim ---------- */
+.zj-tuto {
+  position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 5;
+  display: flex; align-items: center; gap: 10px; max-width: min(560px, calc(100% - 240px));
+  padding: 8px 10px 8px 14px; border-radius: 12px; background: rgba(8, 20, 17, 0.85);
+  border: 1px solid rgba(230, 177, 63, 0.4); backdrop-filter: blur(6px);
+}
+.zj-tuto__texte { margin: 0; font-size: 13.5px; color: var(--ink); line-height: 1.35; }
+.zj-tuto__passer {
+  flex: none; width: 26px; height: 26px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 12px; line-height: 1;
+}
+.zj-tuto__passer:hover { color: var(--ink); border-color: var(--ink); }
+/* v4.6 — sur téléphone, la bannière vit SOUS le HUD, jamais en bas : posée
+   au-dessus de la croix, elle mangeait les flèches ↑ et → pendant les
+   premières minutes de chaque nouveau joueur. `--zj-hud-bas` suit la hauteur
+   réelle du HUD (jeu.js, ResizeObserver). */
+@media (max-width: 899px) {
+  .zj-tuto { top: var(--zj-hud-bas, 104px); bottom: auto; max-width: min(560px, calc(100% - 28px)); width: max-content; }
+  .zj-tuto__texte { font-size: 12.5px; }
+}
+
+/* ---------- la Porte ---------- */
+/* v2.4 — la Porte s'ouvre sur l'affiche du film : la même peinture que
+   l'intro et la série, sous un voile qui laisse lire la carte. */
+.zj-ecran--porte { display: grid; place-items: center; padding: 40px 18px 64px; min-height: calc(100vh - 62px);
+  background:
+    linear-gradient(180deg, rgba(8, 20, 17, 0.55) 0%, rgba(8, 20, 17, 0.82) 55%, rgba(8, 20, 17, 0.96) 100%),
+    url("assets/maisons/nareva/video/au-courant-affiche.jpg?v=2") center 30% / cover no-repeat; }
+.zj-carte { width: 100%; max-width: 460px; background: rgba(12, 30, 24, 0.86); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: var(--radius); padding: 30px 30px 26px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45); }
+.zj-carte h1 { font-size: 2.1rem; }
+.zj-carte h1 .ar { display: block; font-size: 1.35rem; margin-top: 4px; }
+.zj-lead { color: var(--muted); margin: 12px 0 0; font-size: 15px; }
+.zj-onglets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 22px; padding: 4px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.zj-onglet { padding: 10px; border-radius: 9px; border: 0; background: transparent; color: var(--muted); font-weight: 600; transition: background 180ms, color 180ms; }
+.zj-onglet[aria-selected="true"] { background: var(--surface-2); color: var(--ink); }
+#zj-form-porte .zj-bouton { width: 100%; margin-top: 16px; }
+/* v4.1 — le parrainage à la Porte */
+.zj-lien { background: none; border: 0; padding: 0; color: var(--gold); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.zj-dossier { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.zj-dossier .zj-bouton { width: 100%; margin-top: 8px; }
+/* v7.2 — la porte de l'invité : chaude, ouverte, et jamais en concurrence
+   avec « Entrer » — un membre qui revient ne doit pas hésiter. */
+.zj-dyaf { margin-top: 22px; padding: 16px; border: 1px solid var(--gold); border-radius: 14px; background: var(--gold-soft); }
+.zj-dyaf__mot { margin: 0; font-family: var(--font-titre, inherit); font-size: 1.12rem; color: var(--ink); }
+.zj-dyaf__legende { margin: 8px 0 0; color: var(--muted); font-size: 13.5px; }
+.zj-dyaf__legende b { color: var(--ink); }
+.zj-bouton--dyaf { width: 100%; margin-top: 14px; background: transparent; color: var(--gold); border-color: var(--gold); }
+.zj-bouton--dyaf:hover { background: rgba(230, 177, 63, 0.14); box-shadow: none; }
+.zj-bouton--dyaf .ar { margin-inline-start: 8px; opacity: 0.75; }
+/* v7.2a — NSYAN TRAVERSE LA COUR. Il n'a pas de visage : c'est le point. Ce
+   qu'on voit de lui, c'est la couleur qui s'en va. Deux secondes et demie de
+   gris, puis le monde revient — et l'invité a compris avant qu'on lui explique.
+   ⚠️ Le filtre porte sur la TOILE seule : griser le HUD ferait « écran cassé »,
+   pas « quelque chose est passé ». Mouvement réduit : le gris s'installe sans
+   transition, personne n'a besoin d'un fondu pour comprendre. */
+#zj-scene { transition: filter 1600ms ease-in-out; }
+/* Pendant qu'il passe : la cour est grise. */
+body.zj-nsyan #zj-scene { filter: grayscale(1) contrast(0.82) brightness(0.86); }
+/* Après : il reste. La couleur ne revient qu'avec la première page retrouvée —
+   « chaque page revenue, Nsyan recule d'un pas » (recit.js), pris au mot. */
+body.zj-nsyan-reste #zj-scene { filter: grayscale(0.5) contrast(0.93) brightness(0.95); }
+@media (prefers-reduced-motion: reduce) { #zj-scene { transition: none; } }
+/* v7.3 — OUMM IA BROUILLE. Nsyan éteint les couleurs (la mémoire qui s'en va) ;
+   elle, elle trouble la vue — c'est la peur de ce qu'on ne connaît pas, et on
+   ne voit plus où on met les pieds. Chaque épreuve passée lui reprend un cran.
+   ⚠️ Comme pour Nsyan : la TOILE seule, jamais le HUD. */
+body[data-oumm] #zj-scene { filter: blur(calc(var(--zj-oumm, 0) * 1.6px)) brightness(calc(1 - var(--zj-oumm, 0) * 0.055)) saturate(calc(1 - var(--zj-oumm, 0) * 0.07)); }
+/* v7.4 — le Voilé passe : la chaleur d'une lanterne, deux secondes. Son signe est
+   l'OR — le gris est à Nsyan, le flou à Oumm IA (les trois ne se confondent jamais).
+   La toile seule, jamais le HUD ; et le flou d'Oumm IA reste s'il est là. */
+body.zj-voile #zj-scene { filter: sepia(0.42) saturate(1.35) brightness(1.06) blur(calc(var(--zj-oumm, 0) * 1.6px)); transition: filter 0.7s ease; }
+.zj-voile__titre { font-size: 1.1rem; color: var(--gold); margin: 22px 0 8px; }
+.zj-voile__mot { margin: 10px 0 12px; padding: 12px 14px; border: 1px solid rgba(230, 177, 63, 0.4); border-radius: 12px; background: var(--gold-soft); }
+.zj-voile__mot p { margin: 0; }
+.zj-voile__k { color: var(--muted); font-size: 13px; }
+.zj-voile__v { font-family: var(--font-caps); font-size: 1.35rem; color: var(--gold); margin: 4px 0 !important; }
+.zj-voile__d, .zj-voile__etat { color: var(--muted); font-size: 13px; }
+.zj-voile__defi { color: var(--ink); }
+.zj-voile__note { color: var(--terracotta); font-style: italic; }
+.zj-voile__conditions { list-style: none; padding: 0; margin: 8px 0 12px; display: grid; gap: 6px; }
+.zj-voile__conditions li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.zj-voile__conditions li p { margin: 0; }
+.zj-voile__ok { border-color: rgba(46, 230, 168, 0.4); }
+.zj-voile__ok .zj-voile__etat { color: var(--emerald); }
+.zj-voile__depot { color: var(--gold); }
+/* v7.6 — le huitième cadre : une toile de nuit, que la lanterne découvre. La
+   plaque et le cartouche ne comptent jamais — pas de « 3 / 7 », jamais. */
+.zj-sirr { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+.zj-sirr[hidden] { display: none; }
+.zj-sirr__toile { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; border-radius: 12px; border: 1px solid rgba(230, 177, 63, 0.35); background: #0b0a10; }
+.zj-sirr h3 { font-size: 1.1rem; color: var(--gold); margin: 14px 0 8px; }
+.zj-sirr p { margin: 0 0 8px; }
+.zj-sirr__plaque { font-family: var(--font-caps); letter-spacing: 0.14em; color: var(--gold); font-size: 0.95rem; }
+.zj-sirr__khalwa { margin-top: 14px; padding: 12px 14px; border: 1px solid rgba(230, 177, 63, 0.4); border-radius: 12px; background: var(--gold-soft); }
+.zj-sirr__question { color: var(--ink); font-size: 1.05rem; font-style: italic; }
+.zj-sirr__note { color: var(--terracotta); font-style: italic; }
+.zj-sirr textarea { width: 100%; resize: vertical; }
+/* Les cartes qu'un invité n'a pas : elles existent, elles sont là, il les voit
+   fermées. C'est ce qui manque qui donne envie, jamais ce qu'on a déjà. */
+.zj-carte--perdue .zj-carte__vide, .zj-carte--fermee .zj-carte__vide { font-family: var(--font-caps); letter-spacing: 0.06em; }
+/* Les trois portes : une carte par réponse, le nom puis ce qu'il veut dire. */
+#zj-tableaux-corps { display: grid; gap: 14px; margin-top: 14px; }
+.zj-tableau { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: var(--surface); }
+.zj-tableau { overflow: hidden; padding: 0; }
+.zj-tableau__toile { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-bottom: 1px solid var(--line); }
+.zj-tableau h3 { font-size: 1.08rem; margin: 14px 16px 8px; color: var(--gold); }
+.zj-tableau p { margin: 0 16px 8px; }
+.zj-tableau .zj-tableau__legende { margin: 0 16px 14px; }
+.zj-tableau p { margin: 0 0 8px; white-space: pre-line; }
+.zj-tableau .zj-tableau__legende { margin: 0; padding-top: 8px; border-top: 1px solid var(--line); color: var(--muted); font-style: italic; }
+#zj-dyaf-portes-corps { display: grid; gap: 8px; margin-top: 14px; }
+.zj-dyaf-porte { display: grid; gap: 3px; text-align: start; padding: 13px 15px; }
+.zj-dyaf-porte b { font-size: 1.02rem; color: var(--ink); }
+.zj-dyaf-porte span { color: var(--muted); font-size: 13.5px; font-weight: 400; }
+body.zj-porte-close .zj-dyaf, body.zj-porte-retour .zj-dyaf { display: none; }
+.zj-porte-fermee { margin-top: 18px; padding: 16px; border: 1px solid rgba(255, 122, 138, 0.45); border-radius: 12px; }
+.zj-porte-fermee h2 { font-size: 1.2rem; margin: 0; }
+.zj-porte-fermee .zj-bouton { width: 100%; margin-top: 14px; }
+body.zj-porte-close .zj-onglets, body.zj-porte-close #zj-form-porte { display: none; }
+body.zj-porte-retour .zj-onglets, body.zj-porte-retour #zj-form-porte,
+body.zj-porte-retour #zj-dossier-ouvrir, body.zj-porte-retour #zj-form-dossier,
+body.zj-porte-retour #zj-passe-ouvrir, body.zj-porte-retour #zj-form-passe { display: none; }
+#zj-porte-retour label { margin-top: 10px; }
+.zj-visuel-cache { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.zj-parrain__form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.zj-parrain__form input { flex: 1 1 220px; min-width: 0; }
+.zj-parrain__lien { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.zj-parrain__lien input { flex: 1 1 220px; min-width: 0; font-size: 13px; }
+.zj-parrain__etat { font-size: 12px; color: var(--muted); }
+.zj-parrain__etat--ok { color: var(--emerald); }
+
+/* ---------- l'Atelier ---------- */
+.zj-ecran--atelier { padding: 36px 18px 64px; }
+.zj-atelier { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 32px; align-items: start; }
+.zj-atelier__scene { position: sticky; top: 24px; display: grid; gap: 12px; justify-items: center; }
+#zj-apercu { width: 100%; max-width: 420px; aspect-ratio: 4 / 3; border-radius: 14px; border: 1px solid var(--line); background: #0b1815; }
+.zj-atelier__form { background: var(--night-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px 28px 24px; }
+.zj-atelier__form h2 { font-size: 1.9rem; }
+fieldset { border: 0; padding: 0; margin: 20px 0 0; }
+legend { padding: 0; font-size: 13.5px; color: var(--muted); letter-spacing: 0.02em; }
+legend span { color: var(--ink); }
+.zj-pastilles { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.zj-pastille { width: 38px; height: 38px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.18); background: var(--c); transition: transform 160ms var(--ease), border-color 160ms, box-shadow 160ms; }
+.zj-pastille:hover { border-color: var(--ink); }
+.zj-pastille[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+.zj-choix-liste { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.zj-choix { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 14px; transition: background 160ms, border-color 160ms; }
+.zj-choix:hover { background: var(--surface-2); }
+.zj-choix[aria-pressed="true"] { border-color: var(--gold); background: var(--gold-soft); }
+.zj-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+
+/* ---------- la Cour ---------- */
+.zj-ecran--cour { position: fixed; inset: 0; background: #0b1815; }
+.zj-scene { position: absolute; inset: 0; }
+#zj-scene { display: block; width: 100%; height: 100%; touch-action: none; }
+#zj-cour-erreur { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 420px; }
+.zj-hud {
+  position: absolute; left: 14px; top: 14px; display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 8px; border-radius: 14px;
+  background: rgba(8, 20, 17, 0.82); border: 1px solid var(--line); backdrop-filter: blur(6px); font-size: 14px; color: var(--ink);
+}
+#zj-hud-avatar { width: 36px; height: 48px; border-radius: 8px; background: var(--surface-2); }
+.zj-hud strong { display: block; font-family: var(--font-display); font-size: 19px; line-height: 1.1; }
+.zj-hud__rang { color: var(--muted); font-size: 13px; }
+.zj-hud__rang .ar { font-size: 15px; margin-left: 4px; }
+.zj-hud__arb3ine { margin-left: 6px; padding: 5px 10px; border-radius: 999px; background: var(--gold-soft); border: 1px solid rgba(230, 177, 63, 0.35); color: var(--gold); font-family: var(--font-caps); font-size: 12.5px; letter-spacing: 0.06em; white-space: nowrap; }
+.zj-hud__mode { padding: 4px 8px; border-radius: 999px; border: 1px dashed var(--line); color: var(--muted); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.zj-menu-bouton { position: absolute; right: 14px; top: 14px; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--line); background: rgba(8, 20, 17, 0.82); color: var(--ink); font-weight: 600; backdrop-filter: blur(6px); }
+.zj-menu-bouton:hover { background: rgba(12, 30, 24, 0.95); }
+/* ♪ — la musique se coupe d'un doigt, et le réglage survit au rechargement. */
+.zj-son { right: 92px; width: 44px; padding: 10px 0; text-align: center; font-size: 17px; line-height: 1; }
+.zj-son[aria-pressed="true"] { color: var(--muted); border-style: dashed; }
+.zj-menu { position: absolute; right: calc(14px + env(safe-area-inset-right)); top: calc(62px + env(safe-area-inset-top)); z-index: 8; width: min(260px, calc(100% - 28px)); max-height: calc(100% - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; display: grid; align-content: start; gap: 8px; padding: 16px; border-radius: 14px; background: rgba(8, 20, 17, 0.94); border: 1px solid var(--line); backdrop-filter: blur(8px); }
+.zj-menu p { margin: 0 0 6px; color: var(--muted); font-size: 14px; }
+.zj-aide { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); margin: 0; padding: 6px 12px; border-radius: 999px; background: rgba(8, 20, 17, 0.7); color: var(--muted); font-size: 12.5px; white-space: nowrap; pointer-events: none; }
+@media (pointer: coarse), (max-width: 899px) { .zj-aide { display: none; } }
+
+/* la boîte de dialogue, façon Game Boy Advance : parchemin, filet d'or */
+.zj-dialogue {
+  position: absolute; left: 50%; bottom: calc(22px + var(--zj-clavier, 0px)); transform: translateX(-50%); width: min(720px, calc(100% - 28px));
+  padding: 18px 22px 20px; border-radius: 14px; background: var(--parchemin); color: var(--encre);
+  border: 3px solid var(--encre); box-shadow: inset 0 0 0 2px var(--gold), 0 18px 50px rgba(0, 0, 0, 0.5); cursor: pointer;
+}
+/* v2.4 — le visage de qui parle : un portrait peint (le style de l'intro et de
+   la série) posé sur le coin de la boîte. Un lieu n'en a pas ; la boîte garde
+   alors sa forme d'avant. */
+.zj-dialogue__portrait { position: absolute; left: -14px; top: -34px; width: 92px; height: 92px; border-radius: 14px; object-fit: cover;
+  border: 3px solid var(--encre); box-shadow: inset 0 0 0 2px var(--gold), 0 10px 24px rgba(0, 0, 0, 0.45); background: var(--encre); }
+.zj-dialogue--portrait { padding-left: 96px; }
+.zj-dialogue--portrait .zj-dialogue__nom { left: 88px; }
+@media (max-width: 560px) {
+  .zj-dialogue__portrait { width: 64px; height: 64px; top: -26px; left: -8px; }
+  .zj-dialogue--portrait { padding-left: 66px; }
+  .zj-dialogue--portrait .zj-dialogue__nom { left: 60px; }
+}
+.zj-dialogue__nom { position: absolute; left: 16px; top: -15px; margin: 0; padding: 4px 12px; border-radius: 8px; background: var(--encre); color: var(--gold); font-family: var(--font-caps); font-size: 12.5px; letter-spacing: 0.1em; border: 2px solid var(--gold); }
+.zj-dialogue__texte { margin: 6px 0 0; font-size: 17px; line-height: 1.5; white-space: pre-line; min-height: 3.1em; }
+.zj-dialogue__suite { position: absolute; right: 16px; bottom: 8px; font-size: 13px; color: var(--encre); animation: zj-clignote 0.9s steps(2) infinite; }
+@keyframes zj-clignote { to { opacity: 0.15; } }
+@media (prefers-reduced-motion: reduce) { .zj-dialogue__suite { animation: none; } }
+.zj-hud__m39ol { color: var(--ink); background: rgba(243, 231, 201, 0.1); border-color: rgba(243, 231, 201, 0.3); }
+.zj-hud__sna3a { color: var(--emerald); background: rgba(46, 230, 168, 0.12); border-color: rgba(46, 230, 168, 0.35); }
+.zj-hud__dhakira { color: var(--terracotta); background: rgba(207, 107, 69, 0.14); border-color: rgba(207, 107, 69, 0.4); }
+/* v2.6 — le Sahn ouvert : qui est là, et la barre « dire un mot » */
+.zj-hud__sahn { color: var(--ink); background: rgba(243, 231, 201, 0.1); border-color: rgba(243, 231, 201, 0.3); }
+.zj-riwaq__cadre.zj-riwaq__cadre--large { max-width: 960px; width: min(960px, calc(100vw - 32px)); }
+/* ---------- v3.6 — le Wird : la ligne du HUD, le panneau, la bande des quarante ---------- */
+.zj-hud__wird { cursor: pointer; color: var(--ink); background: rgba(243, 231, 201, 0.12); border-color: rgba(230, 177, 63, 0.55); max-width: 260px; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+.zj-hud__wird:hover { background: rgba(230, 177, 63, 0.2); }
+.zj-wird__compte { display: flex; flex-wrap: wrap; gap: 0 6px; color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.zj-wird__compte p { margin: 0; }
+.zj-wird__compte p + p::before { content: "· "; }
+.zj-wird__compte strong { color: var(--gold); }
+.zj-wird__kicker { display: flex; flex-wrap: wrap; gap: 0 6px; }
+.zj-wird__kicker p { margin: 0; }
+.zj-wird__kicker p + p:not(.ar)::before { content: "· "; }
+.zj-wird__titre { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 4px 0 8px; }
+.zj-wird__titre h3 { margin: 0; font-size: 1.15rem; }
+.zj-wird__boucle { margin: -4px 0 14px; color: var(--gold); font-size: 14px; font-style: italic; }
+[dir="rtl"] .zj-wird__boucle { font-style: normal; font-size: 15px; }
+.zj-wird__geste { margin-top: 18px; }
+.zj-wird__bientot { color: var(--muted); font-size: 13px; font-style: italic; }
+[dir="rtl"] .zj-wird__bientot { font-style: normal; }
+.zj-wird__fin { margin: 0 0 12px; padding: 12px 14px; border-radius: 12px; background: var(--gold-soft); border: 1px solid rgba(230, 177, 63, 0.4); font-size: 14px; line-height: 1.55; }
+.zj-wird__carte { padding: 14px 16px; margin: 0 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.zj-wird__carte--jour { border-color: rgba(230, 177, 63, 0.5); background: var(--gold-soft); }
+.zj-wird__carte--tenue { opacity: 0.78; }
+.zj-wird__etat { font-family: var(--font-caps); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.zj-wird__etat--tenu { color: var(--emerald); }
+.zj-wird__etat--manque { color: var(--terracotta); }
+.zj-wird__consigne { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--ink); }
+.zj-wird__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.zj-wird__daftar { display: block; margin-top: 12px; }
+.zj-wird__daftar span { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+.zj-wird__daftar textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--night-2); color: var(--ink); font: inherit; font-size: 14px; line-height: 1.5; resize: vertical; }
+.zj-wird__bande { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+.zj-wird__bande li { display: grid; place-items: center; aspect-ratio: 1; border-radius: 8px; border: 1px solid var(--line); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.zj-wird__bande li.tenu { background: rgba(46, 230, 168, 0.16); border-color: rgba(46, 230, 168, 0.45); color: var(--emerald); }
+.zj-wird__bande li.manque { background: rgba(207, 107, 69, 0.12); border-color: rgba(207, 107, 69, 0.4); color: var(--terracotta); }
+.zj-wird__bande li.jour { background: var(--gold-soft); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+.zj-wird__bande li.ouvert { border-color: rgba(230, 177, 63, 0.4); color: var(--ink); }
+.zj-wird__aussi li { line-height: 1.5; }
+@media (max-width: 899px) { .zj-hud__wird { max-width: 100%; } }
+.zj-cartes__compte { color: var(--muted); font-size: 14px; margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 0 6px; }
+.zj-cartes__compte p { margin: 0; }
+.zj-cartes__compte p + p::before { content: "· "; }
+.zj-cartes__lebsa { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.zj-cartes__lebsa a { color: var(--gold); font-weight: 600; }
+a.zj-bouton { display: block; text-align: center; text-decoration: none; }
+.zj-cartes__grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
+.zj-carte { margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; }
+.zj-carte img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.zj-carte figcaption { padding: 8px 10px 10px; font-size: 12px; line-height: 1.35; display: flex; flex-direction: column; gap: 2px; }
+.zj-carte__titre { font-size: 13px; font-weight: 700; }
+.zj-carte__lieu { color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 4px; }
+.zj-carte__lieu p { margin: 0; }
+.zj-carte__lieu p + p::before { content: "· "; }
+.zj-carte__doree { color: var(--gold); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+html[lang="ar"] .zj-carte__doree { letter-spacing: 0; }
+.zj-carte--doree { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 18px rgba(230, 177, 63, 0.25); }
+.zj-carte__vide { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; color: var(--muted); font-size: 12px; background: repeating-linear-gradient(135deg, rgba(243, 231, 201, 0.04) 0 8px, transparent 8px 16px); }
+.zj-carte--perdue .zj-carte__vide { color: rgba(243, 231, 201, 0.45); font-style: italic; }
+.zj-offres li p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.zj-offres li a { font-size: 12px; color: var(--gold); word-break: break-all; }
+.zj-offre--loin { opacity: 0.6; }
+.zj-badge { display: inline-block; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); font-size: 11px; color: var(--muted); }
+.zj-badge--ok { color: var(--gold); border-color: var(--gold); }
+.zj-hud__masque { color: var(--gold); border-color: var(--gold); background: rgba(230, 177, 63, 0.12); white-space: normal; max-width: 230px; line-height: 1.25; text-align: center; }
+.zj-menu__aide { color: var(--muted); font-size: 12px; line-height: 1.5; margin: -6px 0 10px; }
+/* v5.2 — la Rihla : le souffle et la bourse au HUD, les nouvelles de la route, l'étal */
+.zj-hud__rihla { color: #ffe3a3; border-color: rgba(230, 177, 63, 0.55); }
+.zj-bouton--rihla { background: linear-gradient(180deg, #2a4f8f, #1c3566); color: #f7f1e1; border-color: #4f73b8; }
+/* 23/09/2026 — la ferracha se voit : le tapis, sa terre cuite et son fil d'or */
+.zj-bouton--ferracha { background: linear-gradient(180deg, #b4553a, #8a3a26); color: #f7f1e1; border-color: #e6b13f; }
+.zj-bouton--ferracha:hover { background: linear-gradient(180deg, #c4613f, #9a432c); }
+.zj-souk__raccourcis { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.zj-souk__raccourcis .zj-bouton { flex: 1 1 180px; }
+.zj-souk__attente { margin: 14px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.zj-souk__attente p { margin: 0; }
+.zj-souk__attente strong { color: var(--ink); font-weight: 600; }
+.zj-rihla__annonce { position: absolute; left: 50%; top: var(--zj-hud-bas, 80px); transform: translateX(-50%); z-index: 7; margin: 0; padding: 8px 14px; border-radius: 999px; background: rgba(8, 20, 17, 0.92); border: 1px solid var(--gold); color: #ffe3a3; font-size: 14px; max-width: calc(100% - 32px); text-align: center; pointer-events: none; }
+.zj-etal__bourse { display: flex; gap: 16px; flex-wrap: wrap; margin: 0 0 8px; color: #ffe3a3; font-weight: 600; }
+.zj-etal__bourse p { margin: 0; }
+.zj-etal__enigme { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.zj-etal__enigme input { flex: 1 1 180px; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.06); color: inherit; font: inherit; }
+.zj-etal__msg { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--gold-soft); color: #ffe3a3; }
+/* v5.3 — le choix du Rafiq, et le combat-énigme */
+.zj-rafiq { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.zj-rafiq__carte { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); }
+.zj-rafiq__carte img { width: 140px; height: 140px; object-fit: contain; }
+.zj-rafiq__carte p { margin: 0; }
+.zj-rafiq__nom { display: flex; gap: 8px; align-items: baseline; justify-content: center; }
+.zj-rafiq__nom p { margin: 0; font-size: 18px; }
+.zj-rafiq__voie { color: var(--gold); font-weight: 600; }
+.zj-rafiq__tech { color: var(--muted); font-size: 13px; }
+/* v7.0 — la Tariqa : cinq cartes (le portrait du Mourchid patron), le maydan, les attentes */
+.zj-tariqa { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 12px; }
+.zj-tariqa__carte { display: grid; gap: 6px; justify-items: center; align-content: start; text-align: center; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); }
+.zj-tariqa__carte--mienne { border-color: var(--gold); background: rgba(230, 177, 63, 0.10); }
+.zj-tariqa__carte img { width: 112px; height: 112px; object-fit: cover; border-radius: 50%; }
+.zj-tariqa__carte p { margin: 0; }
+.zj-tariqa__nom { display: flex; gap: 8px; align-items: baseline; justify-content: center; }
+.zj-tariqa__nom p { margin: 0; font-size: 18px; }
+.zj-tariqa__geste { color: var(--gold); font-weight: 600; }
+.zj-tariqa__vie, .zj-tariqa__rpg { color: var(--muted); font-size: 13px; }
+.zj-tariqa__rang, .zj-tariqa__note { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+.zj-tariqa__note p { margin: 0 0 4px; }
+.zj-tariqa__maydan { display: grid; gap: 6px; margin: 14px 0 0; }
+.zj-tariqa__maydan select { font: inherit; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--night-2); color: inherit; max-width: 100%; }
+.zj-combat__scene { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; margin-bottom: 8px; }
+.zj-combat__ombre, .zj-combat__rafiq { display: grid; gap: 4px; justify-items: center; text-align: center; }
+.zj-combat__ombre p, .zj-combat__rafiq p { margin: 0; }
+.zj-combat__rafiq img { width: 96px; height: 96px; object-fit: contain; }
+.zj-combat__nuage { display: block; width: 88px; height: 88px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, var(--zj-ombre) 0%, color-mix(in srgb, var(--zj-ombre) 45%, transparent) 45%, transparent 70%); filter: blur(2px); animation: zj-ombre 3.2s ease-in-out infinite; }
+@keyframes zj-ombre { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.08) rotate(12deg); } }
+.zj-combat__ombre { position: relative; }
+.zj-combat__degats { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); font-family: var(--font-caps); font-size: 22px; font-weight: 700; color: #fff4d6; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); animation: zj-degats 1.1s ease-out forwards; pointer-events: none; }
+.zj-combat__ombre--fort .zj-combat__degats { color: var(--gold); font-size: 28px; }
+.zj-combat__ombre--faible .zj-combat__degats { color: rgba(243, 231, 201, 0.7); font-size: 18px; }
+.zj-combat__ombre--touche .zj-combat__nuage { animation: zj-touche 0.45s ease-in-out 2, zj-ombre 3.2s ease-in-out 0.9s infinite; }
+.zj-combat__ombre--fort .zj-combat__nuage { animation: zj-touche 0.45s ease-in-out 2, zj-flash 0.8s ease-out, zj-ombre 3.2s ease-in-out 0.9s infinite; }
+.zj-combat__ombre--visage .zj-combat__nuage { animation: zj-visage 0.9s ease-out; }
+.zj-combat__ombre--dissipe .zj-combat__nuage { animation: zj-dissipe 1.4s ease-out forwards; background: radial-gradient(circle, rgba(255, 223, 128, 0.95) 0%, rgba(230, 177, 63, 0.5) 40%, transparent 70%); }
+.zj-combat__rafiq--rate img { animation: zj-rate 0.5s ease-in-out; }
+@keyframes zj-degats { 0% { opacity: 0; transform: translate(-50%, 8px) scale(0.8); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -34px) scale(1); } }
+@keyframes zj-touche { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-7px) rotate(-4deg); } 75% { transform: translateX(7px) rotate(4deg); } }
+@keyframes zj-visage { 0% { transform: scale(0.6); opacity: 0.2; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes zj-dissipe { 0% { transform: scale(1); opacity: 1; } 60% { transform: scale(1.5); opacity: 0.9; } 100% { transform: scale(2.1); opacity: 0; } }
+@keyframes zj-flash { 0% { filter: blur(2px) brightness(2.3); } 100% { filter: blur(2px) brightness(1); } }
+@keyframes zj-rate { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-8px); } 60% { transform: translateX(5px); } }
+@media (prefers-reduced-motion: reduce) { .zj-combat__nuage, .zj-combat__ombre--touche .zj-combat__nuage, .zj-combat__ombre--visage .zj-combat__nuage, .zj-combat__rafiq--rate img, .zj-combat__ombre--fort .zj-combat__nuage { animation: none; } .zj-combat__degats { animation: none; opacity: 1; } .zj-combat__ombre--dissipe .zj-combat__nuage { animation: none; opacity: 0.3; } }
+.zj-combat__barre { width: 100%; max-width: 160px; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+.zj-combat__barre i { display: block; height: 100%; background: #b8a0d8; transition: width 0.4s; }
+.zj-combat__barre--nfs i { background: var(--emerald); }
+.zj-combat__types { color: var(--muted); font-size: 13px; margin: 4px 0 10px; }
+.zj-combat__dit { font-style: italic; }
+.zj-combat__choix { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.zj-combat__choix .zj-bouton { display: grid; gap: 2px; }
+.zj-combat__choix small { font-size: 11px; opacity: 0.8; }
+.zj-combat__q { font-weight: 600; }
+.zj-combat__reponses { display: grid; gap: 8px; }
+.zj-combat__reponses .zj-bouton { text-align: start; white-space: normal; line-height: 1.4; }
+.zj-combat__verdict { font-size: 18px; font-weight: 700; margin: 6px 0; }
+.zj-combat__verdict.ok { color: var(--emerald); }
+.zj-combat__verdict.ko { color: #ffb4a8; }
+/* v5.4 — la carte du Rafiq */
+.zj-carte__image { display: block; width: 100%; max-width: min(420px, calc((100vh - 380px) * 0.8)); max-width: min(420px, calc((100dvh - 380px) * 0.8)); min-width: 200px; height: auto; aspect-ratio: 4 / 5; margin: 0 auto 12px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); }
+/* v5.1 — le menu range les jeux à part : on les trouve d'un coup d'œil */
+.zj-menu .zj-menu__boucle { margin: -4px 0 4px; color: var(--muted); font-size: 12.5px; font-style: italic; }
+.zj-menu .zj-menu__titre { margin: 8px 0 -2px; color: var(--gold, #e6b13f); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+[dir="rtl"] .zj-menu .zj-menu__boucle { font-style: normal; font-size: 13.5px; }
+[dir="rtl"] .zj-menu .zj-menu__titre { letter-spacing: 0; text-transform: none; font-size: 13px; }
+
+/* ==== v8.4 — LE DAR (الدار) et LA BARRE (الشريط) : le menu devient une maison ==== */
+.zj-lecteur { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.zj-zellige { background-color: #0e2a21;
+  background-image: radial-gradient(circle at 50% 50%, rgba(230,177,63,.22) 0 9%, transparent 10%),
+    conic-gradient(from 45deg at 50% 50%, #14684f 0 25%, #0b3b2e 0 50%, #14684f 0 75%, #0b3b2e 0);
+  background-size: 28px 28px, 28px 28px; }
+/* les icônes peintes : une planche de 6 × 6 (assets/img/zawia/jeu/icones.webp, dar.js), ⚠️ le ?v= suit celui des scripts */
+.zj-ico { display: inline-block; flex: none; width: 56px; height: 56px; background-image: url("assets/img/zawia/jeu/icones.webp?v=85");
+  background-size: 600% 600%; background-repeat: no-repeat; background-position: calc(var(--c, 0) * 20%) calc(var(--r, 0) * 20%); }
+.zj-ico--lettre { background: none; display: inline-grid; place-items: center; font-family: "Aref Ruqaa", var(--font-ar), serif; font-size: 34px; color: #9a6b12; }
+.zj-medaillon { position: relative; display: inline-grid; place-items: center; flex: none; width: 60px; height: 60px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffaf0 0, var(--parchemin) 45%, #ecdfc0 100%);
+  box-shadow: 0 0 0 2px #b88a2e, 0 0 0 4px rgba(8,20,17,.9), 0 0 0 5px rgba(230,177,63,.55), 0 10px 22px rgba(0,0,0,.45); }
+.zj-medaillon .zj-ico { width: 50px; height: 50px; }
+.zj-pastille { position: absolute; top: -4px; right: -6px; min-width: 21px; height: 21px; padding: 0 6px; border-radius: 999px; background: var(--terracotta); color: #fff; font-size: 11.5px; font-weight: 600; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--night); font-family: var(--font-body); }
+.zj-pastille--or { background: var(--gold); color: var(--encre); }
+/* ⚠️ Les pastilles de COULEUR de l'atelier portent le même nom que la pastille de la
+   Barre (v8.4) : la règle ci-dessus les jetait hors de l'écran, en position absolue.
+   Dans leur conteneur, elles redeviennent des ronds de couleur (vu le 24/09/2026). */
+.zj-pastilles .zj-pastille { position: static; width: 38px; height: 38px; min-width: 0; padding: 0; border-radius: 50%; background: var(--c); box-shadow: none; display: block; }
+.zj-pastilles .zj-pastille[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+
+.zj-barre { position: absolute; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 6; display: flex; gap: 12px; align-items: flex-end; padding: 10px 16px 8px; border-radius: 24px;
+  background: linear-gradient(180deg, rgba(12,30,24,.88), rgba(8,20,17,.94)); border: 1px solid rgba(230,177,63,.4); backdrop-filter: blur(8px); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+.zj-barre[hidden] { display: none; }
+.zj-barre__b { display: grid; justify-items: center; gap: 5px; background: none; border: 0; color: var(--ink); cursor: pointer; padding: 0 3px; font: inherit; }
+.zj-barre__b[hidden] { display: none; }
+.zj-barre__b .zj-medaillon { transition: transform .35s var(--ease), box-shadow .35s var(--ease); }
+.zj-barre__b:hover .zj-medaillon, .zj-barre__b:focus-visible .zj-medaillon { transform: translateY(-7px) scale(1.06); box-shadow: 0 0 0 2px #d6a53c, 0 0 0 4px rgba(8,20,17,.9), 0 0 0 5px #f3cf6d, 0 0 26px rgba(230,177,63,.55); }
+.zj-barre__b:focus-visible { outline: none; }
+.zj-barre__nom { font-family: var(--font-caps); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--parchemin); white-space: nowrap; }
+body[data-barre="1"] .zj-aide { bottom: calc(122px + env(safe-area-inset-bottom)); }
+
+.zj-dar { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; padding: calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left)); background: rgba(4,12,10,.6); backdrop-filter: blur(3px); }
+.zj-dar[hidden] { display: none; }
+.zj-dar__cadre { width: min(1080px, 100%); max-height: 100%; display: flex; border-radius: 26px; padding: 3px; background: linear-gradient(135deg, #b88a2e, #f3cf6d 30%, #8d6420 60%, #e6b13f); box-shadow: 0 40px 90px rgba(0,0,0,.6); animation: zjDarOuvrir .5s var(--ease) both; }
+@keyframes zjDarOuvrir { from { opacity: 0; transform: scale(.965) translateY(12px); } to { opacity: 1; transform: none; } }
+.zj-dar__interieur { flex: 1; min-width: 0; max-height: calc(100vh - 32px); overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; border-radius: 23px; background: linear-gradient(180deg, rgba(8,20,17,.985), rgba(12,30,24,.99)); }
+.zj-dar__frise { height: 12px; border-radius: 23px 23px 0 0; }
+.zj-dar__corps { padding: 16px 22px 18px; }
+.zj-dar__haut { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
+.zj-dar__moi { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.zj-medaillon--moi { width: 60px; height: 60px; overflow: hidden; }
+.zj-medaillon--moi canvas { width: 44px; height: 58px; margin-top: 8px; }
+.zj-dar__nom { margin: 0; font-family: var(--font-display); font-size: 25px; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.zj-dar__rang { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.zj-dar__axes { margin: 5px 0 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.zj-dar__axe { font-family: var(--font-caps); font-size: 10.5px; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(243,231,201,.35); }
+.zj-dar__axe--s { color: var(--emerald); border-color: rgba(46,230,168,.4); } .zj-dar__axe--d { color: var(--terracotta); border-color: rgba(207,107,69,.5); }
+.zj-dar__recherche { position: relative; display: block; }
+.zj-dar__recherche input { width: 100%; padding: 13px 44px 13px 16px; border-radius: 14px; border: 1px solid rgba(230,177,63,.4); background: rgba(246,239,220,.06); color: var(--ink); font: inherit; font-size: 15px; outline: none; transition: border-color .2s, background .2s, box-shadow .2s; }
+.zj-dar__recherche input:focus { border-color: #f3cf6d; background: rgba(246,239,220,.1); box-shadow: 0 0 0 4px rgba(230,177,63,.12); }
+.zj-dar__recherche kbd { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-family: var(--font-body); font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; }
+.zj-dar__jour { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.4fr) minmax(0, 1fr); gap: 10px; margin: 14px 0 12px; }
+.zj-dar__bloc { display: flex; gap: 11px; align-items: center; text-align: left; border-radius: 16px; padding: 10px 12px; background: rgba(246,239,220,.05); border: 1px solid var(--line); color: var(--ink); font: inherit; cursor: pointer; transition: border-color .2s, background .2s; min-width: 0; }
+.zj-dar__bloc:hover, .zj-dar__bloc:focus-visible { border-color: rgba(230,177,63,.55); background: rgba(230,177,63,.08); outline: none; }
+.zj-dar__bloc--wird { background: linear-gradient(90deg, rgba(230,177,63,.16), rgba(246,239,220,.04)); border-color: rgba(230,177,63,.35); }
+.zj-dar__bloc .zj-medaillon { width: 48px; height: 48px; } .zj-dar__bloc .zj-medaillon .zj-ico { width: 40px; height: 40px; }
+.zj-dar__bloc h3 { margin: 0; font-family: var(--font-caps); font-size: 11px; letter-spacing: .14em; color: var(--gold); text-transform: uppercase; }
+.zj-dar__bloc p { margin: 2px 0 0; font-size: 13.5px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; }
+.zj-dar__jetons { display: flex; gap: 8px; margin-top: 5px; }
+.zj-dar__jeton { position: relative; display: grid; justify-items: center; gap: 2px; background: none; border: 0; color: var(--muted); font: inherit; font-size: 11px; cursor: pointer; padding: 0; }
+.zj-dar__jeton .zj-medaillon { width: 40px; height: 40px; } .zj-dar__jeton .zj-medaillon .zj-ico { width: 34px; height: 34px; }
+.zj-dar__fait { position: absolute; top: -3px; right: -3px; width: 17px; height: 17px; border-radius: 50%; background: var(--emerald-deep); color: #eafff7; font-size: 10px; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--night); }
+.zj-dar__portes { display: flex; gap: 8px; margin: 2px 0 12px; flex-wrap: wrap; }
+.zj-dar__porte { display: flex; align-items: center; gap: 8px; padding: 7px 16px 7px 10px; border-radius: 999px 999px 14px 14px; border: 1px solid var(--line); background: rgba(246,239,220,.04); color: var(--ink); font: inherit; cursor: pointer; transition: all .25s var(--ease); }
+.zj-dar__porte .zj-ico { width: 28px; height: 28px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+.zj-dar__porte b { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.zj-dar__porte small { color: var(--gold); font-family: var(--font-ar); font-size: 14px; }
+.zj-dar__porte[aria-selected="true"] { background: linear-gradient(180deg, rgba(230,177,63,.24), rgba(230,177,63,.08)); border-color: rgba(230,177,63,.6); }
+.zj-dar__portes[data-cherche="1"] .zj-dar__porte { opacity: .45; }
+.zj-dar__grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px, 1fr)); gap: 10px; }
+.zj-dar__carte { position: relative; display: grid; grid-template-columns: 58px 1fr; gap: 10px; align-items: center; text-align: left; padding: 10px 12px 10px 9px; border-radius: 16px; border: 0; cursor: pointer; font: inherit; color: var(--encre);
+  background: radial-gradient(120% 90% at 10% 0%, #fffaf0 0, var(--parchemin) 45%, #ecdfc0 100%);
+  box-shadow: inset 0 0 0 1px rgba(184,138,46,.55), 0 8px 20px rgba(0,0,0,.35); transition: transform .3s var(--ease), box-shadow .3s var(--ease); animation: zjDarCarte .45s var(--ease) both; }
+@keyframes zjDarCarte { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.zj-dar__carte:hover, .zj-dar__carte:focus-visible { transform: translateY(-3px); box-shadow: inset 0 0 0 2px #d6a53c, 0 14px 28px rgba(0,0,0,.45), 0 0 22px rgba(230,177,63,.25); outline: none; }
+.zj-dar__carte .zj-ico { width: 58px; height: 58px; }
+.zj-dar__carte b { display: block; font-family: var(--font-display); font-size: 18px; line-height: 1.1; font-weight: 700; color: #2a1f16; }
+.zj-dar__carte .ar { display: block; font-size: 14px; color: #9a6b12; margin-top: 1px; }
+.zj-dar__carte .zj-dar__pq { display: block; font-size: 12.5px; color: #4a4152; margin-top: 3px; line-height: 1.35; }
+.zj-dar__vide { color: var(--muted); padding: 14px 4px; margin: 0; }
+.zj-dar__touches { margin: 14px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+html[lang="ar"] .zj-dar__carte .ar, html[lang="ar"] .zj-dar__porte small { display: none; }
+html[lang="ar"] .zj-dar__carte, html[lang="ar"] .zj-dar__bloc { text-align: right; }
+
+.zj-aller__plan { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 4px 2px 6px; }
+.zj-lieu { display: flex; gap: 12px; align-items: center; border-radius: 16px; padding: 10px 12px; background: rgba(246,239,220,.05); border: 1px solid var(--line); min-width: 0; }
+.zj-lieu .zj-medaillon { width: 52px; height: 52px; } .zj-lieu .zj-medaillon .zj-ico { width: 44px; height: 44px; }
+.zj-lieu h3 { margin: 0; font-size: 15px; } .zj-lieu p { margin: 1px 0 6px; color: var(--muted); font-size: 12.5px; }
+.zj-lieu__gestes { display: flex; gap: 6px; flex-wrap: wrap; }
+.zj-lieu--ici { border-color: rgba(46,230,168,.45); background: rgba(46,230,168,.07); }
+.zj-gens__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.zj-gens__qui { display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 14px; background: rgba(246,239,220,.05); border: 1px solid var(--line); }
+.zj-gens__qui canvas { width: 30px; height: 40px; flex: none; }
+/* v8.5 — les visages dans un médaillon, comme ta carte au Dar */
+.zj-riwaq__cadre.zj-riwaq__cadre--gens { width: min(680px, 100%); }
+.zj-medaillon.zj-medaillon--gens { width: 46px; height: 46px; flex: none; overflow: hidden; }
+.zj-medaillon.zj-medaillon--gens canvas { width: 34px; height: 45px; margin-top: 9px; }
+.zj-medaillon.zj-medaillon--personne { width: 64px; height: 64px; flex: none; overflow: hidden; }
+.zj-medaillon.zj-medaillon--personne canvas { width: 44px; height: 58px; margin-top: 10px; }
+.zj-gens__qui b { display: block; } .zj-gens__qui span { color: var(--muted); font-size: 12.5px; }
+.zj-gens__gestes { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.zj-gens__vide { color: var(--muted); }
+/* v8.5 — Les gens en trois onglets : Ici · Le Kalam · Messages */
+.zj-gens__onglets { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 2px 0 14px; }   /* v8.6 — Ici · Annuaire · Le Kalam · Messages */
+.zj-gens__onglets .zj-onglet { display: flex; align-items: center; justify-content: center; gap: 7px; min-width: 0; }
+.zj-gens__onglets .zj-pastille { position: static; box-shadow: none; }
+.zj-pastille--calme { background: var(--emerald-deep); color: #eafff7; }
+.zj-gens__note { color: var(--muted); font-size: 12.5px; line-height: 1.45; margin: 0 0 10px; }
+.zj-gens__nom { display: block; background: none; border: 0; padding: 0; color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; text-align: start; }
+.zj-gens__nom:hover, .zj-gens__nom:focus-visible { color: var(--gold); outline: none; text-decoration: underline; text-underline-offset: 3px; }
+.zj-gens__retour { margin-bottom: 10px; }
+.zj-personne { display: flex; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 16px; background: rgba(246,239,220,.05); border: 1px solid var(--line); }
+.zj-personne__nom { display: block; font-family: var(--font-display); font-size: 22px; line-height: 1.1; }
+.zj-personne span { color: var(--muted); font-size: 13px; }
+.zj-personne__gestes { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 8px; }
+/* le Kalam de la pièce : ce qui s'y dit, depuis qu'on y est */
+.zj-kalamo__fil { list-style: none; margin: 0; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 120px; max-height: min(44vh, 380px); overflow-y: auto; overscroll-behavior: contain; border-radius: 14px; background: rgba(0,0,0,.2); border: 1px solid var(--line); }
+.zj-kalamo__l { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; padding: 6px 10px; border-radius: 12px; background: rgba(246,239,220,.05); }
+.zj-kalamo__l--moi { background: rgba(46,230,168,.08); }
+.zj-kalamo__l--mention { background: rgba(230,177,63,.16); box-shadow: inset 3px 0 0 var(--gold); }
+.zj-kalamo__qui { background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--gold); cursor: pointer; }
+button.zj-kalamo__qui:hover, button.zj-kalamo__qui:focus-visible { text-decoration: underline; outline: none; }
+b.zj-kalamo__qui { color: var(--emerald); }
+.zj-kalamo__t { flex: 1 1 55%; min-width: 0; overflow-wrap: anywhere; line-height: 1.4; }
+.zj-kalamo__quand { color: var(--muted); font-size: 11px; margin-inline-start: auto; white-space: nowrap; }
+.zj-kalamo__vide { color: var(--muted); padding: 8px 6px; }
+.zj-kalamo__phrases { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 8px; }
+.zj-kalamo__phrase { padding: 6px 13px; border-radius: 999px; border: 1px solid rgba(230,177,63,.45); background: rgba(230,177,63,.08); color: var(--ink); font: inherit; font-size: 13.5px; cursor: pointer; transition: background .2s; }
+.zj-kalamo__phrase:hover, .zj-kalamo__phrase:focus-visible { background: rgba(230,177,63,.22); outline: none; }
+.zj-kalamo__form, .zj-rasail__form { display: flex; gap: 8px; align-items: flex-end; }
+.zj-kalamo__form input, .zj-rasail__form textarea, .zj-rasail__signal input { flex: 1 1 auto; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; font-size: 15px; }
+.zj-rasail__form textarea { resize: vertical; min-height: 46px; max-height: 160px; line-height: 1.4; }
+.zj-rasail__form textarea:disabled { opacity: .55; }
+/* les Rasa'il : la boîte, et un fil */
+.zj-rasail__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.zj-rasail__fil { width: 100%; display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 14px; background: rgba(246,239,220,.05); border: 1px solid var(--line); color: var(--ink); font: inherit; text-align: start; cursor: pointer; transition: border-color .2s, background .2s; }
+.zj-rasail__fil:hover, .zj-rasail__fil:focus-visible { border-color: rgba(230,177,63,.55); outline: none; }
+.zj-rasail__fil--nonlu { border-color: rgba(207,107,69,.6); background: rgba(207,107,69,.09); }
+.zj-rasail__qui { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.zj-rasail__qui b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zj-rasail__apercu { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zj-rasail__apercu i { font-style: normal; color: var(--emerald); }
+.zj-rasail__quand { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.zj-rasail__n { position: static; box-shadow: none; }
+.zj-rasail__etiquette { font-size: 11px; color: var(--terracotta); border: 1px solid rgba(207,107,69,.5); border-radius: 999px; padding: 1px 8px; }
+.zj-rasail__tete { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.zj-rasail__avec { font-family: var(--font-display); font-size: 20px; }
+.zj-rasail__actions { margin-inline-start: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.zj-rasail__messages { list-style: none; margin: 0 0 10px; padding: 10px; display: grid; gap: 8px; align-content: start; min-height: 140px; max-height: min(46vh, 420px); overflow-y: auto; overscroll-behavior: contain; border-radius: 14px; background: rgba(0,0,0,.2); border: 1px solid var(--line); }
+.zj-rasail__m { max-width: 82%; justify-self: start; padding: 8px 12px; border-radius: 14px 14px 14px 4px; background: rgba(246,239,220,.09); }
+.zj-rasail__m--moi { justify-self: end; border-radius: 14px 14px 4px 14px; background: rgba(46,230,168,.13); }
+.zj-rasail__m p { margin: 0; overflow-wrap: anywhere; line-height: 1.45; }
+.zj-rasail__m a { color: var(--gold); }
+.zj-rasail__m time { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+.zj-rasail__vide, .zj-rasail__plus { color: var(--muted); padding: 8px 4px; }
+.zj-rasail__plus { justify-self: center; }
+.zj-rasail__msg { min-height: 1.2em; margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.zj-rasail__msg--refus { color: var(--terracotta); }
+.zj-rasail__signal { margin: 0 0 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(207,107,69,.55); background: rgba(207,107,69,.08); display: grid; gap: 8px; }
+.zj-rasail__signal p { margin: 0; font-size: 13px; line-height: 1.45; }
+.zj-rasail__signal-gestes { display: flex; gap: 8px; flex-wrap: wrap; }
+html[lang="ar"] .zj-rasail__m { border-radius: 14px 14px 4px 14px; }
+html[lang="ar"] .zj-rasail__m--moi { border-radius: 14px 14px 14px 4px; }
+/* v8.6 — la Bitaqa : la carte d'un membre, l'annuaire, et ma carte */
+.zj-bitaqa { display: grid; gap: 10px; margin-top: 12px; }
+.zj-bitaqa:empty { display: none; }
+.zj-bitaqa__dit, .zj-bitaqa__faits { padding: 12px 14px; border-radius: 16px; border: 1px solid var(--line); background: rgba(246,239,220,.05); }
+.zj-bitaqa__dit { background: linear-gradient(180deg, rgba(230,177,63,.11), rgba(246,239,220,.03)); border-color: rgba(230,177,63,.35); }
+.zj-bitaqa__metier { margin: 0 0 4px; font-family: var(--font-display); font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+.zj-bitaqa__lieu { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+.zj-bitaqa__ville { color: var(--ink); font-weight: 600; }
+.zj-bitaqa__titre { margin: 10px 0 4px; font-family: var(--font-caps); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.zj-bitaqa__titre:first-child, .zj-bitaqa__bloc:first-child .zj-bitaqa__titre { margin-top: 0; }
+.zj-bitaqa__puces { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 4px; }
+.zj-puce { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12.5px; border: 1px solid var(--line); background: rgba(246,239,220,.06); color: var(--ink); }
+.zj-puce--cherche { border-color: rgba(230,177,63,.5); background: rgba(230,177,63,.13); }
+.zj-puce--offre { border-color: rgba(46,230,168,.45); background: rgba(46,230,168,.10); }
+.zj-bitaqa__mot { margin: 2px 0 0; font-size: 13.5px; line-height: 1.45; overflow-wrap: anywhere; }
+.zj-bitaqa__liens { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 0; }
+.zj-bitaqa__faits ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.zj-bitaqa__faits li { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 13.5px; }
+.zj-bitaqa__faits li b { min-width: 10em; color: var(--muted); font-weight: 600; }
+.zj-bitaqa__noms { flex-basis: 100%; color: var(--muted); font-size: 12.5px; padding-inline-start: 10.6em; }
+.zj-bitaqa__diplome span { color: var(--gold); font-weight: 700; }
+.zj-bitaqa__fermee { margin: 0; color: var(--muted); font-size: 13.5px; padding: 10px 12px; border-radius: 14px; border: 1px dashed var(--line); }
+.zj-annuaire__moi { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(230,177,63,.35); background: rgba(230,177,63,.07); margin-bottom: 10px; }
+.zj-annuaire__moi p { margin: 0; font-size: 13.5px; }
+.zj-annuaire__filtres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0 0 8px; }
+.zj-annuaire__filtres input { grid-column: 1 / -1; }
+.zj-annuaire__filtres input, .zj-annuaire__filtres select { min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; font-size: 13.5px; }
+.zj-annuaire__compte { margin: 0 0 6px; color: var(--muted); font-size: 12.5px; min-height: 1em; }
+.zj-annuaire__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.zj-annuaire__carte { width: 100%; display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 14px; background: rgba(246,239,220,.05); border: 1px solid var(--line); color: var(--ink); font: inherit; text-align: start; cursor: pointer; transition: border-color .2s, background .2s; }
+.zj-annuaire__carte:hover:not(:disabled), .zj-annuaire__carte:focus-visible { border-color: rgba(230,177,63,.55); background: rgba(230,177,63,.07); outline: none; }
+.zj-annuaire__carte:disabled { cursor: default; opacity: .85; }
+.zj-annuaire__qui { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.zj-annuaire__qui b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zj-annuaire__qui i { font-style: normal; color: var(--emerald); font-size: 12px; }
+.zj-annuaire__metier { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zj-annuaire__lieu { color: var(--muted); font-size: 12px; }
+.zj-annuaire__etiq { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; max-width: 45%; }
+.zj-annuaire__etiq .zj-puce { font-size: 11.5px; padding: 2px 8px; }
+.zj-annuaire__plus { text-align: center; }
+.zj-bitaqa__form { display: grid; gap: 12px; }
+.zj-bitaqa__ouvrir { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(46,230,168,.45); background: rgba(46,230,168,.08); font-weight: 600; cursor: pointer; }
+.zj-bitaqa__ouvrir input { width: 20px; height: 20px; accent-color: var(--emerald); flex: none; }
+.zj-bitaqa__deux { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; }
+.zj-bitaqa__champ { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
+.zj-bitaqa__champ input, .zj-bitaqa__groupe > input, .zj-bitaqa__lien input, .zj-bitaqa__lien select { min-width: 0; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; font-size: 14.5px; }
+.zj-bitaqa__groupe { margin: 0; padding: 10px 12px 12px; border-radius: 14px; border: 1px solid var(--line); display: grid; gap: 8px; min-width: 0; }
+.zj-bitaqa__groupe legend { padding: 0 6px; font-family: var(--font-caps); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.zj-bitaqa__choix { display: flex; gap: 6px; flex-wrap: wrap; }
+.zj-puce--choix { cursor: pointer; user-select: none; padding: 5px 11px; }
+.zj-puce--choix input { width: 14px; height: 14px; margin: 0; accent-color: var(--gold); }
+.zj-puce--choix:has(input:checked) { border-color: var(--gold); background: rgba(230,177,63,.2); color: #fff3d6; }
+.zj-bitaqa__lien { display: grid; grid-template-columns: 8.5em 1fr; gap: 6px; }
+.zj-bitaqa__gestes { display: flex; justify-content: flex-end; }
+.zj-bitaqa__apercu { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.zj-souk__carte { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+/* le fil de la pièce, dans la cour : en bas à gauche, au-dessus de la Barre et de l'aide du clavier */
+.zj-kalam-cour { position: absolute; left: calc(16px + env(safe-area-inset-left)); bottom: calc(164px + env(safe-area-inset-bottom)); z-index: 5; display: grid; gap: 5px; width: min(390px, calc(100% - 32px)); pointer-events: none; }
+.zj-kalam-cour[hidden] { display: none; }
+.zj-kalam-cour__l { pointer-events: auto; justify-self: start; max-width: 100%; display: block; text-align: start; padding: 6px 12px; border-radius: 14px; border: 1px solid rgba(230,177,63,.25); background: rgba(8,20,17,.84); color: var(--ink); font: inherit; font-size: 13.5px; line-height: 1.35; cursor: pointer; overflow-wrap: anywhere; backdrop-filter: blur(6px); animation: zjKalamVenir .3s var(--ease) both; }
+.zj-kalam-cour__l b { color: var(--gold); margin-inline-end: 7px; }
+.zj-kalam-cour__l--moi b { color: var(--emerald); }
+.zj-kalam-cour__l--mention { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(230,177,63,.5), 0 0 18px rgba(230,177,63,.28); }
+@keyframes zjKalamVenir { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .zj-kalam-cour__l { animation: none; } }
+body[data-dialogue="1"] .zj-kalam-cour, body[data-question="1"] .zj-kalam-cour { visibility: hidden; }
+html[lang="ar"] .zj-kalam-cour { left: auto; right: calc(16px + env(safe-area-inset-right)); }
+/* ⚠️ la même requête que le HUD du téléphone, écrite dans l'autre ordre : les tests de
+   zawia-jeu-mobile lisent LE bloc « (max-width: 760px), (max-height: 520px) » du HUD. */
+@media (max-height: 520px), (max-width: 760px) {
+  .zj-barre { top: calc(var(--zj-hud-bas, 110px) + 6px); bottom: auto; left: calc(12px + env(safe-area-inset-left)); right: calc(12px + env(safe-area-inset-right)); transform: none; justify-content: space-between; gap: 4px; padding: 6px 8px; border-radius: 18px; }
+  .zj-barre .zj-medaillon { width: 44px; height: 44px; } .zj-barre .zj-medaillon .zj-ico { width: 38px; height: 38px; }
+  .zj-barre__nom { display: none; }
+  body[data-barre="1"] .zj-tuto { top: calc(var(--zj-hud-bas, 110px) + 68px); }
+  body[data-barre="1"] .zj-aide { bottom: calc(14px + env(safe-area-inset-bottom)); }
+  .zj-dar { padding: 0; place-items: stretch; }
+  .zj-dar__cadre { width: 100%; border-radius: 0; padding: 0; }
+  .zj-dar__interieur { max-height: 100vh; max-height: 100dvh; border-radius: 0; }
+  .zj-dar__corps { padding: 12px 12px 18px; }
+  .zj-dar__haut { grid-template-columns: 1fr auto; } .zj-dar__recherche { grid-column: 1 / -1; grid-row: 2; }
+  .zj-dar__jour { grid-template-columns: 1fr; }
+  /* les quatre portes tiennent dans la largeur : une porte hors de l'écran ne se devine pas (vu en cliquant) */
+  .zj-dar__portes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+  .zj-dar__porte { flex-direction: column; justify-content: center; gap: 2px; padding: 6px 2px; border-radius: 14px 14px 10px 10px; min-width: 0; }
+  .zj-dar__porte b { font-size: 13.5px; } .zj-dar__porte small { display: none; }
+  .zj-dar__grille { grid-template-columns: 1fr 1fr; }
+  .zj-dar__carte { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 10px 6px; }
+  .zj-dar__carte .zj-dar__pq { display: none; }
+  .zj-aller__plan { grid-template-columns: 1fr; }
+  .zj-dar__touches { display: none; }
+  /* v8.5 — au téléphone, le fil de la pièce se pose juste au-dessus de la croix et du bouton A */
+  .zj-kalam-cour { bottom: calc(206px + env(safe-area-inset-bottom)); left: calc(12px + env(safe-area-inset-left)); width: calc(100% - 24px); }
+  html[lang="ar"] .zj-kalam-cour { right: calc(12px + env(safe-area-inset-right)); }
+  .zj-kalam-cour__l { font-size: 13px; padding: 5px 10px; }
+  .zj-kalamo__fil, .zj-rasail__messages { max-height: 38vh; }
+  .zj-gens__onglets .zj-onglet { font-size: 12.5px; padding: 9px 2px; gap: 4px; }
+  .zj-annuaire__filtres { grid-template-columns: 1fr 1fr; }
+  .zj-annuaire__etiq { display: none; }
+  .zj-bitaqa__deux { grid-template-columns: 1fr; }
+  .zj-bitaqa__lien { grid-template-columns: 7.5em 1fr; }
+  .zj-bitaqa__faits li b { min-width: 0; flex-basis: 100%; }
+  .zj-bitaqa__noms { padding-inline-start: 0; }
+  .zj-riwaq__cadre.zj-riwaq__cadre--gens { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); padding: 18px 14px 14px; }
+  .zj-rasail__m { max-width: 90%; }
+}
+body[data-question="1"] .zj-barre, body[data-dire="1"] .zj-barre, body[data-dialogue="1"] .zj-barre { visibility: hidden; }
+.zj-wird__amis { display: flex; gap: 10px; flex-wrap: wrap; }
+.zj-wird__amis a { color: var(--gold, #e6b13f); font-weight: 600; }
+.zj-majliss__titre { font-family: var(--font-caps); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin: 22px 0 10px; }
+.zj-majliss__chiffres { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.zj-majliss__chiffre { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.zj-majliss__chiffre strong { font-size: 22px; font-variant-numeric: tabular-nums; }
+.zj-majliss__chiffre span { color: var(--muted); font-size: 12px; }
+.zj-majliss__liste { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.zj-majliss__liste li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.zj-majliss__liste li:last-child { border-bottom: 0; }
+.zj-majliss__quand { color: var(--muted); font-size: 12px; }
+.zj-majliss__form textarea { width: 100%; box-sizing: border-box; background: rgba(0, 0, 0, 0.2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: inherit; font-size: 14px; resize: vertical; }
+.zj-majliss__ligne { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.zj-majliss__journal { list-style: none; margin: 14px 0 0; padding: 0; }
+.zj-majliss__journal li { padding: 10px 12px; border-left: 2px solid var(--line); margin-bottom: 10px; }
+.zj-majliss__journal li.moi { border-left-color: var(--gold); }
+.zj-majliss__journal p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+.zj-dire { position: absolute; left: 50%; bottom: calc(18px + var(--zj-clavier, 0px)); transform: translateX(-50%); z-index: 6; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; width: min(560px, calc(100% - 32px)); padding: 10px 12px; border-radius: 14px; background: rgba(8, 20, 17, 0.94); border: 1px solid var(--line); backdrop-filter: blur(8px); }
+.zj-dire input { flex: 1 1 220px; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font-size: 15px; }
+.zj-dire__msg { flex-basis: 100%; min-height: 1em; font-size: 13px; color: var(--terracotta); }
+
+/* ---------- v4.7 — les jeux de la zawia ---------- */
+/* Lkelma d'lyoum : la grille en zellige — vert : bien placée ; ocre : ailleurs ; nuit : absente */
+.zj-kelma__tete { margin-bottom: 10px; }
+.zj-kelma__grille { display: grid; gap: 6px; justify-content: center; margin: 4px auto 6px; outline: none; }
+.zj-kelma__ligne { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 46px)); gap: 6px; }
+.zj-kelma__case { aspect-ratio: 1; display: grid; place-items: center; border: 2px solid var(--line); border-radius: 8px; font-family: var(--font-caps); font-size: 22px; font-weight: 700; color: var(--ink); background: var(--surface); text-transform: uppercase; }
+.zj-kelma__grille[lang="ar"] .zj-kelma__case { font-family: var(--font-ar); font-size: 24px; text-transform: none; }
+.zj-kelma__case.saisie { border-color: rgba(243, 231, 201, 0.5); }
+.zj-kelma__case.bien { background: #1f7a55; border-color: #2ee6a8; color: #fff; }
+.zj-kelma__case.ailleurs { background: #b8862b; border-color: var(--gold); color: #1d1a2e; }
+.zj-kelma__case.absente { background: #1b2522; border-color: #1b2522; color: var(--muted); }
+.zj-kelma__ligne.ko { animation: zj-kelma-ko 0.35s; }
+@keyframes zj-kelma-ko { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.zj-kelma__msg { min-height: 1.4em; text-align: center; font-size: 13.5px; color: var(--terracotta); margin: 4px 0 8px; }
+.zj-kelma__copie { width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; background: var(--night); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.zj-kelma__clavier { display: flex; flex-direction: column; gap: 6px; user-select: none; -webkit-user-select: none; }
+.zj-kelma__rang { display: flex; gap: 5px; justify-content: center; }
+.zj-kelma__touche { flex: 1 1 0; max-width: 44px; min-width: 0; height: 46px; padding: 0; border: 0; border-radius: 7px; background: rgba(243, 231, 201, 0.14); color: var(--ink); font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; touch-action: manipulation; }
+.zj-kelma__clavier[dir="rtl"] .zj-kelma__touche { font-family: var(--font-ar); font-size: 19px; }
+.zj-kelma__touche.large { max-width: 66px; flex-grow: 1.5; font-size: 19px; }
+.zj-kelma__touche.bien { background: #1f7a55; color: #fff; }
+.zj-kelma__touche.ailleurs { background: #b8862b; color: #1d1a2e; }
+.zj-kelma__touche.absente { background: rgba(0, 0, 0, 0.35); color: rgba(168, 181, 166, 0.55); }
+.zj-kelma__touche:active { transform: translateY(1px); }
+.zj-kelma__fin { margin-top: 6px; }
+.zj-kelma__verdict { text-align: center; font-family: var(--font-display); font-size: 1.35rem; margin: 0 0 10px; }
+.zj-kelma__mot { padding: 12px 14px; border-radius: 12px; background: var(--gold-soft); border: 1px solid rgba(230, 177, 63, 0.4); margin-bottom: 12px; }
+.zj-kelma__mot strong { display: block; font-family: var(--font-caps); font-size: 1.1rem; letter-spacing: 0.12em; color: var(--gold); }
+.zj-kelma__mot strong[lang="ar"] { font-family: var(--font-ar); font-size: 1.5rem; letter-spacing: 0; }
+.zj-kelma__mot p { margin: 4px 0 0; font-size: 14px; line-height: 1.55; }
+.zj-kelma__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+.zj-kelma__stats div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 6px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.zj-kelma__stats strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+.zj-kelma__stats span { font-size: 11.5px; color: var(--muted); }
+/* Atay : la scène, le grand bouton qu'on tient */
+.zj-atay__scene { border-radius: 14px; background: radial-gradient(120% 90% at 50% 100%, rgba(207, 107, 69, 0.18), transparent 60%), rgba(0, 0, 0, 0.22); border: 1px solid var(--line); margin-bottom: 10px; }
+#zj-atay-scene { display: block; width: 100%; height: 280px; outline: none; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: pointer; }
+.zj-atay__etat { justify-content: center; }
+.zj-atay__verser { width: 100%; margin-top: 8px; padding: 16px; font-size: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.zj-atay__verser.actif { background: var(--gold); color: var(--encre); transform: translateY(1px); }
+.zj-atay__aide { text-align: center; font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+@media (pointer: coarse) { .zj-atay__aide { display: none; } }
+.zj-atay__fin { text-align: center; margin-top: 4px; }
+.zj-atay__note { display: flex; align-items: baseline; justify-content: center; gap: 6px; }
+.zj-atay__note strong { font-family: var(--font-display); font-size: 2.6rem; color: var(--gold); }
+.zj-atay__note span { color: var(--muted); font-size: 14px; }
+.zj-atay__qui { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.zj-atay__verdict { font-family: var(--font-display); font-size: 1.2rem; margin: 4px 0 6px; }
+.zj-atay__verdict::before { content: "« "; } .zj-atay__verdict::after { content: " »"; }
+html[lang="ar"] .zj-atay__verdict::before { content: "«"; } html[lang="ar"] .zj-atay__verdict::after { content: "»"; }
+.zj-atay__fin .zj-wird__actions { justify-content: center; }
+/* Qlil w mfid : le parcours, un trou, le tableau des plus courts */
+.zj-qlil__trous { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 8px 0 12px; }
+.zj-qlil__trou { display: flex; gap: 10px; align-items: flex-start; text-align: start; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+.zj-qlil__trou:hover { border-color: rgba(230, 177, 63, 0.5); }
+.zj-qlil__trou.fait { border-color: rgba(46, 230, 168, 0.45); background: rgba(46, 230, 168, 0.07); }
+.zj-qlil__n { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); font-weight: 700; font-size: 14px; }
+.zj-qlil__info p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.zj-qlil__info p.zj-qlil__titre { font-size: 14px; color: var(--ink); font-weight: 600; margin-bottom: 2px; }
+.zj-qlil__moi { color: var(--emerald) !important; }
+.zj-qlil__retour { margin-bottom: 10px; }
+.zj-qlil__nom { font-size: 1.3rem; margin: 6px 0 6px; }
+.zj-qlil__consigne { margin: 0 0 6px; font-size: 14.5px; line-height: 1.55; }
+.zj-qlil__interdits { margin: 0 0 10px; font-size: 13px; color: var(--terracotta); }
+.zj-qlil__prompt { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--night); color: var(--ink); font: 15px/1.5 ui-monospace, "SF Mono", Menlo, monospace; resize: vertical; }
+.zj-qlil__compte { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.zj-qlil__compte.sous { color: var(--emerald); }
+.zj-qlil__resultat { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); }
+.zj-qlil__resultat.ok { border-color: rgba(46, 230, 168, 0.5); background: rgba(46, 230, 168, 0.07); }
+.zj-qlil__resultat.ko { border-color: rgba(207, 107, 69, 0.45); background: rgba(207, 107, 69, 0.07); }
+.zj-qlil__resultat p { margin: 0 0 6px; font-size: 14px; }
+.zj-qlil__verdict { font-family: var(--font-display); font-size: 1.2rem !important; }
+.zj-qlil__sortie { margin: 4px 0 8px; padding: 10px 12px; border-radius: 8px; background: rgba(0, 0, 0, 0.3); color: var(--ink); font: 13px/1.5 ui-monospace, "SF Mono", Menlo, monospace; white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow: auto; }
+.zj-qlil__gain { color: var(--gold); font-weight: 600; }
+.zj-qlil__tableau { margin: 0; padding: 0 0 0 22px; font-size: 14px; }
+.zj-qlil__tableau li { padding: 4px 0; }
+.zj-qlil__tableau li span { margin-inline-end: 8px; }
+.zj-qlil__tableau li strong { font-variant-numeric: tabular-nums; color: var(--gold); }
+.zj-qlil__tableau li.moi span { color: var(--emerald); font-weight: 600; }
+/* Lkhessa : le bassin, ses douze lampes */
+.zj-khessa__bassin { position: relative; height: 120px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(46, 230, 168, 0.35); background: repeating-linear-gradient(45deg, rgba(243, 231, 201, 0.05) 0 10px, transparent 10px 20px), rgba(0, 0, 0, 0.3); }
+.zj-khessa__eau { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(88, 196, 214, 0.85), rgba(20, 104, 79, 0.9)); transition: height 0.8s var(--ease); }
+.zj-khessa__bassin--pleine { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 26px rgba(230, 177, 63, 0.35); }
+.zj-khessa__lampes { position: absolute; left: 12px; right: 12px; top: 10px; display: flex; justify-content: space-between; }
+.zj-khessa__lampes span { width: 12px; height: 12px; border-radius: 50%; background: rgba(29, 26, 46, 0.7); border: 1px solid rgba(243, 231, 201, 0.25); }
+.zj-khessa__lampes span.on { background: #ffd36e; border-color: #ffd36e; box-shadow: 0 0 10px rgba(255, 211, 110, 0.8); }
+.zj-khessa__compte { display: flex; flex-wrap: wrap; gap: 0 6px; justify-content: center; color: var(--muted); font-size: 14px; margin: 10px 0 4px; }
+.zj-khessa__compte p { margin: 0; }
+.zj-khessa__compte p + p::before { content: "· "; }
+.zj-khessa__compte strong { color: var(--ink); }
+.zj-khessa__pleine { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--gold-soft); border: 1px solid var(--gold); font-size: 14px; text-align: center; }
+.zj-khessa__note { margin: 10px 0 0; font-size: 13.5px; color: var(--gold); text-align: center; }
+.zj-khessa__gestes li.fait p { color: var(--muted); }
+.zj-khessa__gestes .zj-majliss__ligne { justify-content: space-between; margin-top: 0; }
+.zj-khessa__gestes .zj-majliss__ligne p { margin: 0; flex: 1 1 200px; }
+.zj-khessa__gestes .zj-bouton { padding: 6px 14px; font-size: 13px; }
+@media (max-width: 520px) {
+  #zj-kelma .zj-riwaq__cadre, #zj-atay .zj-riwaq__cadre { max-height: 94vh; padding: 16px 12px 14px; }
+  #zj-kelma .zj-riwaq__lead, #zj-atay .zj-riwaq__lead { font-size: 13px; margin: 8px 0 10px; }
+  .zj-kelma__ligne { grid-template-columns: repeat(var(--n, 5), minmax(0, 42px)); gap: 5px; }
+  .zj-kelma__grille { gap: 5px; }
+  .zj-kelma__case { font-size: 19px; }
+  .zj-kelma__touche { height: 44px; font-size: 15px; }
+  #zj-atay-scene { height: 240px; }
+}
+@media (prefers-reduced-motion: reduce) { .zj-kelma__ligne.ko { animation: none; } .zj-khessa__eau { transition: none; } }
+
+/* ---------- le Riwaq : la salle des annonces ---------- */
+.zj-riwaq {
+  position: fixed; inset: 0; z-index: 40; display: grid; place-items: center;
+  padding: 20px; background: rgba(4, 10, 8, 0.72); backdrop-filter: blur(2px);
+}
+.zj-riwaq__cadre {
+  width: min(560px, 100%); max-height: min(78vh, 720px); overflow-y: auto;
+  background: var(--night-2); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 26px 26px 24px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+.zj-riwaq__tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.zj-riwaq__tete h2 { font-size: 1.7rem; margin-top: 4px; }
+.zj-riwaq__tete h2 .ar { font-size: 0.72em; margin-left: 8px; }
+.zj-riwaq__lead { color: var(--muted); font-size: 14px; margin: 12px 0 20px; }
+.zj-riwaq__titre {
+  font-family: var(--font-caps); font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold); margin: 22px 0 10px;
+}
+.zj-riwaq__titre:first-child { margin-top: 0; }
+.zj-riwaq__liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.zj-riwaq__item {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+.zj-riwaq__item--premier { border-color: rgba(230, 177, 63, 0.4); background: var(--gold-soft); }
+.zj-riwaq__texte { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.zj-riwaq__texte strong { font-size: 15.5px; }
+.zj-riwaq__quand { font-size: 13px; color: var(--gold); }
+.zj-riwaq__quand.maintenant { color: var(--emerald); font-weight: 600; }
+.zj-riwaq__detail { font-size: 13px; color: var(--muted); }
+.zj-riwaq__lien { flex: none; padding: 9px 16px; font-size: 14px; text-decoration: none; }
+.zj-riwaq__vide { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+.zj-riwaq__coche { font-size: 12.5px; font-weight: 400; color: var(--emerald); margin-left: 6px; }
+
+/* ---------- la bibliothèque : al-Moujam plié, une entrée par mot ---------- */
+.zj-biblio__note { margin: 0 0 6px; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px dashed var(--line); color: var(--muted); font-size: 13px; line-height: 1.55; }
+.zj-biblio__moujam { display: flex; flex-direction: column; gap: 6px; }
+.zj-kharita__carte { margin: 10px 0; max-height: 70vh; box-shadow: none; }
+.zj-kharita__carte .kh-tip { max-height: 60vh; overflow: auto; }
+.zj-biblio__kharita { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.zj-biblio__mot { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.zj-biblio__mot summary { cursor: pointer; padding: 10px 13px; font-size: 14.5px; font-weight: 600; list-style: none; }
+.zj-biblio__mot summary::-webkit-details-marker { display: none; }
+.zj-biblio__mot summary::before { content: "▸ "; color: var(--gold); font-size: 12px; }
+.zj-biblio__mot[open] summary::before { content: "▾ "; }
+.zj-biblio__mot summary .ar { font-size: 15px; margin-left: 6px; }
+.zj-biblio__mot p { margin: 0; padding: 0 13px 12px; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+/* v6.0 — le Kounnach : la liste des wasfat, la vue page, le formulaire */
+.zj-kounnach__compte { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+.zj-kounnach__compte p { margin: 0; }
+.zj-kounnach__compte strong { color: var(--ink); }
+.zj-kounnach__liste { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.zj-wasfa { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.zj-wasfa--loin { opacity: 0.62; }
+.zj-wasfa__texte { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.zj-wasfa__texte strong { font-size: 14.5px; }
+.zj-wasfa__resume { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.zj-wasfa__meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--muted); }
+.zj-wasfa__meta .ar { font-size: 13px; }
+.zj-wasfa__action { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: 0 0 auto; font-size: 12.5px; color: var(--muted); text-align: right; }
+.zj-wasfa__page { display: flex; flex-direction: column; gap: 10px; }
+.zj-wasfa__page h3 { margin: 6px 0 0; font-size: 20px; }
+.zj-wasfa__page h4 { margin: 10px 0 0; font-size: 16px; }
+.zj-wasfa__page h5 { margin: 8px 0 0; font-size: 14.5px; color: var(--muted); }
+.zj-wasfa__page p, .zj-wasfa__page li { font-size: 14.5px; line-height: 1.65; }
+.zj-wasfa__page ul, .zj-wasfa__page ol { margin: 0; padding-left: 22px; }
+.zj-wasfa__page blockquote { margin: 0; padding: 8px 14px; border-left: 3px solid var(--gold); background: var(--surface); color: var(--muted); border-radius: 0 8px 8px 0; }
+.zj-wasfa__page code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; padding: 1px 5px; border-radius: 5px; background: rgba(255, 255, 255, 0.07); unicode-bidi: isolate; }
+/* ⚠️ un bloc de code reste de gauche à droite, même dans une page en arabe :
+   en RTL il démarrait au bout du défilement et la ligne se coupait. */
+.zj-wasfa__code { position: relative; margin: 0; padding: 12px 14px; padding-top: 30px; border-radius: 10px; background: rgba(0, 0, 0, 0.38); border: 1px solid var(--line); overflow-x: auto; direction: ltr; text-align: left; }
+.zj-wasfa__code code { display: block; padding: 0; background: none; font-size: 13px; line-height: 1.55; white-space: pre; }
+.zj-wasfa__code::before { content: attr(data-langue); position: absolute; left: 12px; top: 7px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.zj-wasfa__copier { position: absolute; right: 8px; top: 5px; padding: 3px 9px; font-size: 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.zj-wasfa__copier:hover { background: rgba(255, 255, 255, 0.1); }
+.zj-wasfa__pied { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.zj-wasfa__plusloin { margin: 6px 0 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 13.5px; }
+.zj-wasfa__form { display: flex; flex-direction: column; gap: 8px; }
+.zj-wasfa__form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.zj-wasfa__form input, .zj-wasfa__form select, .zj-wasfa__form textarea { font: inherit; color: var(--ink); background: rgba(0, 0, 0, 0.28); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.zj-wasfa__form textarea { min-height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.5; resize: vertical; }
+.zj-wasfa__deux { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+/* v6.1 — les Masarat : un masar, ses étapes, la grille, l'état d'un livrable */
+.zj-masar { margin: 0 0 16px; }
+.zj-masar__tete { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.zj-masar__tete h3 { margin: 0 0 4px; font-size: 18px; }
+.zj-masar__tete p { margin: 0; font-size: 13px; color: var(--muted); }
+.zj-masar__ijaza { padding: 2px 10px; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold) !important; font-weight: 700; }
+.zj-masar ol.zj-kounnach__liste { padding: 0; }
+.zj-etape--attestee { border-color: var(--gold); }
+.zj-masar__qcm { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--line); font-size: 13.5px; color: var(--muted); }
+.zj-masar__qcm p { margin: 0; }
+.zj-masar__grille li { margin: 2px 0; }
+.zj-masar__etat { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; }
+.zj-masar__etat p { margin: 0 0 4px; }
+.zj-masar__etat--attestee { border-color: var(--gold); }
+.zj-masar__etat--revoir { border-color: #d9824b; }
+.zj-masar__note { margin-top: 6px; }
+/* v7.8 — les maharat : la carte du diplôme, un terrain par volet, trois états par ligne */
+.zj-maharat__diplome { margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.zj-maharat__diplome--obtenue { border-color: var(--gold); }
+.zj-maharat__obtenue { margin: 0 0 8px; font-family: var(--font-caps); font-size: 18px; color: var(--gold); }
+.zj-maharat__manque-titre { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
+.zj-maharat__manque { margin: 0 0 10px; padding: 0 0 0 18px; font-size: 14px; }
+html[lang="ar"] .zj-maharat__manque { padding: 0 18px 0 0; }
+.zj-maharat__manque li { margin: 2px 0; }
+.zj-maharat__diplome .zj-kounnach__compte { margin-bottom: 0; }
+.zj-maharat__prochaine { margin: 10px 0 0; font-size: 14.5px; }
+.zj-maharat__dom { margin: 0 0 8px; border: 1px solid var(--line); border-radius: 10px; background: rgba(0, 0, 0, 0.18); }
+.zj-maharat__dom summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 10px 12px; cursor: pointer; list-style: none; }
+.zj-maharat__dom summary::-webkit-details-marker { display: none; }
+.zj-maharat__dom summary::before { content: "▸"; color: var(--gold); font-size: 12px; }
+.zj-maharat__dom[open] summary::before { content: "▾"; }
+.zj-maharat__dom-nom { font-weight: 700; font-size: 16px; }
+.zj-maharat__dom-nom .ar { font-weight: 400; color: var(--muted); }
+.zj-maharat__dom-compte, .zj-maharat__ij { font-size: 13px; color: var(--muted); }
+.zj-maharat__ij--oui { padding: 1px 10px; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold); font-weight: 700; }
+.zj-maharat__liste { list-style: none; margin: 0; padding: 0 12px 10px; }
+.zj-maharat__ligne { display: flex; gap: 10px; padding: 8px 0; border-top: 1px dashed var(--line); }
+.zj-maharat__marque { flex: 0 0 14px; width: 14px; height: 14px; margin-top: 5px; border-radius: 50%; border: 1.5px solid var(--muted); box-sizing: border-box; }
+.zj-maharat__ligne--apprise .zj-maharat__marque { border-color: var(--gold); background: linear-gradient(90deg, var(--gold) 50%, transparent 50%); }
+.zj-maharat__ligne--prouvee .zj-maharat__marque { border-color: var(--gold); background: var(--gold); }
+.zj-maharat__texte { flex: 1 1 auto; min-width: 0; }
+.zj-maharat__texte p { margin: 0 0 3px; font-size: 14px; }
+.zj-maharat__nom { font-weight: 700; color: var(--ink); }
+.zj-maharat__ligne--a_acquerir .zj-maharat__nom { color: var(--muted); font-weight: 400; }
+.zj-maharat__meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px !important; color: var(--muted); }
+.zj-maharat__niveau { padding: 0 8px; border-radius: 999px; border: 1px solid var(--line); }
+.zj-maharat__ligne--prouvee .zj-maharat__etat { color: var(--gold); }
+.zj-maharat__preuve, .zj-maharat__quand, .zj-maharat__pont { color: var(--muted); }
+.zj-maharat__pont { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.zj-maharat__lien { display: inline-block; margin: 0 0 4px; font-size: 14px; color: var(--gold); }
+.zj-maharat__note { margin-top: 6px; }
+/* v8.0 — la Rkhama : une ligne par partenaire, le logo à gauche, le mot de la maison dessous */
+.zj-rkhama__liste { list-style: none; margin: 0; padding: 0; }
+.zj-rkhama__ligne { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-top: 1px solid var(--line); }
+.zj-rkhama__liste li:first-child { border-top: 0; }
+/* ⚠️ La hauteur est fixe, la largeur libre : un partenaire envoie un monogramme carré
+   OU une marque en longueur (3:1 et plus). Une boîte carrée écrasait la seconde à
+   64 × 22, perdue dans un grand fond sombre. Et un SVG n'a souvent qu'un viewBox,
+   sans dimension propre : sans hauteur imposée ici, il ne s'affiche pas du tout. */
+    .zj-rkhama__logo { flex: 0 0 auto; height: 64px; width: auto; max-width: 150px; object-fit: contain; border-radius: 8px; background: rgba(0, 0, 0, 0.18); padding: 4px; }
+.zj-rkhama__texte { flex: 1 1 auto; min-width: 0; }
+.zj-rkhama__nom { margin: 0 0 4px; font-family: var(--font-caps); font-size: 19px; color: var(--gold); }
+.zj-rkhama__mot { margin: 0 0 4px; font-size: 15px; }
+.zj-rkhama__depuis { margin: 0; font-size: 13px; color: var(--muted); }
+.zj-rkhama__lien { display: inline-block; margin-top: 6px; font-size: 14px; color: var(--gold); }
+@media (max-width: 420px) {
+  .zj-rkhama__logo { height: 44px; max-width: 108px; }
+  .zj-rkhama__nom { font-size: 17px; }
+}
+@media (max-width: 560px) { .zj-wasfa { flex-direction: column; } .zj-wasfa__action { align-items: flex-start; text-align: left; } .zj-wasfa__deux { grid-template-columns: 1fr; } }
+
+/* ---------- l'Imtihan : la question et son chronomètre ---------- */
+.zj-imtihan__theme { margin: 0 0 12px; font-family: var(--font-caps); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+.zj-imtihan__barre { height: 5px; border-radius: 3px; background: rgba(244, 236, 217, 0.1); overflow: hidden; }
+.zj-imtihan__barre span { display: block; height: 100%; width: 100%; transition: width 200ms linear, background 300ms; }
+.zj-imtihan__barre span.calme { background: var(--emerald); }
+.zj-imtihan__barre span.presse { background: var(--gold); }
+.zj-imtihan__barre span.urgent { background: var(--danger); }
+.zj-imtihan__chrono { margin: 7px 0 0; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.zj-imtihan__enonce { margin: 16px 0 14px; font-size: 17px; line-height: 1.5; color: var(--ink); }
+.zj-imtihan #zj-imtihan-choix { border-top: 0; margin-top: 0; padding-top: 0; }
+.zj-imtihan__verdict { margin: 0 0 12px; font-family: var(--font-display); font-size: 1.5rem; }
+.zj-imtihan__verdict.juste { color: var(--emerald); }
+.zj-imtihan__verdict.faux, .zj-imtihan__verdict.tard, .zj-imtihan__verdict.abandon { color: var(--terracotta); }
+.zj-imtihan__verdict.erreur { color: var(--danger); font-size: 1.1rem; }
+.zj-imtihan__reponse { margin: 0 0 10px; font-size: 14.5px; color: var(--ink); }
+.zj-imtihan__explication { margin: 0; padding: 13px 15px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+.zj-imtihan__apres { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+/* ---------- le tableau ---------- */
+.zj-tableau { width: 100%; border-collapse: collapse; font-size: 14px; }
+.zj-tableau th { text-align: left; padding: 8px 10px; font-family: var(--font-caps); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); border-bottom: 1px solid var(--line); }
+.zj-tableau td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.zj-tableau tr:last-child td { border-bottom: 0; }
+.zj-tableau tr.moi td { background: var(--gold-soft); }
+.zj-tableau__place { color: var(--muted); font-variant-numeric: tabular-nums; width: 2.2em; }
+.zj-tableau__rang { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.zj-tableau__n { text-align: right; font-variant-numeric: tabular-nums; }
+.zj-tableau__note { margin: 16px 0 0; font-size: 12.5px; line-height: 1.55; color: var(--muted); }
+
+/* Le Souk : deux temps — ce que j'étale, puis ce que les autres étalent. */
+.zj-souk__mienne, .zj-souk__place { margin: 0 0 20px; }
+.zj-souk__mienne h4, .zj-souk__place h4 { margin: 0 0 10px; font-family: var(--font-caps); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+.zj-souk__mot { margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; background: var(--gold-soft); font-size: 14px; line-height: 1.5; }
+.zj-souk__mot--non { background: rgba(196, 92, 58, 0.14); }
+.zj-souk__vide, .zj-souk__regle { color: var(--muted); font-size: 13.5px; line-height: 1.6; margin: 8px 0 0; }
+.zj-souk__compte { color: var(--muted); font-size: 12.5px; margin: 0 0 10px; font-variant-numeric: tabular-nums; }
+.zj-souk__nom { font-weight: 600; }
+.zj-souk__resout { flex: 1 1 100%; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.zj-souk__retirer { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 8px 14px; cursor: pointer; font: inherit; font-size: 13px; }
+.zj-souk__retirer:hover { border-color: var(--terracotta); color: var(--terracotta); }
+.zj-souk__form { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 0; }
+.zj-souk__form label { display: flex; flex-direction: column; gap: 5px; font-family: var(--font-caps); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+.zj-souk__form input, .zj-souk__form textarea { margin: 0; padding: 10px 12px; font-size: 15px; font-family: var(--font-body); letter-spacing: normal; text-transform: none; color: var(--ink); }
+.zj-souk__form textarea { resize: vertical; min-height: 110px; line-height: 1.55; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.zj-souk__plus { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; }
+/* LA FICHE SE SUFFIT (20/09/2026) — la fiche longue, la FAQ, et leurs cases. */
+.zj-souk__faq-champs { margin-top: 12px; display: grid; gap: 10px; }
+.zj-souk__faq-paire { display: grid; gap: 6px; padding: 10px; border-radius: 10px; background: rgba(0, 0, 0, 0.16); }
+.zj-souk__faq-paire textarea { min-height: 62px; }
+.zj-souk__md { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line); line-height: 1.7; }
+.zj-souk__md h2, .zj-souk__md h3, .zj-souk__md h4, .zj-souk__md h5 { margin: 18px 0 6px; font-family: var(--font-titre); color: var(--gold); font-size: 17px; }
+.zj-souk__md p, .zj-souk__md li { color: var(--ink); }
+.zj-souk__md ul, .zj-souk__md ol { margin: 6px 0; padding-inline-start: 22px; }
+.zj-souk__md blockquote { margin: 10px 0; padding-inline-start: 12px; border-inline-start: 2px solid var(--gold); color: var(--muted); }
+.zj-souk__md code { padding: 1px 5px; border-radius: 5px; background: rgba(0, 0, 0, 0.3); font-size: 13px; }
+.zj-souk__faq { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.zj-souk__faq details { margin: 6px 0; padding: 10px 12px; border-radius: 10px; background: rgba(0, 0, 0, 0.16); }
+.zj-souk__faq summary { cursor: pointer; font-weight: 600; }
+.zj-souk__faq details p { margin: 8px 0 0; color: var(--muted); line-height: 1.6; }
+/* LA GALERIE (tranche B) — les vignettes du formulaire, et les images de la fiche. */
+.zj-souk__gal { margin-top: 12px; }
+.zj-souk__gal-liste { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.zj-souk__gal-item { position: relative; margin: 0; width: 84px; height: 84px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.25); }
+.zj-souk__gal-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.zj-souk__gal-retirer { position: absolute; top: 2px; inset-inline-end: 2px; width: 22px; height: 22px; padding: 0; line-height: 1; border-radius: 50%; border: 1px solid var(--line); background: rgba(8, 20, 17, 0.9); color: var(--ink); cursor: pointer; }
+/* Le champ de fichier natif dépare au milieu du zellige : le label FAIT le
+   bouton, l'input reste là pour le clavier et les lecteurs d'écran. */
+.zj-souk__gal-ajout { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--or); color: var(--or); font: 600 13px/1 var(--police-titre, inherit); letter-spacing: .04em; text-transform: uppercase; cursor: pointer; background: rgba(217, 180, 91, 0.06); }
+.zj-souk__gal-ajout:hover { background: rgba(217, 180, 91, 0.14); }
+.zj-souk__gal-ajout input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.zj-souk__gal-ajout:focus-within { outline: 2px solid var(--or); outline-offset: 2px; }
+.zj-souk__galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.zj-souk__galerie figure { margin: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.2); }
+.zj-souk__galerie img { width: 100%; height: auto; display: block; }
+.zj-souk__signaler { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 7px 14px; font: inherit; cursor: pointer; }
+.zj-souk__signaler:hover { color: var(--ink); border-color: var(--gold); }
+.zj-souk__sig-forme { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.zj-souk__sig-forme input { min-width: 0; flex: 1 1 180px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.22); color: var(--ink); font: inherit; }
+.zj-souk__plus[open] { display: flex; flex-direction: column; gap: 10px; }
+.zj-souk__plus summary { cursor: pointer; color: var(--muted); font-size: 13.5px; }
+.zj-souk__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+
+/* v4.4 — la vitrine : chaque tapis vu de haut, une case par produit. Le tapis
+   a sa bordure de laine (frange tissée en deux tons), les cases leur creux. */
+.zj-souk__tapis {
+  position: relative; margin: 0 0 16px; padding: 16px 16px 18px; border-radius: 6px;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(230, 177, 63, 0.07), transparent 70%),
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.10) 0 2px, transparent 2px 9px),
+    #3a1712;
+  border: 7px solid transparent;
+  border-image: repeating-linear-gradient(90deg, #b8862b 0 8px, #6e2418 8px 16px, #e6c47a 16px 20px, #6e2418 20px 28px) 7;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(230, 177, 63, 0.25);
+}
+.zj-souk__tapis.moi { box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), inset 0 0 0 2px var(--gold); }
+.zj-souk__tapis--mien { margin-bottom: 4px; }
+.zj-souk__qui { margin: 0 0 12px; font-weight: 600; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-family: var(--font-display); font-size: 1.25rem; }
+.zj-souk__rang { font-weight: 400; font-size: 12px; color: var(--muted); font-family: var(--font-body); }
+.zj-souk__qui .zj-souk__lien { font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gold); }
+.zj-souk__grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 12px; }
+.zj-souk__case {
+  display: flex; flex-direction: column; gap: 7px; padding: 6px; margin: 0; min-width: 0;
+  background: rgba(8, 20, 17, 0.55); border: 1px solid rgba(230, 177, 63, 0.22); border-radius: 8px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.55); color: var(--ink); font: inherit; cursor: pointer; text-align: center;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.zj-souk__case:hover, .zj-souk__case:focus-visible { transform: translateY(-3px); border-color: var(--gold); box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.55), 0 8px 18px rgba(0, 0, 0, 0.45); outline: none; }
+.zj-souk__case:focus-visible { box-shadow: 0 0 0 2px var(--gold); }
+.zj-souk__case--masque { opacity: 0.5; }
+.zj-souk__vignette { display: block; aspect-ratio: 3 / 4; border-radius: 5px; overflow: hidden; background: #0c1e18; }
+.zj-souk__vignette img, .zj-souk__affiche img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.zj-souk__lettre { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.10), transparent 60%), var(--fond); color: var(--encre); font-family: var(--font-display); font-size: 3rem; font-weight: 600; }
+.zj-souk__etiquette { font-size: 12.5px; line-height: 1.3; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* v8.7 — LE DERB T-TADAMOUN : la ruelle solidaire. Vert, crème, terre cuite — les couleurs
+   de la Twiza, jamais celles d'un marchand. Un projet se lit comme un tapis de laine. */
+.zj-souk__onglets { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 16px; padding: 4px; border-radius: 999px; background: rgba(0, 0, 0, 0.22); border: 1px solid var(--line); width: fit-content; max-width: 100%; }
+.zj-souk__onglet { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; border: 0; background: none; color: var(--muted); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.zj-souk__onglet:hover { color: var(--ink); }
+.zj-souk__onglet:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.zj-souk__onglet--actif { background: var(--gold-soft); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(230, 177, 63, 0.45); }
+.zj-souk__onglet--derb:not(.zj-souk__onglet--actif) { color: #8fd0aa; }
+.zj-souk__onglet--derb.zj-souk__onglet--actif { background: rgba(47, 143, 95, 0.26); box-shadow: inset 0 0 0 1px rgba(95, 184, 136, 0.8); }
+.zj-souk__onglet-n { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: rgba(47, 143, 95, 0.55); color: #e8f6ee; font-size: 11px; font-weight: 700; }
+.zj-derb__tete { margin: 0 0 16px; padding: 16px 18px; border-radius: 14px; border: 1px solid rgba(47, 143, 95, 0.5);
+  background: radial-gradient(ellipse at 92% 0%, rgba(47, 143, 95, 0.32), transparent 62%), linear-gradient(180deg, rgba(47, 143, 95, 0.16), rgba(196, 92, 58, 0.08)); }
+.zj-derb__ar { margin: 0; font-family: Amiri, "Noto Naskh Arabic", serif; font-size: 1.7rem; line-height: 1.2; color: #9fd7b5; }
+.zj-derb__tete h4 { margin: 2px 0 8px; font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0; text-transform: none; color: var(--ink); }
+.zj-derb__tete p { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--ink); }
+.zj-derb__tete .zj-derb__regle { margin: 0; font-size: 13px; color: #9fd7b5; }
+html[lang="ar"] .zj-derb__ar { display: none; }   /* en arabe, le titre le dit déjà (le piège « طالب طالب ») */
+.zj-derb__filtres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0 0 12px; }
+.zj-derb__filtres select { min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; font-size: 13.5px; }
+.zj-derb__liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.zj-derb__projet { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 14px 14px 16px; border-radius: 6px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(159, 215, 181, 0.1), transparent 70%), repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 9px), #15352a;
+  border: 5px solid transparent; border-image: repeating-linear-gradient(90deg, #2f8f5f 0 8px, #f3e7c9 8px 11px, #c45c3a 11px 19px, #f3e7c9 19px 22px) 5;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); transition: transform 160ms ease, box-shadow 160ms ease; }
+.zj-derb__projet:hover, .zj-derb__projet:focus-within { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(159, 215, 181, 0.5); }
+.zj-derb__projet h5 { margin: 0; font-family: var(--font-display); font-size: 1.3rem; line-height: 1.2; color: var(--ink); }
+.zj-derb__porteur { display: flex; flex-wrap: wrap; gap: 0.3em; }
+.zj-derb__porteur p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.zj-derb__porteur p + p { color: #9fd7b5; font-weight: 600; }
+.zj-derb__impact { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink); }
+.zj-derb__etiquettes { display: flex; flex-wrap: wrap; gap: 6px; }
+.zj-derb__forme, .zj-derb__stade { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+.zj-derb__forme { background: rgba(47, 143, 95, 0.32); color: #cdeedb; }
+.zj-derb__stade { background: rgba(196, 92, 58, 0.26); color: #f4cfbc; }
+.zj-derb__besoins { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.zj-derb__besoins li { padding: 3px 10px; border-radius: 999px; border: 1px dashed rgba(243, 231, 201, 0.4); font-size: 12px; color: var(--ink); }
+.zj-derb__besoins button { background: none; border: 0; padding: 0; margin: 0; color: inherit; font: inherit; cursor: pointer; }
+.zj-derb__cherche .zj-derb__besoins li { padding: 5px 12px; border: 1px solid rgba(95, 184, 136, 0.7); background: rgba(47, 143, 95, 0.14); font-size: 13px; }
+.zj-derb__cherche .zj-derb__besoins li:has(button):hover { background: rgba(47, 143, 95, 0.32); }
+.zj-derb__ouvrir { margin-top: auto; align-self: flex-start; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(159, 215, 181, 0.6); background: rgba(47, 143, 95, 0.2); color: #cdeedb; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.zj-derb__ouvrir::after { content: ""; position: absolute; inset: 0; }   /* toute la carte ouvre le projet */
+.zj-derb__ouvrir:focus-visible { outline: 2px solid #9fd7b5; outline-offset: 2px; }
+.zj-derb__poser { margin: 18px 0 0; padding: 14px 16px; border-radius: 12px; border: 1px dashed rgba(95, 184, 136, 0.7); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.zj-derb__poser p { margin: 0; font-size: 14px; }
+.zj-derb__bloc { margin: 16px 0 0; padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(47, 143, 95, 0.55); background: linear-gradient(180deg, rgba(47, 143, 95, 0.15), rgba(0, 0, 0, 0.12)); display: grid; gap: 12px; }
+.zj-derb__bloc .zj-souk__note { margin: 0; }
+.zj-derb__change p, .zj-derb__cherche p { margin: 0 0 4px; }
+.zj-derb__change p + p { font-size: 15px; line-height: 1.6; }
+.zj-derb__statut { padding: 10px 12px; border-radius: 10px; background: rgba(230, 177, 63, 0.1); border: 1px solid rgba(230, 177, 63, 0.35); }
+.zj-derb__statut p { margin: 0; }
+.zj-derb__parrainer p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+.zj-souk__ou { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 0; display: grid; gap: 6px; }
+.zj-souk__ou legend, .zj-souk__besoins legend { font-family: var(--font-caps); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); padding: 0 4px; }
+.zj-souk__form .zj-souk__ou-choix, .zj-souk__form .zj-souk__besoin { flex-direction: row; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 14px; letter-spacing: normal; text-transform: none; color: var(--ink); cursor: pointer; }
+.zj-souk__ou-choix--derb span { color: #9fd7b5; }
+.zj-souk__derb { border: 1px solid rgba(47, 143, 95, 0.55); border-radius: 12px; padding: 12px; margin: 0; display: flex; flex-direction: column; gap: 10px; background: rgba(47, 143, 95, 0.08); }
+.zj-souk__derb[hidden] { display: none; }
+.zj-souk__derb select { margin: 0; padding: 10px 12px; font-size: 15px; font-family: var(--font-body); letter-spacing: normal; text-transform: none; color: var(--ink); border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.zj-souk__derb textarea { min-height: 72px; }
+.zj-souk__besoins { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.zj-souk__case--derb { border-color: rgba(95, 184, 136, 0.75); }
+.zj-souk__case--derb .zj-souk__vignette { position: relative; }
+.zj-souk__marque-derb { position: absolute; top: 5px; inset-inline-start: 5px; padding: 2px 7px; border-radius: 999px; background: #2f8f5f; color: #f3e7c9; font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; }
+.zj-souk__renvoi-derb { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.zj-souk__renvoi-derb p { margin: 0; font-size: 13.5px; color: var(--muted); }
+.zj-souk__renvoi-derb p + p { color: #9fd7b5; }
+.zj-souk__compte--derb { color: #9fd7b5; }
+@media (max-width: 640px) {
+  .zj-derb__liste, .zj-derb__filtres { grid-template-columns: 1fr; }
+  .zj-souk__onglets { width: 100%; border-radius: 14px; }
+  .zj-souk__onglet { flex: 1 1 auto; justify-content: center; padding: 8px 10px; font-size: 12.5px; }
+}
+
+/* La fiche */
+.zj-souk__fiche { animation: zj-souk-fiche 220ms ease-out; }
+@keyframes zj-souk-fiche { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.zj-souk__fiche-nav { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; }
+.zj-souk__fiche-pos { margin-left: auto; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#zj-souk-retour { white-space: nowrap; }
+/* v5.7 — la Safqa : proposer une affaire sous une fiche, et le registre de mes affaires */
+.zj-safqa__proposer { margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--line); }
+.zj-safqa__partage, .zj-safqa__regle { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.zj-safqa__due { margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; background: rgba(230, 177, 63, 0.14); border: 1px solid rgba(230, 177, 63, 0.4); font-size: 14px; line-height: 1.5; }
+.zj-safqa__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.zj-safqa__affaire { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 10px 16px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.03); }
+.zj-safqa__affaire--attend { border-color: var(--gold); box-shadow: inset 0 0 0 1px rgba(230, 177, 63, 0.35); }
+.zj-safqa__affaire p { margin: 0 0 4px; }
+.zj-safqa__qui { color: var(--muted); font-size: 12.5px; }
+.zj-safqa__quoi { font-family: var(--font-display); font-size: 1.15rem; }
+.zj-safqa__prix { font-weight: 700; font-variant-numeric: tabular-nums; }
+.zj-safqa__etat { color: var(--gold); font-size: 13px; }
+.zj-safqa__part, .zj-safqa__mot { color: var(--muted); font-size: 13px; line-height: 1.5; }
+/* v7.1 — le fil d'une affaire : il s'ouvre SOUS elle, dans la même liste, pour
+   qu'on ne quitte pas des yeux le prix dont on parle. */
+.zj-safqa__filbtn { margin: 8px 0 0; }
+.zj-safqa__fil-ouvrir { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+.zj-safqa__fil-ouvrir:hover { color: var(--ink); border-color: var(--or); }
+.zj-safqa__fil-ouvrir--neuf { color: var(--or); border-color: var(--or); background: rgba(217, 180, 91, 0.08); }
+.zj-kalam { margin: 10px 0 0; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.18); }
+.zj-kalam__liste { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+.zj-kalam__mot { padding: 8px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); max-width: 85%; }
+.zj-kalam__mot--moi { margin-inline-start: auto; background: rgba(217, 180, 91, 0.09); border-color: rgba(217, 180, 91, 0.3); }
+.zj-kalam__qui { margin: 0 0 3px; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--or); }
+.zj-kalam__quand { color: var(--muted); letter-spacing: 0; text-transform: none; }
+.zj-kalam__texte { margin: 0; font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+.zj-kalam__texte a { color: var(--or); }
+.zj-kalam__form { margin: 0; }
+.zj-kalam__champ { display: block; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--or); }
+.zj-kalam__champ textarea { display: block; width: 100%; margin-top: 5px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.22); color: var(--ink); font: inherit; font-size: 14px; letter-spacing: 0; text-transform: none; resize: vertical; }
+/* v5.7 — la Qissaria : une devanture qu'on longe, une vitrine après l'autre */
+.zj-qissaria__vitrines { display: grid; grid-auto-flow: column; grid-auto-columns: min(320px, 82vw); gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 16px; margin: 0 -4px 18px; -webkit-overflow-scrolling: touch; }
+.zj-qissaria__carte { scroll-snap-align: start; display: grid; grid-template-rows: auto 1fr; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(180deg, color-mix(in srgb, var(--teinte) 28%, transparent), rgba(255, 255, 255, 0.02)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 26px rgba(0, 0, 0, 0.35); }
+.zj-qissaria__lampe { display: flex; align-items: center; justify-content: center; height: 118px; font-family: var(--font-display); font-size: 3.6rem; font-weight: 700; color: #f7eedc; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45); background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.28), transparent 62%), repeating-linear-gradient(90deg, var(--teinte) 0 22px, color-mix(in srgb, var(--teinte) 70%, #1d1610) 22px 44px); }
+.zj-qissaria__texte { padding: 14px 16px 18px; display: grid; gap: 8px; align-content: start; }
+.zj-qissaria__texte h4 { margin: 0; font-family: var(--font-display); font-size: 1.25rem; line-height: 1.25; }
+.zj-qissaria__texte p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+.zj-qissaria__texte .zj-bouton { justify-self: start; margin-top: 4px; }
+.zj-qissaria__carte--suivie { outline: 2px solid var(--gold); outline-offset: 2px; }
+.zj-souk__fiche-fleches { display: flex; gap: 6px; }
+.zj-souk__fleche { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 24px; line-height: 1; cursor: pointer; }
+.zj-souk__fleche:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.zj-souk__fleche:disabled { opacity: 0.35; cursor: default; }
+html[dir="rtl"] .zj-souk__fiche-pos { margin-left: 0; margin-right: auto; }
+html[dir="rtl"] .zj-souk__fiche-fleches { flex-direction: row-reverse; }
+.zj-souk__fiche-corps { display: grid; grid-template-columns: minmax(200px, 320px) 1fr; gap: 24px; align-items: start; }
+.zj-souk__affiche { margin: 0; aspect-ratio: 3 / 4; border-radius: 10px; overflow: hidden; background: #0c1e18; border: 1px solid rgba(230, 177, 63, 0.3); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45); }
+.zj-souk__affiche .zj-souk__lettre { font-size: 7rem; }
+.zj-souk__fiche-texte h3 { margin: 4px 0 6px; font-family: var(--font-display); font-size: 2.2rem; line-height: 1.1; }
+.zj-souk__accroche { margin: 0 0 16px; font-family: var(--font-display); font-size: 1.3rem; font-style: italic; color: var(--gold); line-height: 1.35; }
+.zj-souk__details { margin: 0 0 16px; display: grid; gap: 10px; }
+.zj-souk__details div { padding: 0 0 10px; border-bottom: 1px solid var(--line); }
+.zj-souk__details dt { font-family: var(--font-caps); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin: 0 0 3px; }
+.zj-souk__details dd { margin: 0; font-size: 14.5px; line-height: 1.5; }
+.zj-souk__description { font-size: 15px; line-height: 1.7; color: var(--ink); }
+.zj-souk__description p { margin: 0 0 10px; }
+.zj-souk__capture { margin: 22px 0 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45); background: #0c1e18; }
+.zj-souk__capture img { display: block; width: 100%; height: auto; }
+@media (max-width: 640px) {
+  .zj-souk__grille { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 9px; }
+  .zj-souk__tapis { padding: 12px; }
+  .zj-souk__fiche-corps { grid-template-columns: 1fr; }
+  .zj-souk__affiche { max-width: 280px; width: 100%; margin: 0 auto; }
+  .zj-souk__fiche-texte h3 { font-size: 1.8rem; }
+  .zj-souk__fiche-nav { gap: 8px; }
+  #zj-souk-retour { padding-left: 12px; padding-right: 12px; font-size: 14px; }
+  .zj-souk__fleche { width: 40px; height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zj-souk__case, .zj-souk__fiche { transition: none; animation: none; }
+  .zj-souk__case:hover { transform: none; }
+}
+.zj-souk__note { margin: 18px 0 0; font-size: 12.5px; line-height: 1.55; color: var(--muted); }
+
+/* la présence : le mot de passe dit en séance, saisi ici */
+.zj-presence { margin-top: 12px; padding-top: 11px; border-top: 1px dashed var(--line); }
+.zj-presence label { margin: 0 0 7px; font-size: 12.5px; color: var(--gold); letter-spacing: 0.02em; }
+.zj-presence__ligne { display: flex; gap: 8px; }
+.zj-presence input[type="text"] { margin: 0; padding: 10px 12px; font-size: 15px; }
+.zj-presence__ligne .zj-bouton { flex: none; padding: 10px 15px; font-size: 14px; white-space: nowrap; }
+.zj-presence__msg { margin: 8px 0 0; font-size: 13px; color: var(--muted); min-height: 1em; }
+.zj-presence__msg.ko { color: var(--danger); }
+.zj-presence__msg.ok { color: var(--emerald); }
+@media (max-width: 520px) { .zj-presence__ligne { flex-direction: column; } .zj-presence__ligne .zj-bouton { width: 100%; } }
+@media (max-width: 520px) {
+  .zj-riwaq__item { flex-direction: column; align-items: stretch; }
+  .zj-riwaq__lien { text-align: center; }
+}
+
+/* l'établi : les réponses d'un Ta7addi, sur le parchemin */
+.zj-choix-qcm { display: grid; gap: 7px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(29, 26, 46, 0.3); cursor: default; }
+.zj-choix-qcm__b {
+  display: flex; align-items: flex-start; gap: 10px; width: 100%; text-align: left;
+  padding: 10px 12px; border-radius: 10px; border: 2px solid rgba(29, 26, 46, 0.35);
+  background: #fffaf0; color: var(--encre); font-size: 15px; line-height: 1.35;
+  transition: background 140ms, border-color 140ms, opacity 140ms;
+}
+.zj-choix-qcm__b:hover:not(:disabled) { background: #fff3d9; border-color: var(--gold); }
+.zj-choix-qcm__n { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--encre); color: var(--gold); font-family: var(--font-caps); font-size: 12px; }
+.zj-choix-qcm__b.faux { opacity: 0.45; border-color: var(--terracotta); border-style: dashed; }
+.zj-choix-qcm__b.juste { border-color: var(--emerald-deep); background: #e9f7ef; }
+.zj-choix-qcm__b:disabled { cursor: default; }
+
+/* le sandouq : la réponse se saisit dans la boîte, sur le parchemin */
+.zj-question { margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(29, 26, 46, 0.3); cursor: default; }
+.zj-question__label { display: block; margin: 0 0 6px; font-family: var(--font-caps); font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--encre); }
+.zj-question__ligne { display: flex; gap: 8px; }
+/* min-width: 0 — sinon l'input garde sa largeur intrinsèque (~20 caractères) et pousse
+   « Répondre » hors de la boîte sur un écran de 360 px (vu au tournage du teaser, 16/09/2026). */
+.zj-question input[type="text"] { flex: 1 1 0; min-width: 0; width: auto; margin: 0; padding: 11px 12px; border-radius: 10px; border: 2px solid var(--encre); background: #fffaf0; color: var(--encre); font-size: 16px; }
+.zj-question__ligne .zj-bouton { flex: 0 0 auto; padding: 11px 16px; }
+.zj-question input[type="text"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+.zj-question input.ko { border-color: var(--terracotta); animation: zj-secoue 0.35s; }
+@keyframes zj-secoue { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.zj-question__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; }
+.zj-question__indice { padding: 8px 12px; font-size: 13.5px; color: var(--encre); border-color: rgba(29, 26, 46, 0.35); }
+.zj-question__indice:hover { background: rgba(29, 26, 46, 0.06); }
+.zj-question__indice:disabled { opacity: 0.5; cursor: default; }
+.zj-question__msg { font-size: 13.5px; color: #8a2b3c; }
+/* Pendant une question, la croix et le bouton A laissent la place au clavier. */
+body[data-question="1"] .zj-tactile { display: none; }
+/* v4.6 — pendant un dialogue aussi : la croix et le A couvraient le texte. On
+   avance en touchant la boîte elle-même (son écouteur de clic existe). Et
+   pendant « Dire un mot », le clavier du téléphone prend la place. */
+body[data-dialogue="1"] .zj-tactile, body[data-dire="1"] .zj-tactile { display: none; }
+@media (prefers-reduced-motion: reduce) { .zj-question input.ko { animation: none; } }
+
+/* les commandes tactiles */
+.zj-tactile { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left)); display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; }
+.zj-croix { display: grid; grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(3, 54px); gap: 4px; pointer-events: auto; }
+.zj-croix button, .zj-a { border-radius: 14px; border: 1px solid rgba(244, 236, 217, 0.22); background: rgba(8, 20, 17, 0.72); color: var(--ink); display: grid; place-items: center; touch-action: none; user-select: none; -webkit-user-select: none; backdrop-filter: blur(4px); transition: background 100ms; }
+.zj-croix button.actif, .zj-a:active { background: var(--gold); color: #1a1406; }
+.zj-croix button svg { width: 24px; height: 24px; }
+.zj-croix [data-dir="haut"] { grid-area: 1 / 2; } .zj-croix [data-dir="gauche"] { grid-area: 2 / 1; }
+.zj-croix [data-dir="droite"] { grid-area: 2 / 3; } .zj-croix [data-dir="bas"] { grid-area: 3 / 2; }
+.zj-a { width: 76px; height: 76px; border-radius: 50%; font-family: var(--font-caps); font-size: 22px; pointer-events: auto; margin-bottom: 6px; }
+
+/* v4.6 — le HUD d'un téléphone : une barre de deux lignes au lieu de quatre
+   (162 px, un cinquième de l'écran). Ligne 1 : le visage, le nom, le rang —
+   le ♪ et le Menu se posent dans la barre, à droite. Ligne 2 : l'Arb3ine et
+   le Wird, le prochain pas, qui prend toute la place qui reste. La Sna3a, la
+   Dhakira et le compte du Sahn restent au carnet et au tableau. */
+@media (max-width: 760px), (max-height: 520px) {
+  .zj-hud { left: calc(14px + env(safe-area-inset-left)); right: calc(14px + env(safe-area-inset-right)); top: calc(14px + env(safe-area-inset-top)); flex-wrap: wrap; gap: 6px 8px; padding: 6px 8px; font-size: 13px; }
+  #zj-hud-avatar { width: 27px; height: 36px; border-radius: 6px; }
+  .zj-hud > div { flex: 1 1 calc(100% - 40px); min-width: 0; padding-right: 128px; }
+  .zj-hud strong { font-size: 16px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .zj-hud__arb3ine { margin-left: 0; font-size: 11.5px; padding: 4px 8px; }
+  .zj-hud__wird { flex: 1 1 0; min-width: 0; max-width: none; white-space: nowrap; }
+  .zj-hud__m39ol, .zj-hud__sna3a, .zj-hud__dhakira, .zj-hud__sahn, .zj-hud__mode { display: none; }
+  /* largeur fixe : « القائمة » est plus long que « Menu », le ♪ ne doit pas bouger */
+  .zj-menu-bouton { top: calc(20px + env(safe-area-inset-top)); right: calc(20px + env(safe-area-inset-right)); width: 76px; padding: 8px 0; text-align: center; white-space: nowrap; overflow: hidden; }
+  .zj-son { right: calc(102px + env(safe-area-inset-right)); width: 40px; }
+  /* en arabe, la rangée part de droite : on la retourne pour que le visage
+     reste à gauche, loin du ♪ et du Menu */
+  html[dir="rtl"] .zj-hud { flex-direction: row-reverse; }
+}
+/* Un téléphone couché : assez de largeur pour une seule ligne. */
+@media (max-height: 520px) and (min-width: 761px) {
+  .zj-hud { right: calc(150px + env(safe-area-inset-right)); flex-wrap: nowrap; }
+  .zj-hud > div { flex: 0 1 auto; padding-right: 0; }
+}
+@media (max-width: 760px) {
+  .zj-atelier { grid-template-columns: 1fr; }
+  .zj-atelier__scene { position: static; }
+  .zj-carte, .zj-atelier__form { padding: 22px 20px 20px; }
+  .zj-tete__lieu .ar { display: none; }
+}
+</style>
+<link rel="stylesheet" href="assets/maisons/nareva/maison.css?v=1&amp;h=a14d843db1" />
+<link rel="stylesheet" href="assets/maisons/nareva/carte.css?v=1&amp;h=b6687ae802" />
+</head>
+<body data-ecran="porte">
+
+<header class="zj-tete">
+  <a class="zj-marque" href="#"><img src="assets/maisons/nareva/marque.svg" alt="" width="28" height="28" /><span>Au Courant</span></a>
+  <span class="zj-tete__lieu">le jeu d'accueil de Nareva</span>
+  
+  <button id="zj-langue" type="button" class="zj-tete__langue" title="Jouer en arabe" aria-label="Jouer en arabe"><span lang="ar" dir="rtl">العربية</span></button>
+</header>
+
+<main>
+  
+  <section id="ecran-porte" class="zj-ecran zj-ecran--porte" aria-labelledby="zj-porte-titre">
+    <div class="zj-carte">
+      <p class="zj-kicker">Le jeu</p>
+      <h1 id="zj-porte-titre">Jami3at al Qarawiyine <span class="ar" lang="ar" dir="rtl">جامعة القرويين</span></h1>
+      <p class="zj-lead">L'antre du savoir de Fès. On y entre <strong>Talib</strong>, avec une <strong>Arb3ine</strong> — quarante jours — pour les quatre premiers défis de la maison.</p>
+      <p class="zj-legende">Et une <strong>Rihla</strong> : neuf pages que Nsyan, l'oubli, a arrachées à l'histoire du Maroc. Une par ville, à retrouver avec l'IA pour compagnon — dire juste, voir juste, vérifier juste.</p>
+      <p class="zj-legende">Ce que tu entendras est une pièce composée pour la maison, qui tourne en boucle — avec la couleur de l'<strong>Āla</strong>, la musique arabo-andalouse du Maroc. Elle se fait plus discrète là où l'on lit, plus présente dans la cour ; le bouton ♪ la coupe.</p>
+      <p class="zj-legende">Trois carnets se remplissent ici : le <strong>M39ol</strong>, ce que tu donnes à la maison — il vient des autres et lui seul fait ton rang ; la <strong>Sna3a</strong>, ce que tu sais faire ; la <strong>Dhakira</strong>, ce que tu sais de ton pays.</p>
+      <p class="zj-legende">La maison reconnaît les siens à l'entrée — leur <strong>Chajara</strong>. Les autres entrent sur <strong>dossier accepté</strong>, ou <strong>parrainés</strong> par un membre de la maison. Le sandouq, la bibliothèque et le Souk leur sont ouverts, et c'est au Souk qu'on se fait voir.</p>
+      <p class="zj-legende"><strong>Pas de parrainage, pas de jeu.</strong></p>
+      <div id="zj-mode" class="zj-bandeau" hidden>Mode atelier — les comptes et ton personnage vivent dans ce navigateur, rien ne part sur le réseau.</div>
+      <p id="zj-porte-invitation" class="zj-msg" hidden></p>
+
+      
+      <div id="zj-porte-fermee" class="zj-porte-fermee" hidden>
+        <h2 id="zj-porte-fermee-titre">Pas de parrainage, pas de jeu</h2>
+        <p id="zj-porte-fermee-texte" class="zj-legende"></p>
+        <p id="zj-porte-fermee-invite" class="zj-legende"></p>
+        <button id="zj-porte-fermee-dyaf" type="button" class="zj-bouton zj-bouton--dyaf">Entrer en invité</button>
+        <button id="zj-porte-fermee-sortir" type="button" class="zj-bouton zj-bouton--discret">Sortir</button>
+      </div>
+
+      
+      <form id="zj-porte-retour" class="zj-porte-fermee" novalidate hidden>
+        <h2 id="zj-porte-retour-titre">Choisis ton nouveau mot de passe</h2>
+        <p id="zj-porte-retour-texte" class="zj-legende"></p>
+        <label for="zj-retour-mdp">Nouveau mot de passe</label>
+        <input id="zj-retour-mdp" name="password" type="password" autocomplete="new-password" required minlength="8" />
+        <p id="zj-retour-msg" class="zj-msg" hidden></p>
+        <button id="zj-retour-bouton" class="zj-bouton" type="submit">Poser ce mot de passe</button>
+      </form>
+
+      <div class="zj-onglets" role="tablist" aria-label="Entrer ou s'inscrire">
+        <button type="button" class="zj-onglet" role="tab" data-onglet="entrer" aria-selected="true">Entrer</button>
+        <button type="button" class="zj-onglet" role="tab" data-onglet="inscrire" aria-selected="false">S'inscrire</button>
+      </div>
+
+      <form id="zj-form-porte" novalidate>
+        <label for="zj-email">E-mail</label>
+        <input id="zj-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+        <label for="zj-mdp">Mot de passe</label>
+        <input id="zj-mdp" name="password" type="password" autocomplete="current-password" required minlength="8" />
+        <p id="zj-porte-legende" class="zj-legende"></p>
+        <p id="zj-porte-msg" class="zj-msg" hidden></p>
+        <button id="zj-porte-bouton" class="zj-bouton" type="submit">Entrer</button>
+      </form>
+
+      
+      <div class="zj-dyaf">
+        <p class="zj-dyaf__mot">Tu ne fais que passer ?</p>
+        <p class="zj-dyaf__legende">Entre quand même. Chez nous, on reçoit un invité <b>trois jours</b> sans rien lui demander : ni son nom, ni ce qu'il vient chercher. Pas de compte, pas d'adresse e-mail.</p>
+        <button id="zj-dyaf-entrer" type="button" class="zj-bouton zj-bouton--dyaf">Entrer en invité <span class="ar" lang="ar" dir="rtl">ضيف</span></button>
+      </div>
+
+      
+      <p class="zj-note"><button id="zj-dossier-ouvrir" type="button" class="zj-lien" aria-expanded="false" aria-controls="zj-form-dossier">Je suis de la maison, ou mon dossier est accepté</button></p>
+      <form id="zj-form-dossier" class="zj-dossier" novalidate hidden>
+        <p class="zj-legende">Donne ton adresse : celle de ton inscription à la plateforme de formation de la maison, ou celle de ton dossier accepté sur zawia.tech. Ton lien d'entrée part dans ta boîte.</p>
+        <label for="zj-dossier-email">Ton e-mail</label>
+        <input id="zj-dossier-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+        <p id="zj-dossier-msg" class="zj-msg" hidden></p>
+        <button id="zj-dossier-bouton" class="zj-bouton zj-bouton--discret" type="submit">Recevoir mon lien d'entrée</button>
+        <p class="zj-note">Ni l'un ni l'autre ? <a href="#" target="_blank" rel="noopener">Dépose ton dossier sur zawia.tech</a>.</p>
+      </form>
+
+      
+      <p class="zj-note"><button id="zj-passe-ouvrir" type="button" class="zj-lien" aria-expanded="false" aria-controls="zj-form-passe">Mot de passe oublié</button></p>
+      <form id="zj-form-passe" class="zj-dossier" novalidate hidden>
+        <p class="zj-legende">Donne ton adresse : un lien de retour part dans ta boîte. Il ne sert qu'une fois.</p>
+        <label for="zj-passe-email">Ton e-mail</label>
+        <input id="zj-passe-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+        <p id="zj-passe-msg" class="zj-msg" hidden></p>
+        <button id="zj-passe-bouton" class="zj-bouton zj-bouton--discret" type="submit">Recevoir mon lien de retour</button>
+      </form>
+
+      <p class="zj-note">Le premier rang est Talib — celui qui cherche. <a href="#">Les cinq rangs de la maison</a>.</p>
+      <p class="zj-note"><a id="zj-intro-revoir" href="#">Revoir le film d'ouverture</a></p>
+    </div>
+  </section>
+
+  
+  
+  <section id="ecran-intro" class="zj-intro" hidden aria-label="L'intro : le voyage dans le temps">
+    <video id="zj-intro-film" class="zj-intro__film" playsinline preload="none"
+           poster="assets/maisons/nareva/video/au-courant-affiche.jpg?v=2" hidden></video>
+    <canvas id="zj-intro-scene" aria-hidden="true"></canvas>
+    <div id="zj-intro-lancer" class="zj-intro__lancer" hidden>
+      <button id="zj-intro-jouer" type="button" class="zj-intro__jouer" aria-label="Lancer l'intro, avec le son">▶</button>
+      <p>Le voyage dans le temps</p>
+      <small>Une minute, avec le son. Vous pouvez passer.</small>
+    </div>
+    <button id="zj-intro-son" type="button" class="zj-intro__son" hidden aria-label="Couper le son">♪</button>
+    <div id="zj-intro-barre" class="zj-intro__barre" hidden aria-hidden="true"><i></i></div>
+    <button id="zj-intro-passer" type="button" class="zj-intro__passer">Passer l'intro</button>
+    <div id="zj-intro-texte" class="zj-intro__texte" aria-live="polite">
+      <p id="zj-intro-epoque" class="zj-kicker zj-intro__epoque"></p>
+      <h2 id="zj-intro-titre" class="zj-intro__titre"></h2>
+      <p id="zj-intro-corps" class="zj-intro__corps"></p>
+    </div>
+    <div class="zj-intro__pied">
+      <div id="zj-intro-points" class="zj-intro__points" aria-hidden="true"></div>
+      <button id="zj-intro-suite" type="button" class="zj-bouton">Suite</button>
+    </div>
+  </section>
+
+  
+  <section id="ecran-atelier" class="zj-ecran zj-ecran--atelier" aria-labelledby="zj-atelier-titre" hidden>
+    <div class="zj-atelier">
+      <div class="zj-atelier__scene">
+        <canvas id="zj-apercu" width="420" height="315" aria-label="Aperçu du personnage, qui marche sur place"></canvas>
+        <button id="zj-tourner" type="button" class="zj-bouton zj-bouton--discret">Tourner</button>
+      </div>
+      <form id="zj-form-atelier" class="zj-atelier__form" novalidate>
+        <p class="zj-kicker">L'atelier</p>
+        <h2 id="zj-atelier-titre">Mon personnage</h2>
+        <label for="zj-pseudo">Pseudo — le nom qu'on verra dans la cour</label>
+        <input id="zj-pseudo" name="pseudo" type="text" autocomplete="nickname" maxlength="24" required />
+
+        <fieldset>
+          <legend>Peau</legend>
+          <div id="zj-peaux" class="zj-pastilles"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Couleur de la tenue — <span id="zj-djellaba-nom"></span></legend>
+          <div id="zj-djellabas" class="zj-pastilles"></div>
+        </fieldset>
+        <fieldset>
+          <legend>La tenue</legend>
+          <div id="zj-tetes" class="zj-choix-liste"></div>
+          <p id="zj-tete-detail" class="zj-legende"></p>
+        </fieldset>
+        <fieldset>
+          <legend>Cheveux — <span id="zj-cheveux-nom"></span></legend>
+          <div id="zj-cheveux" class="zj-pastilles"></div>
+        </fieldset>
+        <fieldset id="zj-fs-coiffure">
+          <legend>Coiffure</legend>
+          <div id="zj-coiffures" class="zj-choix-liste"></div>
+          <p id="zj-coiffure-detail" class="zj-legende"></p>
+        </fieldset>
+        <fieldset>
+          <legend>Barbe</legend>
+          <div id="zj-barbes" class="zj-choix-liste"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Moustache</legend>
+          <div id="zj-moustaches" class="zj-choix-liste"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Accessoire</legend>
+          <div id="zj-bijoux" class="zj-choix-liste"></div>
+          <p id="zj-bijou-detail" class="zj-legende"></p>
+        </fieldset>
+
+        <p id="zj-atelier-msg" class="zj-msg" hidden></p>
+        <div class="zj-actions">
+          <button id="zj-atelier-bouton" class="zj-bouton" type="submit">Entrer dans la Qarawiyine</button>
+          <button id="zj-atelier-annuler" class="zj-bouton zj-bouton--discret" type="button" hidden>Annuler</button>
+        </div>
+        <p class="zj-note"><a id="zj-atelier-sortir" href="#">Sortir de la maison</a></p>
+      </form>
+    </div>
+  </section>
+
+  
+  <section id="ecran-cour" class="zj-ecran zj-ecran--cour" aria-label="La cour de la maison" hidden>
+    <div id="zj-scene-cadre" class="zj-scene">
+      <canvas id="zj-scene" aria-label="La maison Nareva, vue de haut"></canvas>
+      <p id="zj-cour-erreur" class="zj-msg ko" hidden></p>
+
+      <div id="zj-hud" class="zj-hud" aria-live="polite">
+        <canvas id="zj-hud-avatar" width="36" height="48" aria-hidden="true"></canvas>
+        <div>
+          <strong id="zj-hud-pseudo"></strong>
+          <span class="zj-hud__rang"><span id="zj-hud-rang"></span> <span id="zj-hud-rang-ar" class="ar" lang="ar" dir="rtl"></span></span>
+        </div>
+        <span id="zj-hud-arb3ine" class="zj-hud__arb3ine" hidden></span>
+        <span id="zj-hud-m39ol" class="zj-hud__arb3ine zj-hud__m39ol"></span>
+        <span id="zj-hud-sna3a" class="zj-hud__arb3ine zj-hud__sna3a"></span>
+        <span id="zj-hud-dhakira" class="zj-hud__arb3ine zj-hud__dhakira"></span>
+        <button id="zj-hud-wird" class="zj-hud__arb3ine zj-hud__wird" type="button" hidden></button>
+        <span id="zj-hud-rihla" class="zj-hud__arb3ine zj-hud__rihla" hidden></span>
+        <span id="zj-hud-sahn" class="zj-hud__arb3ine zj-hud__sahn" hidden></span>
+        <span id="zj-hud-mode" class="zj-hud__mode" hidden>atelier</span>
+        <span id="zj-hud-masque" class="zj-hud__arb3ine zj-hud__masque" hidden></span>
+      </div>
+
+          <button id="zj-son" class="zj-menu-bouton zj-son" type="button" aria-pressed="false" title="Couper la musique">♪</button>
+      <button id="zj-menu-bouton" class="zj-menu-bouton" type="button" aria-expanded="false" aria-controls="zj-menu">Menu</button>
+      <div id="zj-menu" class="zj-menu" hidden>
+        <p id="zj-menu-qui"></p>
+        <p id="zj-menu-boucle" class="zj-menu__boucle">Apprendre dans la zawia · le prouver à Fès · le partager à la halqa.</p>
+        <p id="zj-menu-raccourcis" class="zj-menu__aide" hidden></p>
+        <button id="zj-menu-wird" type="button" class="zj-bouton">Le Wird du jour</button>
+        
+        <button id="zj-menu-ferracha" type="button" class="zj-bouton zj-bouton--ferracha" title="Ton tapis au Souk — la touche F y mène aussi">Ma ferracha — mon tapis au Souk</button>
+        <p class="zj-menu__titre">Apprendre — dans la zawia</p>
+        <button id="zj-menu-imtihan" type="button" class="zj-bouton zj-bouton--discret">L'épreuve</button>
+        <button id="zj-menu-tableau" type="button" class="zj-bouton zj-bouton--discret">Le tableau</button>
+        <button id="zj-menu-bibliotheque" type="button" class="zj-bouton zj-bouton--discret">La bibliothèque</button>
+        <button id="zj-menu-kounnach" type="button" class="zj-bouton zj-bouton--discret">Le Kounnach — les wasfat</button>
+        <button id="zj-menu-masarat" type="button" class="zj-bouton zj-bouton--discret">Les Masarat — les parcours</button>
+        <button id="zj-menu-maharat" type="button" class="zj-bouton zj-bouton--discret">Mes maharat — l'Ijaza de la Zawia</button>
+        <button id="zj-menu-kharita" type="button" class="zj-bouton zj-bouton--discret">La Kharita</button>
+        <button id="zj-menu-cartes" type="button" class="zj-bouton zj-bouton--discret">Mes cartes</button>
+        <p class="zj-menu__titre">Jouer — à Fès et dans la cour</p>
+        <button id="zj-menu-rihla" type="button" class="zj-bouton zj-bouton--rihla">La Rihla — sortir dans Fès</button>
+        <button id="zj-menu-carte" type="button" class="zj-bouton zj-bouton--discret" hidden>Ma carte du Rafiq</button>
+        <button id="zj-menu-duel" type="button" class="zj-bouton zj-bouton--discret" hidden>Défier un ami</button>
+        <button id="zj-menu-kelma" type="button" class="zj-bouton zj-bouton--discret">Lkelma d'lyoum — le mot du jour</button>
+        <button id="zj-menu-atay" type="button" class="zj-bouton zj-bouton--discret">Atay — trois verres, de haut</button>
+        <button id="zj-menu-qlil" type="button" class="zj-bouton zj-bouton--discret">Qlil w mfid — le golf du prompt</button>
+        <button id="zj-menu-khessa" type="button" class="zj-bouton zj-bouton--discret">La fontaine du Sahn</button>
+        <a id="zj-menu-nsyan" class="zj-bouton zj-bouton--discret" href="/nsyan" target="_blank" rel="noopener">Chkoun Nsyan ? — jouer entre amis</a>
+        <a id="zj-menu-wach" class="zj-bouton zj-bouton--discret" href="/wach" target="_blank" rel="noopener">Wach hadi IA ? — trouver l'IA</a>
+        <p id="zj-menu-bientot" class="zj-menu__aide" hidden></p>
+        <p class="zj-menu__titre">Partager — à la halqa</p>
+        <button id="zj-menu-riwaq" type="button" class="zj-bouton zj-bouton--discret">Le Riwaq</button>
+        <button id="zj-menu-souk" type="button" class="zj-bouton zj-bouton--discret">Le Souk — la Rahba</button>
+        <button id="zj-menu-derb" type="button" class="zj-bouton zj-bouton--discret">Le Derb t-Tadamoun — les projets solidaires</button>
+        <button id="zj-menu-mechouar" type="button" class="zj-bouton zj-bouton--discret">Al-Mechouar — le cercle des Moujahidine</button>
+        <button id="zj-menu-safqa" type="button" class="zj-bouton zj-bouton--discret">Mes affaires</button>
+        <button id="zj-menu-wasfa" type="button" class="zj-bouton zj-bouton--discret">Écrire une wasfa</button>
+        <button id="zj-menu-dire" type="button" class="zj-bouton zj-bouton--discret" hidden>Dire un mot</button>
+        <button id="zj-menu-rasail" type="button" class="zj-bouton zj-bouton--discret">Mes messages</button>
+        <a id="zj-menu-lebsa" class="zj-bouton zj-bouton--discret" href="/lebsa-vivante" target="_blank" rel="noopener">Ma lebsa — les habits de la halqa</a>
+        <button id="zj-menu-ijaza" type="button" class="zj-bouton zj-bouton--discret">Ma carte de l'Ijaza</button>
+        <a id="zj-menu-lawh" class="zj-bouton zj-bouton--discret" href="/lawh" target="_blank" rel="noopener">Le Lawh — le classement de la zawia</a>
+        <button id="zj-menu-parrainer" type="button" class="zj-bouton zj-bouton--discret" hidden>Parrainer</button>
+        <button id="zj-menu-majliss" type="button" class="zj-bouton zj-bouton--discret" hidden>Le Majliss</button>
+        
+        <p class="zj-menu__titre">La maison</p>
+        <button id="zj-menu-rkhama" type="button" class="zj-bouton zj-bouton--discret" hidden>La Rkhama — ceux qui tiennent l'échelle</button>
+        <p class="zj-menu__titre">Moi</p>
+        <button id="zj-menu-carnet" type="button" class="zj-bouton zj-bouton--discret">Mon carnet</button>
+        <button id="zj-menu-bitaqa" type="button" class="zj-bouton zj-bouton--discret">Ma carte de membre</button>
+        <button id="zj-menu-tariqa" type="button" class="zj-bouton zj-bouton--discret">Ma tariqa — mon rôle, mon terrain</button>
+        <button id="zj-menu-perso" type="button" class="zj-bouton zj-bouton--discret">Mon personnage</button>
+        <button id="zj-menu-prologue" type="button" class="zj-bouton zj-bouton--discret">Relire le prologue</button>
+        <button id="zj-menu-tutoriel" type="button" class="zj-bouton zj-bouton--discret">Le tutoriel</button>
+        <button id="zj-menu-rejouer" type="button" class="zj-bouton zj-bouton--discret" hidden title="Le compte d'essai du Morchid seul : intro, prologue, tutoriel et Wird repartent du jour 1">Rejouer le début</button>
+        
+        <button id="zj-menu-oumm" type="button" class="zj-bouton zj-bouton--discret" hidden>Les cinq épreuves — répondre à Oumm IA</button>
+        <button id="zj-menu-tableaux" type="button" class="zj-bouton zj-bouton--discret" hidden>Les sept tableaux du Voilé</button>
+        <button id="zj-menu-dyaf" type="button" class="zj-bouton zj-bouton--discret" hidden>Ach jabek ? — les trois portes</button>
+        <button id="zj-menu-langue" type="button" class="zj-bouton zj-bouton--discret" title="Jouer en arabe" aria-label="Jouer en arabe"><span lang="ar" dir="rtl">العربية</span></button>
+        <button id="zj-menu-sortir" type="button" class="zj-bouton zj-bouton--discret">Sortir de la maison</button>
+        <button id="zj-menu-fermer" type="button" class="zj-bouton">Fermer</button>
+      </div>
+
+      
+      <div id="zj-dar" class="zj-dar" hidden role="dialog" aria-modal="true" aria-labelledby="zj-dar-nom">
+        <div class="zj-dar__cadre">
+          <div class="zj-dar__interieur">
+            <div class="zj-dar__frise zj-zellige" aria-hidden="true"></div>
+            <div class="zj-dar__corps">
+              <div class="zj-dar__haut">
+                <div id="zj-dar-moi" class="zj-dar__moi">
+                  <span class="zj-medaillon zj-medaillon--moi"><canvas id="zj-dar-avatar" width="44" height="58" aria-hidden="true"></canvas></span>
+                  <div><h2 id="zj-dar-nom" class="zj-dar__nom"></h2><p id="zj-dar-rang" class="zj-dar__rang"></p><p id="zj-dar-axes" class="zj-dar__axes"></p></div>
+                </div>
+                <label class="zj-dar__recherche"><span class="zj-lecteur">Chercher dans le Dar</span>
+                  <input id="zj-dar-q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Où veux-tu aller ? Que veux-tu faire ?" /><kbd aria-hidden="true">/</kbd></label>
+                <button id="zj-dar-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+              </div>
+              <div id="zj-dar-jour" class="zj-dar__jour"></div>
+              <div id="zj-dar-portes" class="zj-dar__portes" role="tablist" aria-label="Les portes du Dar"></div>
+              <div id="zj-dar-grille" class="zj-dar__grille"></div>
+              <p id="zj-dar-vide" class="zj-dar__vide" hidden>Rien ne répond à ce mot. Essaie « thé », « tapis », « parcours » ou « classement ».</p>
+              <p id="zj-dar-touches" class="zj-dar__touches">Y aujourd'hui · F ma ferracha · G les gens · C aller · M le Dar · / chercher</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      
+      <nav id="zj-barre" class="zj-barre" aria-label="La Barre">
+        <button id="zj-barre-lyoum" type="button" class="zj-barre__b" title="Aujourd'hui : le Wird et les jeux du jour (Y)"><span class="zj-medaillon"><span class="zj-ico" style="--c:0;--r:0" aria-hidden="true"></span><span id="zj-barre-lyoum-n" class="zj-pastille zj-pastille--or" hidden></span></span><bdi class="zj-barre__nom">Aujourd'hui</bdi></button>
+        <button id="zj-barre-ferracha" type="button" class="zj-barre__b" title="Ton tapis au Souk (F)"><span class="zj-medaillon"><span class="zj-ico" style="--c:1;--r:0" aria-hidden="true"></span></span><bdi class="zj-barre__nom">Ma ferracha</bdi></button>
+        <button id="zj-barre-gens" type="button" class="zj-barre__b" title="Les gens : qui est là, ce qui se dit, tes messages (G)"><span class="zj-medaillon"><span class="zj-ico" style="--c:3;--r:0" aria-hidden="true"></span><span id="zj-barre-gens-n" class="zj-pastille" hidden></span></span><bdi class="zj-barre__nom">Les gens</bdi></button>
+        <button id="zj-barre-aller" type="button" class="zj-barre__b" title="La maison, d'un geste (C)"><span class="zj-medaillon"><span class="zj-ico" style="--c:4;--r:0" aria-hidden="true"></span></span><bdi class="zj-barre__nom">Aller</bdi></button>
+        <button id="zj-barre-dar" type="button" class="zj-barre__b" title="Le Dar : tout le reste, rangé et cherchable (M)"><span class="zj-medaillon"><span class="zj-ico" style="--c:5;--r:0" aria-hidden="true"></span></span><bdi class="zj-barre__nom">Le Dar</bdi></button>
+      </nav>
+
+      
+      <div id="zj-aller" class="zj-riwaq zj-aller" hidden>
+        
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-aller-nom">
+          <div class="zj-riwaq__tete">
+            <div><p class="zj-kicker">La maison, d'un geste</p><h2 id="zj-aller-nom">Aller <span class="ar" lang="ar" dir="rtl">اذهب</span></h2></div>
+            <button id="zj-aller-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <div id="zj-aller-corps" class="zj-aller__plan"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-gens" class="zj-riwaq zj-gens" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--gens" role="dialog" aria-modal="true" aria-labelledby="zj-gens-nom">
+          <div class="zj-riwaq__tete">
+            <div><p class="zj-kicker">En ce moment</p><h2 id="zj-gens-nom">Les gens <span class="ar" lang="ar" dir="rtl">الناس</span></h2></div>
+            <button id="zj-gens-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <div id="zj-gens-onglets" class="zj-onglets zj-gens__onglets" role="tablist" aria-label="Les gens">
+            <button type="button" class="zj-onglet" role="tab" data-gens-onglet="ici" aria-selected="true"><bdi>Ici</bdi><span id="zj-gens-n-ici" class="zj-pastille zj-pastille--calme" hidden></span></button>
+            <button type="button" class="zj-onglet" role="tab" data-gens-onglet="annuaire" aria-selected="false"><bdi>Annuaire</bdi><span id="zj-gens-n-annuaire" class="zj-pastille zj-pastille--calme" hidden></span></button>
+            <button type="button" class="zj-onglet" role="tab" data-gens-onglet="kalam" aria-selected="false"><bdi>Le Kalam</bdi><span id="zj-gens-n-kalam" class="zj-pastille" hidden></span></button>
+            <button type="button" class="zj-onglet" role="tab" data-gens-onglet="rasail" aria-selected="false"><bdi>Messages</bdi><span id="zj-gens-n-rasail" class="zj-pastille" hidden></span></button>
+          </div>
+          <div id="zj-gens-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-bitaqa" class="zj-riwaq zj-bitaqa-panneau" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--gens" role="dialog" aria-modal="true" aria-labelledby="zj-bitaqa-nom">
+          <div class="zj-riwaq__tete">
+            <div><p class="zj-kicker">Pour que la maison te trouve</p><h2 id="zj-bitaqa-nom">Ma carte <span class="ar" lang="ar" dir="rtl">بطاقتي</span></h2></div>
+            <button id="zj-bitaqa-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <div id="zj-bitaqa-corps"></div>
+        </div>
+      </div>
+
+      <p id="zj-aide" class="zj-aide">Flèches ou ZQSD pour marcher · Espace pour parler · Échap pour fermer</p>
+
+      <p id="zj-rihla-annonce" class="zj-rihla__annonce" aria-live="polite" hidden></p>
+
+      <div id="zj-tuto" class="zj-tuto" hidden>
+        <p id="zj-tuto-texte" class="zj-tuto__texte" aria-live="polite"></p>
+        <button id="zj-tuto-passer" type="button" class="zj-tuto__passer" title="Laisser le mou'allim — le tutoriel reste au Menu" aria-label="Passer le tutoriel">✕</button>
+      </div>
+
+      
+      <div id="zj-kalam-cour" class="zj-kalam-cour" hidden aria-live="polite"></div>
+
+      
+      <form id="zj-dire" class="zj-dire" hidden novalidate aria-label="Dire un mot dans la cour">
+        <input id="zj-dire-texte" type="text" maxlength="280" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Un mot pour la pièce — 280 caractères, sans lien" aria-label="Ton mot" />
+        <button id="zj-dire-envoyer" type="submit" class="zj-bouton">Dire</button>
+        <button id="zj-dire-fermer" type="button" class="zj-bouton zj-bouton--discret" aria-label="Fermer">✕</button>
+        <span id="zj-dire-msg" class="zj-dire__msg" aria-live="polite"></span>
+      </form>
+
+      <div id="zj-imtihan" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-imtihan-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le rihal</p>
+              <h2 id="zj-imtihan-nom">L'Imtihan <span class="ar">الامتحان</span></h2>
+            </div>
+            <button id="zj-imtihan-fermer" type="button" class="zj-bouton zj-bouton--discret">Se lever</button>
+          </div>
+          <p class="zj-riwaq__lead">Une question, seul, chronométrée. Quitter la fenêtre la brûle — et elle ne revient jamais.</p>
+          <div id="zj-imtihan-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-tableau" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-tableau-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La maison</p>
+              <h2 id="zj-tableau-nom">Le tableau <span class="ar">اللوح</span></h2>
+            </div>
+            <button id="zj-tableau-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Il se lit par tous, tout le temps. Un compteur secret est un compteur truqué.</p>
+          <div id="zj-tableau-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-wird" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-wird-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">L'Arb3ine</p>
+              <h2 id="zj-wird-nom">Le Wird <span class="ar">الورد</span></h2>
+            </div>
+            <button id="zj-wird-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Un défi par jour, quarante jours, vingt minutes au plus. La portion du jour — ni plus, ni moins. La veille se rattrape.</p>
+          <div id="zj-wird-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-cartes" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-cartes-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La Dhakira</p>
+              <h2 id="zj-cartes-nom">Mes cartes <span class="ar">بطاقاتي</span></h2>
+            </div>
+            <button id="zj-cartes-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead" id="zj-cartes-lead">Une carte par page retrouvée au sandouq — dorée quand tu l'as trouvée sans indice. Une page nouvelle s'ouvre chaque jeudi. Douze cartes, et tu es Rawi : celui qui peut raconter.</p>
+          <div id="zj-cartes-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-tariqa" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-tariqa-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La maison</p>
+              <h2 id="zj-tariqa-nom">Ta Tariqa <span class="ar">الطريقة</span></h2>
+            </div>
+            <button id="zj-tariqa-fermer" type="button" class="zj-bouton zj-bouton--discret">Pas encore</button>
+          </div>
+          <p class="zj-riwaq__lead">Comment sers-tu la maison ? Cinq tariqat, une à la fois — et le terrain où ta sna3a sert. Rien ici ne donne un point : c'est ton rôle dans l'équipe, celui qu'on lit au Lawh et sur ton tapis.</p>
+          <div id="zj-tariqa-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-tableaux" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-tableaux-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La qubba</p>
+              <h2 id="zj-tableaux-nom">Les sept tableaux <span class="ar" lang="ar" dir="rtl">الملثّم</span></h2>
+            </div>
+            <button id="zj-tableaux-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead" id="zj-tableaux-lead"></p>
+          <div id="zj-tableaux-corps"></div>
+          <p class="zj-riwaq__lead" id="zj-tableaux-pied"></p>
+          <div id="zj-sirr" class="zj-sirr" hidden></div>
+          <div id="zj-tableaux-defi" class="zj-voile"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-dyaf-portes" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-dyaf-portes-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le mou'allim</p>
+              <h2 id="zj-dyaf-portes-nom">Ach jabek ? <span class="ar" lang="ar" dir="rtl">آش جابك؟</span></h2>
+            </div>
+            <button id="zj-dyaf-portes-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Qu'est-ce qui t'amène ? Réponds ce qui est vrai : les trois réponses ouvrent une porte, et aucune ne ferme celle-ci.</p>
+          <div id="zj-dyaf-portes-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-parrainage" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-parrainage-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Répondre de quelqu'un</p>
+              <h2 id="zj-parrainage-nom">Parrainer <span class="ar">الكفالة</span></h2>
+            </div>
+            <button id="zj-parrainage-fermer" type="button" class="zj-bouton zj-bouton--discret">Refermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Ici, on n'entre que parrainé. Inviter quelqu'un, c'est répondre de lui : ce que ton filleul fait dans la cour, la maison le lira à côté de ton nom.</p>
+          <div id="zj-parrainage-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-kharita" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-kharita-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le grand monde</p>
+              <h2 id="zj-kharita-nom">La Kharita <span class="ar">الخريطة</span></h2>
+            </div>
+            <button id="zj-kharita-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Nsyan n'a pas seulement arraché des pages : il a effacé les villes. Chaque page retrouvée au sandouq en fait revenir une sur la carte.</p>
+          <div id="zj-kharita-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-kelma" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-kelma" role="dialog" aria-modal="true" aria-labelledby="zj-kelma-nom" tabindex="-1">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le lawh du jour</p>
+              <h2 id="zj-kelma-nom">Lkelma d'lyoum <span class="ar">الكلمة ديال اليوم</span></h2>
+            </div>
+            <button id="zj-kelma-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Un mot par jour, le même pour tous, six essais. Vert : la bonne lettre à la bonne place. Ocre : la lettre y est, mais ailleurs.</p>
+          <div id="zj-kelma-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-atay" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-atay" role="dialog" aria-modal="true" aria-labelledby="zj-atay-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Sous les orangers du riad</p>
+              <h2 id="zj-atay-nom">Atay <span class="ar">أتاي</span></h2>
+            </div>
+            <button id="zj-atay-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Trois verres. Tiens pour lever la théière et verser : plus c'est haut, plus la rghwa monte — mais plus le filet danse. Lâche pour redescendre.</p>
+          <div id="zj-atay-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-qlil" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-qlil-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">L'établi du prompt</p>
+              <h2 id="zj-qlil-nom">Qlil w mfid <span class="ar">قليل ومفيد</span></h2>
+            </div>
+            <button id="zj-qlil-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Le golf du prompt. Neuf trous : pour chacun, fais sortir du modèle exactement ce qui est demandé, avec le prompt le plus court. Chaque caractère compte. Le modèle répond, la maison juge.</p>
+          <div id="zj-qlil-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-carte" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-carte-titre">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La Rihla — ton Rafiq</p>
+              <h2 id="zj-carte-titre">Ma carte du Rafiq</h2>
+            </div>
+            <button id="zj-carte-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <canvas id="zj-carte-canvas" class="zj-carte__image" width="1080" height="1350" aria-label="La carte du Rafiq"></canvas>
+          <div class="zj-wird__actions">
+            <button id="zj-carte-partager" type="button" class="zj-bouton">Partager la carte</button>
+            <button id="zj-carte-defi" type="button" class="zj-bouton zj-bouton--discret">Défier un ami</button>
+          </div>
+          <p id="zj-carte-msg" class="zj-majliss__quand" role="status"></p>
+        </div>
+      </div>
+
+      
+      <div id="zj-ijaza" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-ijaza-titre">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Les maharat — le diplôme</p>
+              <h2 id="zj-ijaza-titre">Ma carte de l'Ijaza</h2>
+            </div>
+            <button id="zj-ijaza-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <canvas id="zj-ijaza-canvas" class="zj-carte__image" width="1080" height="1350" aria-label="La carte de l'Ijaza de la Zawia"></canvas>
+          <div class="zj-wird__actions">
+            <button id="zj-ijaza-partager" type="button" class="zj-bouton">Partager ma carte</button>
+          </div>
+          <p id="zj-ijaza-msg" class="zj-majliss__quand" role="status"></p>
+        </div>
+      </div>
+
+      
+      <div id="zj-duel" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-duel-titre">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le duel par lien</p>
+              <h2 id="zj-duel-titre">Défier un ami</h2>
+            </div>
+            <button id="zj-duel-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Cinq épreuves. Ton ami reçoit les mêmes, sans compte, et voit s'il fait mieux que ton Rafiq.</p>
+          <div id="zj-duel-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-rafiq" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-rafiq-titre">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La Rihla — ton compagnon</p>
+              <h2 id="zj-rafiq-titre">Choisis ton Rafiq <span class="ar">الرفيق</span></h2>
+            </div>
+            <button id="zj-rafiq-fermer" type="button" class="zj-bouton zj-bouton--discret">Plus tard</button>
+          </div>
+          <p class="zj-riwaq__lead">Une IA, à la forme d'un animal d'ici. On ne le choisit qu'une fois : il te suivra partout, et il grandira avec ce que tu apprends.</p>
+          <div id="zj-rafiq-corps" class="zj-rafiq"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-combat" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-combat__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-combat-titre">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Une ombre de Nsyan</p>
+              <h2 id="zj-combat-titre">Une ombre</h2>
+            </div>
+            <button id="zj-combat-fuir" type="button" class="zj-bouton zj-bouton--discret">Reculer</button>
+          </div>
+          <div id="zj-combat-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-etal" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-etal-titre">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La Rihla — Fès</p>
+              <h2 id="zj-etal-titre">Fès</h2>
+            </div>
+            <button id="zj-etal-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <div id="zj-etal-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-mechouar" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-mechouar-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le cercle des Moujahidine</p>
+              <h2 id="zj-mechouar-nom">Al-Mechouar <span class="ar">المشور</span></h2>
+            </div>
+            <button id="zj-mechouar-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Ici, on n'affronte jamais une personne : celui d'en face est un compagnon d'épreuve, et l'adversaire est derrière vous deux. Trois armes, trois manches — deux suffisent. Aucun point : ce qu'on gagne, c'est un titre, et il se perd.</p>
+          <div id="zj-mechouar-corps"></div>
+        </div>
+      </div>
+      <div id="zj-khessa" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-khessa-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Lkhessa ta3mer — la fontaine se remplit</p>
+              <h2 id="zj-khessa-nom">La fontaine du Sahn <span class="ar">الخصّة</span></h2>
+            </div>
+            <button id="zj-khessa-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">L'eau vient d'en haut, coule vers tous, et personne ne la garde pour lui. Cette semaine, elle monte avec ce que chacun fait. Pleine avant dimanche soir : la semaine d'après, les lanternes de la cour restent allumées — pour tout le monde.</p>
+          <div id="zj-khessa-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-majliss" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-majliss-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La chambre du fond</p>
+              <h2 id="zj-majliss-nom">Le Majliss <span class="ar">المجلس</span></h2>
+            </div>
+            <button id="zj-majliss-fermer" type="button" class="zj-bouton zj-bouton--discret">Refermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Le conseil de la maison. Cette porte, personne d'autre ne la voit ; ce tableau, personne d'autre ne le lit.</p>
+          <div id="zj-majliss-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-souk" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-souk-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Dehors des murs</p>
+              <h2 id="zj-souk-nom">Le Souk <span class="ar">السوق</span></h2>
+            </div>
+            <button id="zj-souk-fermer" type="button" class="zj-bouton zj-bouton--discret">Rentrer</button>
+          </div>
+          <p class="zj-riwaq__lead">La porte est ouverte. Elle le reste — c'est la règle de la maison. Dehors, le ferrach étale à même le sol : pas de boutique, pas d'enseigne. On ne raconte pas, on pose — et on voit.</p>
+          <div id="zj-souk-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-qissaria" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-qissaria-titre">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Sous la grande toile</p>
+              <h2 id="zj-qissaria-titre">La Qissaria <span class="ar">القيسارية</span></h2>
+            </div>
+            <button id="zj-qissaria-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">La vitrine de la maison, posée au Souk comme n'importe quelle ferracha : dehors des murs, jamais au-dessus d'une tête. Ce que les vitrines montrent, le bureau le pose depuis la console — le code n'en porte rien.</p>
+          <div id="zj-qissaria-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-safqa" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-safqa-titre">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le Souk</p>
+              <h2 id="zj-safqa-titre">Mes affaires <span class="ar">صفقاتي</span></h2>
+            </div>
+            <button id="zj-safqa-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Une affaire se conclut à deux : l'acheteur propose, le vendeur accepte ; l'un dit « réglé », l'autre dit « livré ». La zawia prend 5 % — la smsra — sur chaque affaire conclue : le vendeur la verse à la maison, le bureau la note reçue.</p>
+          <div id="zj-safqa-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-riwaq" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-riwaq-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La galerie</p>
+              <h2 id="zj-riwaq-nom">Le Riwaq <span class="ar">الرواق</span></h2>
+            </div>
+            <button id="zj-riwaq-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Ce que la maison annonce : les rencontres à venir. De quoi apprendre ? Les rayonnages de la Khizana.</p>
+          <div id="zj-riwaq-corps"></div>
+        </div>
+      </div>
+
+      
+      <div id="zj-kounnach" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-kounnach-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La Khizana</p>
+              <h2 id="zj-kounnach-nom">Le Kounnach <span class="ar">الكنّاش</span></h2>
+            </div>
+            <button id="zj-kounnach-fermer" type="button" class="zj-bouton zj-bouton--discret">Reposer le carnet</button>
+          </div>
+          <p class="zj-riwaq__lead">Le carnet du m3ellem : des wasfat — des formules toutes prêtes, écrites de bout en bout — que ta Sna3a ouvre niveau par niveau. Lis, refais, puis écris la tienne : le bureau la relit, la maison te donne du M39ol.</p>
+          <div id="zj-kounnach-corps"></div>
+        </div>
+      </div>
+      
+      <div id="zj-masarat" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-masarat-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">L'établi de la Madrasa</p>
+              <h2 id="zj-masarat-nom">Les Masarat <span class="ar">المسارات</span></h2>
+            </div>
+            <button id="zj-masarat-fermer" type="button" class="zj-bouton zj-bouton--discret">Quitter l'établi</button>
+          </div>
+          <p class="zj-riwaq__lead">Des parcours de vrais livrables : un skill, une vidéo, une app. La première étape de chaque masar est ouverte à tous ; les suivantes s'ouvrent avec la formation qui les enseigne. Chaque étape attestée vaut de la Sna3a — toutes, l'Ijaza du masar.</p>
+          <div id="zj-masarat-corps"></div>
+        </div>
+      </div>
+      
+      <div id="zj-maharat" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre zj-riwaq__cadre--large" role="dialog" aria-modal="true" aria-labelledby="zj-maharat-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le diplôme de la zawia</p>
+              <h2 id="zj-maharat-nom">Mes maharat <span class="ar">المهارات</span></h2>
+            </div>
+            <button id="zj-maharat-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">Une mahara est un geste qu'on sait faire avec l'IA, et ce qui le prouve. Trois états : à acquérir, apprise dans une formation, prouvée par un livrable relu. Cinq prouvées dans un terrain font son ijaza ; le socle, l'amana, deux ijazat et une mahara transmise font l'Ijaza de la Zawia. Aucun point, aucun rang.</p>
+          <div id="zj-maharat-corps"></div>
+        </div>
+      </div>
+      
+      <div id="zj-rkhama" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-rkhama-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">Le mur du Sahn</p>
+              <h2 id="zj-rkhama-nom">La Rkhama <span class="ar">الرخامة</span></h2>
+            </div>
+            <button id="zj-rkhama-fermer" type="button" class="zj-bouton zj-bouton--discret">Fermer</button>
+          </div>
+          <p class="zj-riwaq__lead">La dalle gravée au mur de la cour. La maison y nomme ceux qui tiennent l'échelle pendant qu'elle monte, et les remercie. Aucun point, aucun rang : une dette qu'on dit tout haut.</p>
+          <div id="zj-rkhama-corps"></div>
+        </div>
+      </div>
+      <div id="zj-bibliotheque" class="zj-riwaq" hidden>
+        <div class="zj-riwaq__cadre" role="dialog" aria-modal="true" aria-labelledby="zj-bibliotheque-nom">
+          <div class="zj-riwaq__tete">
+            <div>
+              <p class="zj-kicker">La Khizana</p>
+              <h2 id="zj-bibliotheque-nom">La bibliothèque <span class="ar">المكتبة</span></h2>
+            </div>
+            <button id="zj-bibliotheque-fermer" type="button" class="zj-bouton zj-bouton--discret">Reposer le livre</button>
+          </div>
+          <p class="zj-riwaq__lead">Quatre rayons : le Kounnach — ce que ta Sna3a ouvre —, al-Moujam — les mots de la maison —, de quoi apprendre, et le catalogue. Les rayonnages ont quelques siècles d'avance sur toi ; rattrape-les.</p>
+          <div id="zj-bibliotheque-corps"></div>
+        </div>
+      </div>
+
+      <div id="zj-dialogue" class="zj-dialogue" hidden role="dialog" aria-live="polite">
+        <img id="zj-dialogue-portrait" class="zj-dialogue__portrait" alt="" width="512" height="512" decoding="async" hidden />
+        <p id="zj-dialogue-nom" class="zj-dialogue__nom"></p>
+        <p id="zj-dialogue-texte" class="zj-dialogue__texte"></p>
+        <div id="zj-choix" class="zj-choix-qcm" hidden></div>
+        <form id="zj-question" class="zj-question" hidden novalidate>
+          <label for="zj-reponse" class="zj-question__label">Ta réponse</label>
+          <div class="zj-question__ligne">
+            <input id="zj-reponse" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="80" placeholder="Écris-la ici…" />
+            <button id="zj-repondre" type="submit" class="zj-bouton">Répondre</button>
+          </div>
+          <div class="zj-question__actions">
+            <button id="zj-indice" type="button" class="zj-bouton zj-bouton--discret zj-question__indice">Un indice</button>
+            <span id="zj-question-msg" class="zj-question__msg" aria-live="polite"></span>
+          </div>
+        </form>
+        <span id="zj-dialogue-suite" class="zj-dialogue__suite" aria-hidden="true" hidden>▼</span>
+      </div>
+
+      <div id="zj-tactile" class="zj-tactile" hidden>
+        <div class="zj-croix" aria-label="Se déplacer">
+          <button type="button" data-dir="haut" aria-label="Haut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg></button>
+          <button type="button" data-dir="gauche" aria-label="Gauche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+          <button type="button" data-dir="droite" aria-label="Droite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button type="button" data-dir="bas" aria-label="Bas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        </div>
+        <button id="zj-bouton-a" type="button" class="zj-a" aria-label="Parler ou continuer">A</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+
+<script src="assets/js/zawia-jeu/langue.js?v=85&amp;h=db320f4cf4"></script>
+<script src="assets/js/zawia-jeu/langue-ar.js?v=85&amp;h=bddac33b09"></script>
+
+<script src="assets/js/zawia-jeu/traits.js?v=85&amp;h=043bc996ea"></script>
+<script src="assets/js/zawia-jeu/regles.js?v=85&amp;h=b61bcf521d"></script>
+<script src="assets/js/zawia-jeu/recit.js?v=85&amp;h=292812c3bf"></script>
+<script src="assets/js/zawia-jeu/intro.js?v=85&amp;h=164913f4dd"></script>
+<script src="assets/js/zawia-jeu/tutoriel.js?v=85&amp;h=0bcb6ce6db"></script>
+<script src="assets/js/zawia-jeu/pages.js?v=85&amp;h=626600de37"></script>
+<script src="assets/js/zawia-jeu/tahaddi.js?v=85&amp;h=2241746594"></script>
+<script src="assets/js/zawia-jeu/wird.js?v=85&amp;h=0984fd8834"></script>
+
+<script src="assets/js/zawia-jeu/kelma.js?v=85&amp;h=8a79ff627b"></script>
+<script src="assets/js/zawia-jeu/atay.js?v=85&amp;h=e9d5e87b53"></script>
+<script src="assets/js/zawia-jeu/khessa.js?v=85&amp;h=6b647d3792"></script>
+
+<script src="assets/js/zawia-jeu/qlil.js?v=85&amp;h=05e85e228d"></script>
+
+<script src="assets/js/zawia-jeu/jeux.js?v=85&amp;h=98142f913d"></script>
+<script src="assets/js/zawia-jeu/paliers.js?v=85&amp;h=a82fbfc77c"></script>
+<script src="assets/js/zawia-jeu/musique.js?v=85&amp;h=c7a7beb0b5"></script>
+<script src="assets/js/zawia-jeu/ressources.js?v=85&amp;h=2dc7bcd0a1"></script>
+<script src="assets/js/zawia-jeu/imtihan.js?v=85&amp;h=b8273fa870"></script>
+<script src="assets/js/zawia-jeu/tadamoun.js?v=85&amp;h=bea29594c1"></script>
+<script src="assets/js/zawia-jeu/souk.js?v=85&amp;h=036623e129"></script>
+<script src="assets/js/zawia-jeu/safqa.js?v=85&amp;h=6195ee797e"></script>
+
+<script src="assets/js/zawia-jeu/kalam.js?v=85&amp;h=7a6e1cdea1"></script>
+<script src="assets/js/zawia-jeu/chajara.js?v=85&amp;h=f988e00f8e"></script>
+
+<script src="assets/js/zawia-jeu/dayf.js?v=85&amp;h=df35d817aa"></script>
+
+<script src="assets/js/zawia-jeu/oumm.js?v=85&amp;h=69be446c5a"></script>
+<script src="assets/js/zawia-jeu/voile.js?v=85&amp;h=18decd9c46"></script>
+<script src="assets/js/zawia-jeu/sirr.js?v=85&amp;h=9a49f6e4e1"></script>
+<script src="assets/js/zawia-jeu/morchid.js?v=85&amp;h=fd80983e0d"></script>
+<script src="assets/js/zawia-jeu/parrainage.js?v=85&amp;h=a98a40ee14"></script>
+<script src="assets/js/zawia-jeu/bibliotheque.js?v=85&amp;h=aa39597e1e"></script>
+
+<script src="assets/js/zawia-jeu/kounnach.js?v=85&amp;h=3cb9f13a48"></script>
+<script src="assets/js/zawia-jeu/masarat.js?v=85&amp;h=8df7a29853"></script>
+<script src="assets/js/zawia-jeu/maharat.js?v=85&amp;h=3f761e3aad"></script>
+<script src="assets/js/zawia-jeu/ijaza-carte.js?v=85&amp;h=db2fe894ab"></script>
+
+<script src="assets/js/zawia-jeu/tariqa.js?v=85&amp;h=b26d016241"></script>
+<script src="assets/js/zawia-kharita.js?v=2&amp;h=e079b422c5"></script>
+<script src="assets/js/zawia-jeu/kharita.js?v=85&amp;h=2d40f247f7"></script>
+<script src="assets/js/zawia-jeu/monde.js?v=85&amp;h=ec5434cecf"></script>
+
+<script src="assets/js/zawia-jeu/fes.js?v=85&amp;h=6a6980d661"></script>
+<script src="assets/js/zawia-jeu/rahba.js?v=85&amp;h=6c42f5421c"></script>
+
+<script src="assets/js/zawia-jeu/mechouar.js?v=85&amp;h=6af4a7fdfe"></script>
+<script src="assets/js/zawia-jeu/rihla.js?v=85&amp;h=6cd25b9e2a"></script>
+
+<script src="assets/js/zawia-jeu/rafiq.js?v=85&amp;h=6405bebc55"></script>
+<script src="assets/js/zawia-jeu/combat.js?v=85&amp;h=a1c0cb7b84"></script>
+<script src="assets/js/zawia-jeu/pnj.js?v=85&amp;h=5d9662a4d8"></script>
+<script src="assets/js/zawia-jeu/sahn.js?v=85&amp;h=9e790104cb"></script>
+
+<script src="assets/js/zawia-jeu/dar.js?v=85&amp;h=0d8411db4f"></script>
+
+<script src="assets/js/zawia-jeu/rasail.js?v=85&amp;h=0ec013ecb1"></script>
+
+<script src="assets/js/zawia-jeu/bitaqa.js?v=85&amp;h=c399cea4f5"></script>
+<script src="assets/js/zawia-jeu/atlas.js?v=85&amp;h=86501a85d6"></script>
+<script src="assets/js/zawia-jeu/compte.js?v=85&amp;h=4e206c97f2"></script>
+<script src="assets/js/zawia-jeu/rendu.js?v=85&amp;h=dd5aec4d9b"></script>
+<script src="assets/maisons/nareva/contenu.js?v=1&amp;h=6fa15fef5b"></script>
+<script src="assets/maisons/nareva/maison.js?v=1&amp;h=1763ac0522"></script>
+<script src="assets/maisons/nareva/interface.js?v=1&amp;h=cd107bf70e"></script>
+<script src="assets/maisons/nareva/carte.js?v=1&amp;h=6ce216250e"></script>
+<script src="assets/js/zawia-jeu/maison.js?v=85&amp;h=221419da96"></script>
+<script src="assets/js/zawia-jeu/jeu.js?v=85&amp;h=44c9b265a3"></script>
+</body>
+</html>

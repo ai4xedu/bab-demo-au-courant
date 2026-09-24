@@ -1,0 +1,1640 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<title>Au Courant — paramétrer le jeu</title>
+<link rel="icon" href="assets/maisons/nareva/marque.svg" type="image/svg+xml">
+<style>
+/* Au Courant — paramétrer le jeu · page autonome : CSS et JS dans le fichier, aucune
+   ressource venue d'ailleurs, polices du système. Même palette et même en-tête que la
+   console RH : les couleurs de la maison vivent dans les variables --nareva-*. */
+:root {
+  color-scheme: light;
+
+  /* La maison — palette publique de Nareva (thème de son site) */
+  --nareva-1: #173056;          /* bleu marine, primaire */
+  --nareva-2: #005BAA;          /* bleu, secondaire */
+  --nareva-vert: #49B335;       /* vert, accent */
+  --nareva-vert-fonce: #00572B; /* vert foncé */
+  --nareva-jaune: #FFCE00;      /* petits signaux seulement, jamais en fond de texte */
+  --nareva-ciel: #C0DBE9;       /* bleu très clair, fond doux */
+
+  /* Encre et surfaces */
+  --page: #F2F5F8;
+  --surface: #FFFFFF;
+  --surface-douce: #F7F9FB;
+  --encre: #0E1B2E;
+  --encre-2: #34435A;
+  --encre-3: #526073;
+  --filet: #DDE3EA;
+  --filet-fort: #C5CED9;
+
+  /* États */
+  --ok: #00572B;
+  --ok-fond: #E3F1E7;
+  --ok-filet: #BFE0CB;
+  --attention: #7A4F00;
+  --attention-fond: #FBF1DB;
+  --attention-filet: #EAD9B0;
+  --revoir: #9A3B12;
+  --revoir-fond: #FBEBE2;
+  --revoir-filet: #F0D3C3;
+  --info: #004785;
+  --info-fond: #E6F0F8;
+  --info-filet: #CFE1F0;
+
+  --police: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --rayon: 16px;
+  --ombre: 0 1px 2px rgba(14, 27, 46, .05), 0 14px 34px -22px rgba(14, 27, 46, .28);
+  --gouttiere: clamp(16px, 3.2vw, 56px);
+  --espace: clamp(16px, 1.5vw, 24px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  font-size: clamp(16px, 0.47vw + 12px, 21px); -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 5.5rem; scroll-padding-bottom: 7rem;
+}
+body {
+  margin: 0;
+  font-family: var(--police);
+  line-height: 1.5;
+  color: var(--encre);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3 { margin: 0; line-height: 1.2; letter-spacing: -.01em; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+svg { display: block; width: 100%; height: 100%; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--nareva-2); outline-offset: 3px; border-radius: 6px; }
+
+.ico { display: inline-block; flex: none; width: 1.2em; height: 1.2em; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.evitement {
+  position: absolute; left: var(--gouttiere); top: -5rem; z-index: 60;
+  padding: .6rem 1rem; border-radius: 10px; background: var(--nareva-1); color: #fff; font-weight: 700;
+}
+.evitement:focus { top: .8rem; }
+.cadre { max-width: 1320px; margin-inline: auto; padding-inline: var(--gouttiere); }
+
+/* ——— En-tête ——— */
+.tete { background: var(--surface); border-bottom: 1px solid var(--filet); }
+.tete__filet {
+  height: 5px;
+  background: linear-gradient(90deg, var(--nareva-1) 0 46%, var(--nareva-2) 46% 82%, var(--nareva-vert) 82% 100%);
+}
+.tete__rang {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem 2rem; flex-wrap: wrap; padding-block: 1.05rem .95rem;
+}
+.marque { display: flex; align-items: center; gap: 1.1rem; min-width: 0; }
+.logo-maison { display: flex; align-items: center; height: 48px; min-width: 5.5rem; }
+.logo-maison img { display: block; height: 48px; width: auto; max-width: 240px; object-fit: contain; }
+.logo-maison__texte { font-weight: 800; font-size: 1.3rem; letter-spacing: .22em; color: var(--nareva-1); }
+.marque__trait { width: 1px; height: 2.8rem; background: var(--filet-fort); flex: none; }
+.marque__titres { min-width: 0; }
+.marque__titres h1 {
+  font-size: clamp(1.25rem, .9vw + .9rem, 1.8rem); font-weight: 760;
+  color: var(--nareva-1); letter-spacing: -.02em;
+}
+.sous-titre { color: var(--encre-3); font-weight: 650; font-size: .95rem; margin-top: .1rem; }
+.tete__infos { display: flex; align-items: center; gap: .6rem 1.2rem; flex-wrap: wrap; color: var(--encre-3); font-size: .86rem; }
+.demo {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .28rem .8rem;
+  border: 1px solid var(--filet-fort); border-radius: 999px;
+  background: var(--surface-douce); color: var(--encre-2); font-weight: 650;
+}
+.demo__point { width: .55rem; height: .55rem; border-radius: 50%; background: var(--nareva-jaune); box-shadow: 0 0 0 3px rgba(255, 206, 0, .22); }
+.lien {
+  color: var(--nareva-2); font-weight: 700;
+  text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px;
+}
+
+/* ——— La règle de la page, sous l'en-tête ——— */
+.regle {
+  background: #E6F0F6;
+  background: color-mix(in srgb, var(--nareva-ciel) 40%, white);
+  border-bottom: 1px solid #D2E4EF;
+  border-bottom: 1px solid color-mix(in srgb, var(--nareva-ciel) 75%, white);
+}
+.regle .cadre { display: flex; align-items: center; gap: .6rem 1.2rem; padding-block: .72rem; }
+.regle__icone { width: 1.6rem; height: 1.6rem; color: var(--nareva-1); }
+.regle p { flex: 1 1 30rem; color: var(--nareva-1); }
+.regle strong { font-weight: 760; }
+
+/* ——— Les onglets, collés en haut de l'écran ——— */
+.barre-onglets {
+  position: sticky; top: 0; z-index: 30;
+  background: var(--surface); border-bottom: 1px solid var(--filet);
+  box-shadow: 0 10px 24px -22px rgba(14, 27, 46, .45);
+}
+.onglets { position: relative; display: flex; gap: .15rem; overflow-x: auto; scrollbar-width: none; }
+.onglets::-webkit-scrollbar { display: none; }
+.onglet {
+  flex: none; display: inline-flex; align-items: center; gap: .5rem;
+  padding: .85rem 1rem .72rem; border: 0; border-bottom: 3px solid transparent; border-radius: 8px 8px 0 0;
+  background: none; color: var(--encre-2); font-weight: 650; white-space: nowrap; cursor: pointer;
+}
+.onglet:hover { color: var(--nareva-1); background: var(--surface-douce); }
+.onglet[aria-selected="true"] { color: var(--nareva-1); border-bottom-color: var(--nareva-1); }
+.onglet__marque > span[aria-hidden="true"] {
+  display: block; width: .6rem; height: .6rem; border-radius: 50%;
+  background: var(--nareva-jaune); box-shadow: 0 0 0 1.5px #9C7C00;
+}
+.onglet__erreurs {
+  display: inline-grid; place-items: center; min-width: 1.45rem; height: 1.45rem; padding: 0 .4rem;
+  border-radius: 999px; background: var(--revoir); color: #fff;
+  font-size: .76rem; font-weight: 760; font-variant-numeric: tabular-nums;
+}
+
+/* ——— Les sections ——— */
+main { padding-block: clamp(22px, 2.4vw, 40px) clamp(28px, 3vw, 48px); }
+main:focus { outline: none; }
+.chargement { color: var(--encre-3); font-weight: 650; }
+.alertes { display: grid; gap: .7rem; }
+.alertes:not(:empty) { margin-bottom: var(--espace); }
+.alerte {
+  display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1.1rem; border-radius: 14px;
+  background: var(--attention-fond); border: 1px solid var(--attention-filet); color: var(--attention);
+}
+.alerte .ico { width: 1.4rem; height: 1.4rem; margin-top: .05rem; }
+.alerte strong { font-weight: 760; }
+.section { display: grid; gap: var(--espace); }
+.section__tete { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem 2rem; flex-wrap: wrap; }
+.section__titres { min-width: 0; flex: 1 1 32rem; }
+.surtitre { display: flex; align-items: center; gap: .45rem; font-size: .92rem; font-weight: 700; color: var(--nareva-2); margin-bottom: .45rem; }
+.surtitre .ico { width: 1.05rem; height: 1.05rem; }
+.section h2 { font-size: clamp(1.6rem, 1.3vw + 1.05rem, 2.35rem); font-weight: 760; color: var(--nareva-1); letter-spacing: -.025em; }
+.chapo { margin-top: .6rem; font-size: 1.05rem; color: var(--encre-2); max-width: 70ch; }
+.section__etat { display: grid; justify-items: end; gap: .45rem; text-align: right; }
+.compte { font-weight: 760; color: var(--nareva-1); font-variant-numeric: tabular-nums; font-size: 1.05rem; }
+.compte--manque { color: var(--revoir); }
+.puce {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .2rem .7rem;
+  border-radius: 999px; border: 1px solid var(--filet); background: var(--surface-douce); color: var(--encre-2);
+  font-size: .8rem; font-weight: 720; white-space: nowrap;
+}
+.puce--modifie, .puce[data-statut="modifie"] { background: var(--attention-fond); color: var(--attention); border-color: var(--attention-filet); }
+.puce[data-statut="nouveau"] { background: var(--ok-fond); color: var(--ok); border-color: var(--ok-filet); }
+.puce--cour { background: var(--info-fond); color: var(--info); border-color: var(--info-filet); }
+.lien-bouton {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .15rem;
+  border: 0; background: none; color: var(--nareva-2); font-weight: 700; cursor: pointer;
+  text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px;
+}
+.lien-bouton .ico { width: 1.05em; height: 1.05em; }
+.erreur-section {
+  display: flex; gap: .6rem; align-items: flex-start; padding: .85rem 1.05rem; border-radius: 12px;
+  background: var(--revoir-fond); border: 1px solid var(--revoir-filet); color: var(--revoir); font-weight: 720;
+}
+.erreur-section:focus { outline: 3px solid var(--revoir); outline-offset: 2px; }
+
+/* ——— Une entrée ——— */
+.liste { display: grid; gap: 1rem; }
+.entree {
+  min-width: 0; padding: clamp(16px, 1.4vw, 24px);
+  background: var(--surface); border: 1px solid var(--filet); border-left: 6px solid var(--filet-fort);
+  border-radius: var(--rayon); box-shadow: var(--ombre);
+}
+.entree--nouveau { border-left-color: var(--nareva-vert); }
+.entree--modifie { border-left-color: var(--nareva-jaune); }
+.entree--erreur { border-left-color: var(--revoir); }
+.entree__tete {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: .5rem 1rem;
+  align-items: center; margin-bottom: 1rem;
+}
+.entree__numero {
+  display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 50%;
+  background: var(--nareva-1); color: #fff; font-weight: 760; font-size: .92rem; font-variant-numeric: tabular-nums;
+}
+.entree__titres { min-width: 0; }
+.entree__titre { font-size: 1.15rem; font-weight: 720; color: var(--encre); overflow-wrap: anywhere; }
+.entree__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .8rem; margin-top: .15rem; color: var(--encre-3); font-size: .82rem; }
+.entree__meta .puce { font-size: .74rem; padding: .08rem .55rem; }
+.entree__gestes { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; }
+.geste {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .42rem .72rem;
+  border: 1.5px solid var(--filet-fort); border-radius: 10px; background: var(--surface);
+  color: var(--encre-2); font-weight: 650; font-size: .88rem; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.geste .ico { width: 1.05rem; height: 1.05rem; }
+.geste:hover:not(:disabled) { border-color: var(--nareva-2); color: var(--nareva-1); }
+.geste:disabled { opacity: .38; cursor: default; }
+.geste--retirer { color: var(--revoir); border-color: #E6C1AF; }
+.geste--retirer:hover:not(:disabled) { background: var(--revoir-fond); border-color: var(--revoir); color: var(--revoir); }
+
+/* ——— Les champs ——— */
+.champs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem 1.2rem; }
+.champ { grid-column: span 6; display: grid; gap: .35rem; align-content: start; min-width: 0; margin: 0; }
+.champ--court { grid-column: span 2; }
+.champ--moyen { grid-column: span 3; }
+.champ--large { grid-column: span 4; }
+.champ > label, .champ > legend { font-weight: 720; font-size: .95rem; color: var(--encre); }
+.facultatif {
+  margin-left: .4rem; padding: .02rem .5rem; border: 1px solid var(--filet); border-radius: 999px;
+  font-weight: 600; font-size: .76rem; color: var(--encre-3); vertical-align: .08em;
+}
+.aide { font-size: .86rem; color: var(--encre-3); }
+.champ input[type="text"], .champ textarea, .champ select {
+  width: 100%; padding: .62rem .8rem; border: 1.5px solid var(--filet-fort); border-radius: 10px;
+  background: #fff; line-height: 1.45; transition: border-color .15s, box-shadow .15s;
+}
+.champ textarea { display: block; resize: vertical; min-height: 3.2em; field-sizing: content; }
+.champ select { cursor: pointer; }
+.champ input[type="text"]:hover, .champ textarea:hover, .champ select:hover { border-color: #9FB0C3; }
+.champ input[type="text"]:focus-visible, .champ textarea:focus-visible, .champ select:focus-visible {
+  outline: 3px solid rgba(0, 91, 170, .3); outline-offset: 0; border-color: var(--nareva-2); border-radius: 10px;
+}
+.champ [aria-invalid="true"] { border-color: var(--revoir); box-shadow: 0 0 0 3px rgba(154, 59, 18, .14); }
+.erreur { display: flex; gap: .45rem; align-items: flex-start; color: var(--revoir); font-weight: 720; font-size: .9rem; }
+.erreur::before {
+  content: "!"; flex: none; display: grid; place-items: center; width: 1.15rem; height: 1.15rem; margin-top: .12rem;
+  border-radius: 50%; background: var(--revoir); color: #fff; font-size: .72rem; font-weight: 800; line-height: 1;
+}
+
+/* Les quatre réponses d'un défi ou d'une question : on coche la bonne */
+.options { border: 0; padding: 0; min-width: 0; }
+.options > legend { padding: 0; margin-bottom: .35rem; float: left; width: 100%; }
+.options > legend + * { clear: both; }
+.options__liste { display: grid; gap: .5rem; }
+.option {
+  display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: .35rem .7rem; align-items: center;
+  padding: .45rem .7rem; border: 1.5px solid var(--filet); border-radius: 12px; background: var(--surface-douce);
+}
+.option input[type="radio"] { width: 1.3rem; height: 1.3rem; margin: 0; accent-color: var(--ok); cursor: pointer; }
+.option__lettre {
+  display: grid; place-items: center; width: 1.95rem; height: 1.95rem; border-radius: 50%;
+  background: var(--surface); border: 1.5px solid var(--filet-fort); color: var(--encre-2);
+  font-weight: 760; font-size: .88rem; cursor: pointer;
+}
+.option__bonne { display: none; align-items: center; gap: .3rem; color: var(--ok); font-weight: 760; font-size: .82rem; white-space: nowrap; }
+.option__bonne .ico { width: 1rem; height: 1rem; }
+.option--bonne { border-color: var(--ok); background: var(--ok-fond); }
+.option--bonne .option__lettre { background: var(--ok); border-color: var(--ok); color: #fff; }
+.option--bonne .option__bonne { display: inline-flex; }
+.option .erreur { grid-column: 3 / -1; }
+.options > .erreur { margin-top: .35rem; }
+
+/* ——— Ajouter, liste vide ——— */
+.ajout { display: flex; align-items: center; gap: .6rem 1.2rem; flex-wrap: wrap; }
+.ajout__note { color: var(--encre-3); font-size: .9rem; max-width: 60ch; }
+.vide {
+  padding: 1.3rem 1.4rem; border: 1.5px dashed var(--filet-fort); border-radius: var(--rayon);
+  background: var(--surface-douce); color: var(--encre-2);
+}
+.vide strong { color: var(--encre); font-weight: 720; }
+
+/* ——— Les boutons ——— */
+.bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  padding: .72rem 1.15rem; border-radius: 12px; border: 1.5px solid transparent;
+  font-weight: 720; line-height: 1.2; white-space: nowrap; text-decoration: none; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.bouton .ico { width: 1.15rem; height: 1.15rem; }
+.bouton:disabled { opacity: .45; cursor: default; }
+.bouton--principal { position: relative; background: var(--nareva-1); color: #fff; }
+.bouton--principal:hover:not(:disabled) { background: var(--nareva-2); }
+.bouton--attend::after {
+  content: ""; position: absolute; top: -.3rem; right: -.3rem; width: .8rem; height: .8rem; border-radius: 50%;
+  background: var(--nareva-jaune); box-shadow: 0 0 0 2px #fff;
+}
+.bouton--second { background: var(--surface); color: var(--nareva-1); border-color: var(--nareva-1); }
+.bouton--second:hover { background: #EEF5FA; }
+.bouton--discret { background: var(--surface); color: var(--encre-2); border-color: var(--filet-fort); }
+.bouton--discret:hover:not(:disabled) { color: var(--nareva-1); border-color: var(--nareva-2); }
+.bouton--danger { background: var(--surface); color: var(--revoir); border-color: #E6C1AF; }
+.bouton--danger:hover:not(:disabled) { background: var(--revoir-fond); border-color: var(--revoir); }
+.bouton--ajout { background: var(--surface); color: var(--nareva-1); border: 1.5px dashed var(--nareva-2); }
+.bouton--ajout:hover:not(:disabled) { background: #EEF5FA; }
+
+/* ——— La barre d'actions, collée en bas de l'écran ——— */
+.actions {
+  position: sticky; bottom: 0; z-index: 30;
+  background: rgba(255, 255, 255, .97); border-top: 1px solid var(--filet);
+  box-shadow: 0 -12px 30px -24px rgba(14, 27, 46, .5);
+}
+.actions__rang { display: flex; align-items: center; justify-content: space-between; gap: .5rem 1.5rem; flex-wrap: wrap; padding-block: .6rem; }
+.actions__etat { display: flex; align-items: flex-start; gap: .65rem; min-width: 0; flex: 1 1 20rem; }
+.etat__ligne { min-width: 0; }
+.etat__point { flex: none; width: .75rem; height: .75rem; margin-top: .4rem; border-radius: 50%; background: var(--filet-fort); }
+.actions__etat[data-ton="modifie"] .etat__point { background: var(--nareva-jaune); box-shadow: 0 0 0 3px rgba(255, 206, 0, .25); }
+.actions__etat[data-ton="ok"] .etat__point { background: var(--nareva-vert); box-shadow: 0 0 0 3px rgba(73, 179, 53, .2); }
+.actions__etat[data-ton="erreur"] .etat__point { background: var(--revoir); box-shadow: 0 0 0 3px rgba(154, 59, 18, .18); }
+.etat { font-weight: 720; margin-right: .3rem; }
+.actions__etat[data-ton="ok"] .etat { color: var(--ok); }
+.actions__etat[data-ton="erreur"] .etat { color: var(--revoir); }
+.etat__detail { color: var(--encre-3); font-size: .88rem; }
+.actions__boutons { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
+.actions .bouton { padding: .62rem 1rem; }
+.actions__separateur { width: 1px; height: 2rem; background: var(--filet); margin-inline: .2rem; }
+
+/* ——— La question posée avant un geste qui efface ——— */
+.question {
+  width: min(41rem, calc(100vw - 32px)); padding: 0; border: 0; border-radius: 20px;
+  color: var(--encre); background: var(--surface); box-shadow: 0 30px 80px -30px rgba(14, 27, 46, .6);
+}
+.question::backdrop { background: rgba(14, 27, 46, .5); }
+.question__corps { display: grid; gap: .9rem; padding: 1.6rem 1.7rem 1.4rem; }
+.question h2 { font-size: 1.35rem; font-weight: 760; color: var(--nareva-1); }
+.question p { color: var(--encre-2); }
+.question__boutons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .6rem; margin-top: .4rem; }
+
+/* ——— Pied de page ——— */
+.pied { border-top: 1px solid var(--filet); background: var(--surface); }
+.pied .cadre { display: flex; justify-content: space-between; align-items: center; gap: .6rem 2rem; flex-wrap: wrap; padding-block: 1.15rem; color: var(--encre-3); font-size: .88rem; }
+.pied__signature { font-weight: 720; color: var(--encre-2); }
+
+/* ——— Largeurs ——— */
+@media (max-width: 900px) {
+  .champ--court, .champ--moyen, .champ--large { grid-column: span 6; }
+  .entree__tete { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .entree__gestes { grid-column: 1 / -1; justify-content: flex-start; }
+  .section__etat { justify-items: start; text-align: left; }
+}
+@media (max-width: 640px) {
+  .marque__trait { display: none; }
+  .marque { flex-wrap: wrap; gap: .5rem 1rem; }
+  .onglet { padding-inline: .75rem; }
+  .geste > span:not(.ico) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .geste { padding: .45rem .55rem; }
+  .actions { position: static; }
+  .actions__boutons .bouton { padding: .55rem .8rem; font-size: .9rem; }
+  .actions__separateur { display: none; }
+  .option { grid-template-columns: auto auto minmax(0, 1fr); }
+  .option__bonne { grid-column: 3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}
+@media print {
+  .barre-onglets, .actions, .entree__gestes, .ajout, .regle { display: none; }
+  body { background: #fff; }
+}
+</style>
+</head>
+<body>
+<a class="evitement" href="#contenu">Aller au contenu</a>
+
+<header class="tete">
+  <div class="tete__filet" aria-hidden="true"></div>
+  <div class="cadre">
+    <div class="tete__rang">
+      <div class="marque">
+        <div class="logo-maison" id="logo-maison"><span class="logo-maison__texte">NAREVA</span></div>
+        <span class="marque__trait" aria-hidden="true"></span>
+        <div class="marque__titres">
+          <h1>Au Courant — paramétrer le jeu</h1>
+          <p class="sous-titre">Nareva</p>
+        </div>
+      </div>
+      <div class="tete__infos">
+        <span class="demo"><span class="demo__point" aria-hidden="true"></span>Démo — tout reste dans ce navigateur</span>
+        <a class="lien" href="au-courant-rh.html">La console RH</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="regle" role="note">
+  <div class="cadre">
+    <span class="ico regle__icone" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2a6.2 6.2 0 0 0-3.6 11.3c.6.5 1 1.2 1 2V18h5.2v-1.5c0-.8.4-1.5 1-2A6.2 6.2 0 0 0 12 3.2z"/><path d="M9.8 21h4.4"/></g></svg></span>
+    <p><strong>Change un texte, enregistre, recharge le jeu&nbsp;: tu le vois aussitôt.</strong> Rien ne part sur le réseau&nbsp;: tout reste dans ce navigateur. Pour en garder une copie, exporte-la.</p>
+  </div>
+</div>
+
+<nav class="barre-onglets" aria-label="Les sections du jeu">
+  <div class="cadre">
+    <div class="onglets" role="tablist" aria-label="Ce que tu peux paramétrer">
+      <button type="button" class="onglet" role="tab" id="onglet-valeurs" aria-controls="panneau-valeurs" aria-selected="true" data-onglet="valeurs">Valeurs<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-histoire" aria-controls="panneau-histoire" aria-selected="false" tabindex="-1" data-onglet="histoire">Histoire<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-codes" aria-controls="panneau-codes" aria-selected="false" tabindex="-1" data-onglet="codes">Codes<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-rituels" aria-controls="panneau-rituels" aria-selected="false" tabindex="-1" data-onglet="rituels">Rituels<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-metiers" aria-controls="panneau-metiers" aria-selected="false" tabindex="-1" data-onglet="metiers">Métiers et gens<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-pages" aria-controls="panneau-pages" aria-selected="false" tabindex="-1" data-onglet="pages">Sites<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-tahaddi" aria-controls="panneau-tahaddi" aria-selected="false" tabindex="-1" data-onglet="tahaddi">Défis de métier<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-quiz" aria-controls="panneau-quiz" aria-selected="false" tabindex="-1" data-onglet="quiz">Quiz du jour<span class="onglet__marque" data-marque hidden><span aria-hidden="true"></span><span class="sr-only">, modifié</span></span><span class="onglet__erreurs" data-erreurs hidden></span></button>
+    </div>
+  </div>
+</nav>
+
+<main id="contenu" class="cadre" tabindex="-1">
+  <noscript><p class="alerte">Cette page a besoin de JavaScript pour lire et enregistrer le contenu du jeu.</p></noscript>
+  <div class="alertes" id="alertes"></div>
+  <p class="chargement" id="chargement">Lecture du contenu du jeu…</p>
+  <section class="section" id="panneau-valeurs" role="tabpanel" aria-labelledby="onglet-valeurs"></section>
+  <section class="section" id="panneau-histoire" role="tabpanel" aria-labelledby="onglet-histoire" hidden></section>
+  <section class="section" id="panneau-codes" role="tabpanel" aria-labelledby="onglet-codes" hidden></section>
+  <section class="section" id="panneau-rituels" role="tabpanel" aria-labelledby="onglet-rituels" hidden></section>
+  <section class="section" id="panneau-metiers" role="tabpanel" aria-labelledby="onglet-metiers" hidden></section>
+  <section class="section" id="panneau-pages" role="tabpanel" aria-labelledby="onglet-pages" hidden></section>
+  <section class="section" id="panneau-tahaddi" role="tabpanel" aria-labelledby="onglet-tahaddi" hidden></section>
+  <section class="section" id="panneau-quiz" role="tabpanel" aria-labelledby="onglet-quiz" hidden></section>
+</main>
+
+<div class="actions" role="region" aria-label="Enregistrer et voir dans le jeu">
+  <div class="cadre actions__rang">
+    <div class="actions__etat" id="etat-zone" role="status" aria-live="polite" data-ton="neutre">
+      <span class="etat__point" aria-hidden="true"></span>
+      <p class="etat__ligne"><strong class="etat" id="etat">Lecture du contenu du jeu…</strong> <span class="etat__detail" id="etat-detail"></span></p>
+    </div>
+    <div class="actions__boutons">
+      <button type="button" class="bouton bouton--principal" id="enregistrer" disabled title="Enregistrer (Ctrl+S)"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11.2L19 6.8V20H5z"/><path d="M8.5 4v4.6h6.5V4M8 20v-6.2h8V20"/></g></svg></span>Enregistrer</button>
+      <a class="bouton bouton--second" id="voir" href="au-courant.html" target="_blank" rel="noopener"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14v5.2H4.8V6H10"/></g></svg></span>Voir dans le jeu</a>
+      <span class="actions__separateur" aria-hidden="true"></span>
+      <button type="button" class="bouton bouton--discret" id="exporter" disabled><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></g></svg></span>Exporter</button>
+      <button type="button" class="bouton bouton--discret" id="importer" disabled><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5M7 9.5l5-5 5 5M5 20h14"/></g></svg></span>Importer</button>
+      <button type="button" class="bouton bouton--danger" id="origine" disabled><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></g></svg></span>Revenir au contenu d'origine</button>
+      <input type="file" id="fichier" accept=".json,application/json" hidden>
+    </div>
+  </div>
+</div>
+
+<footer class="pied">
+  <div class="cadre">
+    <p class="pied__signature">Bab · une création Ai4x</p>
+    <p>Démo&nbsp;: tout reste dans ce navigateur, rien ne part sur le réseau.</p>
+  </div>
+</footer>
+
+<dialog class="question" id="question" aria-labelledby="question-titre" aria-describedby="question-texte">
+  <form method="dialog" class="question__corps">
+    <h2 id="question-titre"></h2>
+    <p id="question-texte"></p>
+    <div class="question__boutons"></div>
+  </form>
+</dialog>
+<div class="sr-only" id="annonce" aria-live="polite"></div>
+
+<script id="parametres">
+(function (racine) {
+  "use strict";
+
+  /* ───────────── La maison, la clé du moteur, le jeu ───────────── */
+
+  const MAISON = "nareva";
+  // La clé que le moteur relit à chaque chargement du jeu — cleContenu("nareva") dans
+  // son module maison, un test compare les deux : un objet dont chaque section, quand
+  // c'est une liste non vide, REMPLACE celle de contenu.js. Une section absente (ou
+  // vide) laisse le jeu sur le contenu d'origine : on n'écrit donc que ce qui a changé.
+  const CLE = "bab.maison.nareva.contenu";
+  const META = ["enregistre_le"];
+  const JEU = "au-courant.html";
+  // Le contenu d'origine, dans l'ordre où le jeu le charge.
+  const SCRIPTS = ["assets/maisons/nareva/contenu.js", "assets/maisons/nareva/maison.js", "assets/maisons/nareva/interface.js"];
+  const LOGOS = ["assets/maisons/nareva/logo.svg", "assets/maisons/nareva/logo.png"];
+  const LETTRES = ["A", "B", "C", "D"];
+  const NOMBRES = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
+  const STATUTS = { nouveau: "Nouveau", modifie: "Modifié" };
+
+  // Les familles des défis de métier (le champ `voie` du moteur) et les thèmes du quiz.
+  const VOIES = [
+    { valeur: "prompt", libelle: "Sécurité" },
+    { valeur: "image", libelle: "Exploitation et maintenance" },
+    { valeur: "savoir", libelle: "Eau et environnement" }
+  ];
+  const THEMES = [
+    { valeur: "securite", libelle: "Sécurité" },
+    { valeur: "culture", libelle: "La maison" },
+    { valeur: "sites", libelle: "Les sites" },
+    { valeur: "metier", libelle: "Le métier" }
+  ];
+
+  /* ───────────── Petits outils ───────────── */
+
+  const texte = (v) => (v == null ? "" : String(v));
+  const plein = (v) => texte(v).trim() !== "";
+  const estObjet = (e) => !!e && typeof e === "object" && !Array.isArray(e);
+  const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
+  const valeurDe = (x) => (typeof x === "function" ? x() : x);
+  const typo = (s) => texte(s).replace(/ ([:;!?»])/g, " $1").replace(/« /g, "« ");
+  const esc = (s) => texte(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const enLettres = (n) => (n >= 0 && n < NOMBRES.length ? NOMBRES[n] : String(n));
+
+  // Une écriture canonique : deux contenus égaux s'écrivent pareil, quel que soit
+  // l'ordre de leurs champs.
+  function canon(v) {
+    if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
+    if (v && typeof v === "object") {
+      return "{" + Object.keys(v).sort().filter((k) => v[k] !== undefined && typeof v[k] !== "function")
+        .map((k) => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+    }
+    const j = JSON.stringify(v);
+    return j === undefined ? "null" : j;
+  }
+
+  // Une référence d'entrée : minuscules, chiffres et tirets.
+  function slug(t) {
+    return texte(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+      .replace(/œ/g, "oe").replace(/æ/g, "ae")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+      .slice(0, 40).replace(/-+$/g, "");
+  }
+  function cleUnique(base, liste, sauf) {
+    const debut = slug(base) || "entree";
+    const prises = new Set((liste || []).filter((x) => estObjet(x) && x !== sauf).map((x) => texte(x.cle)));
+    let c = debut, n = 2;
+    while (prises.has(c)) c = debut + "-" + n++;
+    return c;
+  }
+  // « Tarfaya, Tarfaïa » → ["Tarfaya", "Tarfaïa"]
+  function decouper(v) {
+    const brut = Array.isArray(v) ? v : texte(v).split(",");
+    return brut.map((r) => texte(r).trim()).filter(Boolean);
+  }
+  function nomsOnglets(cles) {
+    const n = cles.map((k) => PAR_CLE[k].onglet);
+    return n.length > 1 ? n.slice(0, -1).join(", ") + " et " + n[n.length - 1] : n.join("");
+  }
+  function dateHeure(iso) {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    const jour = d.toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+    return `le ${jour} à ${d.getHours()} h ${String(d.getMinutes()).padStart(2, "0")}`;
+  }
+
+  /* ───────────── Ce que la maison dit d'elle-même (lu après le chargement) ───────────── */
+
+  const maison = () => (estObjet(racine.ZWJ_MAISON) ? racine.ZWJ_MAISON : {});
+  const contenu = () => (estObjet(racine.ZWJ_MAISON_CONTENU) ? racine.ZWJ_MAISON_CONTENU : {});
+  function refusLibelle() { return texte(maison().refusePrefixe).trim() || "Ce qu'on refuse :"; }
+  function voies() {
+    const v = estObjet(contenu().voies) ? contenu().voies : {};
+    return VOIES.map((x) => ({ valeur: x.valeur, libelle: (estObjet(v[x.valeur]) && texte(v[x.valeur].nom).trim()) || x.libelle }));
+  }
+  function nbCour() { const n = maison().pnjMetiers; return Array.isArray(n) ? n.length : 0; }
+  function nomDuSite(ville) {
+    const sites = Array.isArray(contenu().sites) ? contenu().sites : [];
+    const s = sites.find((x) => estObjet(x) && x.cle === ville);
+    return s ? texte(s.ville) : "";
+  }
+  function rayon(cle, defaut) {
+    const r = maison().rayonsCulture;
+    return (estObjet(r) && estObjet(r[cle]) && texte(r[cle].nom).trim()) || defaut;
+  }
+
+  /* ───────────── Les huit sections, dans l'ordre des onglets ─────────────
+     Chaque champ a un type : texte (une ligne), long (un paragraphe), choix (une
+     liste), reponses (séparées par des virgules), indices (deux), options (quatre
+     réponses et la bonne). Les autres champs d'une entrée — sa clé, sa ville, sa
+     saison… — ne s'affichent pas et restent tels quels. */
+
+  const SECTIONS = [
+    {
+      cle: "valeurs", onglet: "Valeurs", titre: "Les valeurs", etiquette: "Mur",
+      ou: () => "Dans le jeu : les sept murs de la cour",
+      chapo: () => "Sept murs, lus en marchant : les cinq valeurs de la maison, sa mission et sa vision. Chaque mur dit sa phrase, puis ce qu'on refuse au quotidien.",
+      unite: ["mur", "murs"], nouveau: "Nouveau mur", ajouter: "Ajouter un mur", prefixe: "mur",
+      exact: 7, complet: "Les sept murs sont posés : pour en changer un, modifie-le, ou retire-le d'abord.",
+      exactMessage: (n) => `Il faut exactement sept murs — les cinq valeurs, la mission et la vision : il y en a ${enLettres(n)}.`,
+      titreDe: (e) => e.nom, cleDepuis: "nom",
+      champs: [
+        { cle: "nom", type: "texte", libelle: "Le nom du mur", requis: true, largeur: "large" },
+        { cle: "phrase", type: "long", libelle: "La phrase", aide: "La première page du mur.", requis: true },
+        { cle: "refuse", type: "long", libelle: () => refusLibelle(), aide: "La seconde page du mur commence par ces mots.", requis: true }
+      ],
+      vide: () => ({ nom: "", phrase: "", refuse: "" })
+    },
+    {
+      cle: "histoire", onglet: "Histoire", titre: "L'histoire", etiquette: "Date",
+      ou: () => `Dans le jeu : aux archives, le rayon « ${rayon("histoire", "L'histoire de la maison")} »`,
+      chapo: () => "Les dates qui ont fait la maison, dans l'ordre où on les raconte. Chacune se lit aux archives, et chacune lue rallume une lumière.",
+      unite: ["date", "dates"], nouveau: "Nouvelle date", ajouter: "Ajouter une date", prefixe: "histoire",
+      titreDe: (e) => [texte(e.annee).trim(), texte(e.titre).trim()].filter(Boolean).join(" · "), cleDepuis: "titre",
+      champs: [
+        { cle: "annee", type: "texte", libelle: "L'année", requis: true, largeur: "court" },
+        { cle: "titre", type: "texte", libelle: "Le titre", requis: true, largeur: "large" },
+        { cle: "texte", type: "long", libelle: "Le récit", aide: "Ba Lahcen le raconte, à la première personne.", requis: true }
+      ],
+      vide: () => ({ annee: "", titre: "", texte: "" })
+    },
+    {
+      cle: "codes", onglet: "Codes", titre: "Les codes", etiquette: "Code",
+      ou: () => `Dans le jeu : aux archives, le rayon « ${rayon("codes", "Les codes de la maison")} »`,
+      chapo: () => "Ce qui ne s'écrit dans aucun règlement et que chacun finit par savoir : comment on se parle, comment on décide, ce qui ne se fait pas.",
+      unite: ["code", "codes"], nouveau: "Nouveau code", ajouter: "Ajouter un code", prefixe: "code",
+      titreDe: (e) => e.titre, cleDepuis: "titre",
+      champs: [
+        { cle: "titre", type: "texte", libelle: "Le code", aide: "En une phrase courte.", requis: true },
+        { cle: "texte", type: "long", libelle: "Ce qu'il veut dire", requis: true }
+      ],
+      vide: () => ({ titre: "", texte: "" })
+    },
+    {
+      cle: "rituels", onglet: "Rituels", titre: "Les rituels", etiquette: "Rituel",
+      ou: () => `Dans le jeu : aux archives, le rayon « ${rayon("rituels", "Les rituels")} »`,
+      chapo: () => "Les rendez-vous qui rythment la maison : quand ils ont lieu, et ce qu'on y fait.",
+      unite: ["rituel", "rituels"], nouveau: "Nouveau rituel", ajouter: "Ajouter un rituel", prefixe: "rituel",
+      titreDe: (e) => e.titre, cleDepuis: "titre",
+      champs: [
+        { cle: "titre", type: "texte", libelle: "Le rituel", requis: true, largeur: "moyen" },
+        { cle: "quand", type: "texte", libelle: "Quand", aide: "Par exemple « Chaque lundi, en ouverture de semaine ».", largeur: "moyen" },
+        { cle: "texte", type: "long", libelle: "Ce qu'on y fait", requis: true }
+      ],
+      vide: () => ({ titre: "", quand: "", texte: "" })
+    },
+    {
+      cle: "metiers", onglet: "Métiers et gens", titre: "Les métiers et les gens", etiquette: "Collègue",
+      ou: () => "Dans le jeu : les collègues de la cour, et les archives",
+      chapo: () => {
+        const n = nbCour();
+        return "Les collègues que le nouvel arrivant croise dans la cour : leur prénom, leur métier, leur site, et ce qu'ils lui disent." +
+          (n ? ` Les ${enLettres(n)} premiers de la liste sont les personnages de la cour, dans cet ordre ; tous se lisent aux archives.` : " Tous se lisent aux archives.");
+      },
+      unite: ["collègue", "collègues"], nouveau: "Nouveau collègue", ajouter: "Ajouter un collègue", prefixe: "metier",
+      titreDe: (e) => [texte(e.prenom).trim(), texte(e.titre).trim()].filter(Boolean).join(" — "), cleDepuis: "titre",
+      champs: [
+        { cle: "prenom", type: "texte", libelle: "Le prénom", aide: "Un prénom de fiction.", requis: true, largeur: "court" },
+        { cle: "titre", type: "texte", libelle: "Le métier", requis: true, largeur: "court" },
+        { cle: "site", type: "texte", libelle: "Le site", largeur: "court" },
+        { cle: "texte", type: "long", libelle: "Ce qu'il ou elle dit au nouveau", aide: "À la première personne : ce qu'il fait, puis ce qu'il aimerait qu'un nouveau sache.", requis: true }
+      ],
+      vide: () => ({ prenom: "", site: "", titre: "", texte: "" })
+    },
+    {
+      cle: "pages", onglet: "Sites", titre: "Les sites", etiquette: "Site",
+      ou: () => "Dans le jeu : le coffre des sites, aux archives",
+      chapo: () => "Chaque site cache une énigme dans le coffre des archives. La résoudre rend au nouvel arrivant la carte du site — dorée s'il l'a trouvée sans indice.",
+      unite: ["site", "sites"], nouveau: "Nouveau site", ajouter: "Ajouter un site", prefixe: "site",
+      note: "Un site ajouté ici n'a pas encore de carte illustrée ni de place sur la carte des sites : elles viennent avec le décor.",
+      titreDe: (e) => [nomDuSite(e.ville), texte(e.titre).trim()].filter(Boolean).join(" · "), cleDepuis: "titre",
+      champs: [
+        { cle: "titre", type: "texte", libelle: "Le titre", requis: true, largeur: "large" },
+        { cle: "epoque", type: "texte", libelle: "L'époque", aide: "Ce que la carte affiche, par exemple « 2013 ».", requis: true, largeur: "court" },
+        { cle: "enigme", type: "long", libelle: "L'énigme", requis: true },
+        { cle: "indices", type: "indices", libelles: ["Le premier indice", "Le second indice"], aides: ["Où chercher.", "Un fait qui met sur la voie."], requis: true },
+        { cle: "reponses", type: "reponses", libelle: "Les réponses acceptées", aide: "Sépare-les par des virgules. La première est la bonne réponse ; les suivantes, d'autres façons de l'écrire, sont acceptées aussi.", requis: true },
+        { cle: "fait", type: "long", libelle: "Ce qu'on apprend", aide: "S'affiche quand le site est retrouvé.", requis: true },
+        { cle: "source", type: "long", libelle: "La source", aide: "D'où vient ce fait : une page, un document.", requis: true }
+      ],
+      vide: (cle) => ({ ville: cle, epoque: "", titre: "", voie: "savoir", saison: 0, enigme: "", indices: ["", ""], reponses: [], fait: "", source: "" })
+    },
+    {
+      cle: "tahaddi", onglet: "Défis de métier", titre: "Les défis de métier", etiquette: "Défi",
+      ou: () => "Dans le jeu : l'établi de l'atelier métier",
+      chapo: () => "Des situations de travail réelles, une seule bonne réponse, et une explication qui enseigne. Chaque défi réussi donne de la Puissance.",
+      unite: ["défi", "défis"], nouveau: "Nouveau défi", ajouter: "Ajouter un défi", prefixe: "defi",
+      titreDe: (e) => e.titre, cleDepuis: "titre",
+      champs: [
+        { cle: "voie", type: "choix", libelle: "La famille", choix: () => voies(), invite: "Choisis une famille", requis: true, largeur: "moyen" },
+        { cle: "titre", type: "texte", libelle: "Le titre", requis: true, largeur: "moyen" },
+        { cle: "enonce", type: "long", libelle: "La situation", requis: true },
+        { cle: "options", type: "options", libelle: "Les quatre réponses proposées", aide: "Coche la bonne.", requis: true },
+        { cle: "explication", type: "long", libelle: "L'explication", aide: "S'affiche après la réponse : c'est elle qui enseigne.", requis: true }
+      ],
+      vide: () => ({ voie: "", titre: "", enonce: "", options: ["", "", "", ""], bonne: null, explication: "" })
+    },
+    {
+      cle: "quiz", onglet: "Quiz du jour", titre: "Le quiz du jour", etiquette: "Question",
+      ou: () => "Dans le jeu : le pupitre du quiz du jour",
+      chapo: () => "Quelques questions chaque jour, pour garder les bons réflexes — jamais deux fois la même.",
+      unite: ["question", "questions"], nouveau: "Nouvelle question", ajouter: "Ajouter une question", prefixe: "quiz",
+      titreDe: (e) => e.question, cleDepuis: "question",
+      champs: [
+        { cle: "theme", type: "choix", libelle: "Le thème", choix: () => THEMES, invite: "Choisis un thème", requis: true, largeur: "moyen" },
+        { cle: "question", type: "long", libelle: "La question", requis: true },
+        { cle: "options", type: "options", libelle: "Les quatre réponses proposées", aide: "Coche la bonne.", requis: true },
+        { cle: "explication", type: "long", libelle: "L'explication", aide: "S'affiche après la réponse.", requis: true }
+      ],
+      vide: () => ({ theme: "", question: "", options: ["", "", "", ""], bonne: null, explication: "" })
+    }
+  ];
+  const PAR_CLE = {};
+  SECTIONS.forEach((s) => { PAR_CLE[s.cle] = s; });
+
+  /* ───────────── La logique pure (testée sous Node) ───────────── */
+
+  function nouvelleEntree(s, liste) {
+    const cle = cleUnique(s.prefixe + "-" + ((liste || []).length + 1), liste, null);
+    return Object.assign({ cle: cle }, s.vide(cle));
+  }
+
+  // Une entrée telle qu'elle part vers le jeu : les textes sans blancs autour, les
+  // réponses découpées, la bonne réponse en nombre (le jeu la compare strictement).
+  function preparerEntree(s, e) {
+    const x = clone(e) || {};
+    s.champs.forEach((d) => {
+      if (d.type === "texte" || d.type === "long" || d.type === "choix") {
+        if (typeof x[d.cle] === "string") x[d.cle] = x[d.cle].trim();
+      } else if (d.type === "reponses") {
+        if (x.reponses !== undefined) x.reponses = decouper(x.reponses);
+      } else if (d.type === "indices") {
+        if (Array.isArray(x.indices)) x.indices = x.indices.map((t) => texte(t).trim());
+      } else if (d.type === "options") {
+        if (Array.isArray(x.options)) x.options = x.options.slice(0, LETTRES.length).map((t) => texte(t).trim());
+        if (x.bonne != null && x.bonne !== "" && !isNaN(Number(x.bonne))) x.bonne = Number(x.bonne);
+      }
+    });
+    return x;
+  }
+  function preparer(s, liste) {
+    return (Array.isArray(liste) ? liste : []).filter(estObjet).map((e) => preparerEntree(s, e));
+  }
+
+  // Ce que la page montre au départ : la même règle que le moteur — une section
+  // enregistrée non vide remplace celle d'origine.
+  function etatInitial(origine, enregistre) {
+    const etat = {};
+    SECTIONS.forEach((s) => {
+      const lu = estObjet(enregistre) && Array.isArray(enregistre[s.cle]) && enregistre[s.cle].length ? enregistre[s.cle] : null;
+      const base = lu || (estObjet(origine) && Array.isArray(origine[s.cle]) ? origine[s.cle] : []);
+      etat[s.cle] = clone(base).filter(estObjet);
+    });
+    return etat;
+  }
+
+  // Les sections qui ne sont plus celles d'origine : les seules qu'on écrit.
+  function changees(etat, origine) {
+    return SECTIONS.filter((s) => canon(preparer(s, etat && etat[s.cle])) !== canon(preparer(s, origine && origine[s.cle])))
+      .map((s) => s.cle);
+  }
+  function aEnregistrer(etat, origine) {
+    const liste = changees(etat, origine);
+    const objet = {};
+    liste.forEach((k) => { objet[k] = preparer(PAR_CLE[k], etat[k]); });
+    return { objet: objet, changees: liste };
+  }
+
+  function validerChamp(k, e, i, d, erreurs) {
+    if (!d.requis) return;
+    const err = (champ, sous, message) => erreurs.push({ section: k, index: i, champ: champ, sous: sous, message: message });
+    if (d.type === "texte" || d.type === "long") {
+      if (!plein(e[d.cle])) err(d.cle, null, "Ce champ ne peut pas rester vide.");
+    } else if (d.type === "choix") {
+      if (!plein(e[d.cle])) err(d.cle, null, d.invite + ".");
+    } else if (d.type === "reponses") {
+      if (!decouper(e.reponses).length) err("reponses", null, "Écris au moins une réponse acceptée : la bonne.");
+    } else if (d.type === "indices") {
+      const a = Array.isArray(e.indices) ? e.indices : [];
+      [0, 1].forEach((j) => { if (!plein(a[j])) err("indices", j, j ? "Le second indice ne peut pas rester vide." : "Le premier indice ne peut pas rester vide."); });
+    } else if (d.type === "options") {
+      const a = Array.isArray(e.options) ? e.options : [];
+      LETTRES.forEach((L, j) => { if (!plein(a[j])) err("options", j, `La réponse ${L} ne peut pas rester vide.`); });
+      const b = e.bonne;
+      if (!(Number.isInteger(b) && b >= 0 && b < LETTRES.length)) err("bonne", null, "Coche la bonne réponse.");
+    }
+  }
+
+  // Ne se valide que ce qui part vers le jeu : une section restée d'origine n'est
+  // pas écrite, elle ne bloque rien.
+  function valider(etat, origine) {
+    const erreurs = [];
+    changees(etat, origine).forEach((k) => {
+      const s = PAR_CLE[k], liste = preparer(s, etat[k]);
+      if (!liste.length) {
+        erreurs.push({ section: k, index: null, champ: null, sous: null,
+          message: "Cette liste ne peut pas rester vide : le jeu reprendrait celle d'origine. Garde au moins une entrée, ou rétablis l'onglet." });
+      } else if (s.exact && liste.length !== s.exact) {
+        erreurs.push({ section: k, index: null, champ: null, sous: null, message: s.exactMessage(liste.length) });
+      }
+      liste.forEach((e, i) => s.champs.forEach((d) => validerChamp(k, e, i, d, erreurs)));
+    });
+    return erreurs;
+  }
+
+  // Un fichier exporté par cette page (ou le contenu de la clé du moteur) : les
+  // sections y sont à la racine, ou sous « sections ».
+  function lireImport(brut) {
+    let o;
+    try { o = JSON.parse(texte(brut).replace(/^﻿/, "")); } catch (e) {
+      return { ok: false, erreur: "Ce fichier n'est pas un JSON lisible." };
+    }
+    if (!estObjet(o)) return { ok: false, erreur: "Ce fichier ne contient aucune des huit sections du jeu." };
+    const source = estObjet(o.sections) ? o.sections : o;
+    const sections = {}, lues = [];
+    SECTIONS.forEach((s) => {
+      const v = source[s.cle];
+      if (!Array.isArray(v)) return;
+      const liste = v.filter(estObjet).map(clone);
+      if (!liste.length) return;   // une liste vide ne remplace rien, comme au jeu
+      // chaque entrée garde sa référence si elle en a une, unique dans sa liste
+      const prises = new Set(), sansCle = [];
+      liste.forEach((e) => {
+        const c = typeof e.cle === "string" ? e.cle.trim() : typeof e.cle === "number" ? String(e.cle) : "";
+        if (c && !prises.has(c)) { e.cle = c; prises.add(c); } else sansCle.push(e);
+      });
+      sansCle.forEach((e) => {
+        const debut = slug(e[s.cleDepuis]) || s.prefixe + "-" + (liste.indexOf(e) + 1);
+        let c = debut, n = 2;
+        while (prises.has(c)) c = debut + "-" + n++;
+        e.cle = c; prises.add(c);
+      });
+      liste.forEach((e) => { if (e.bonne != null && e.bonne !== "" && !isNaN(Number(e.bonne))) e.bonne = Number(e.bonne); });
+      sections[s.cle] = liste;
+      lues.push(s.cle);
+    });
+    if (!lues.length) return { ok: false, erreur: "Ce fichier ne contient aucune des huit sections du jeu." };
+    return { ok: true, sections: sections, lues: lues };
+  }
+
+  function pourExport(etat, quand) {
+    const o = { produit: "Bab", jeu: "Au Courant", maison: MAISON, exporte_le: quand };
+    SECTIONS.forEach((s) => { o[s.cle] = preparer(s, etat && etat[s.cle]); });
+    return o;
+  }
+
+  racine.AU_COURANT_PARAMETRES = {
+    MAISON: MAISON, CLE: CLE, JEU: JEU, SCRIPTS: SCRIPTS, SECTIONS: SECTIONS, VOIES: VOIES, THEMES: THEMES,
+    slug: slug, cleUnique: cleUnique, decouper: decouper, canon: canon, nouvelleEntree: nouvelleEntree,
+    preparer: preparer, etatInitial: etatInitial, changees: changees, aEnregistrer: aEnregistrer,
+    valider: valider, lireImport: lireImport, pourExport: pourExport
+  };
+
+  /* ───────────── Au navigateur ───────────── */
+
+  if (typeof document === "undefined") return;
+
+  const ICONE = (() => {
+    const i = (d) => `<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</g></svg></span>`;
+    return {
+      haut: i('<path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/>'),
+      bas: i('<path d="M12 5v14M5.5 12.5 12 19l6.5-6.5"/>'),
+      retirer: i('<path d="M4 7h16M9.5 7V4.6h5V7M6.4 7l.9 12.4h9.4L17.6 7"/>'),
+      plus: i('<path d="M12 5v14M5 12h14"/>'),
+      origine: i('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
+      lieu: i('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>'),
+      bonne: i('<path d="m5 12.5 4.3 4.3L19 7.2"/>'),
+      attention: i('<path d="M12 3.6 2.9 19.4h18.2z"/><path d="M12 9.8v4.4M12 17.1v.1"/>')
+    };
+  })();
+
+  const CHAMP_AUTO = typeof CSS !== "undefined" && typeof CSS.supports === "function" && CSS.supports("field-sizing", "content");
+  const $ = (sel, el) => (el || document).querySelector(sel);
+  const $$ = (sel, el) => Array.prototype.slice.call((el || document).querySelectorAll(sel));
+  const panneau = (k) => document.getElementById("panneau-" + k);
+  const ongletDe = (k) => document.getElementById("onglet-" + k);
+
+  let origine = {}, origineCanon = {}, origineParCle = {};
+  let etat = {}, derniere = "", sale = false, enregistre = null, brutEnregistre = null;
+  let erreurs = [], courant = SECTIONS[0].cle, stockage = true;
+  let neuves = new WeakSet();   // entrées ajoutées depuis le dernier enregistrement : leur référence suit leur titre
+  const canonTout = (et) => SECTIONS.map((s) => canon(preparer(s, et[s.cle]))).join("\n");
+
+  /* ——— Le stockage du navigateur : chaque accès est gardé ——— */
+
+  function stockageDisponible() {
+    try { const ls = racine.localStorage; ls.setItem("bab.essai", "1"); ls.removeItem("bab.essai"); return true; } catch (e) { return false; }
+  }
+  function lireCle() {
+    let brut = null;
+    try { brut = racine.localStorage.getItem(CLE); } catch (e) { return { objet: null, refuse: true }; }
+    if (!brut) return { objet: null };
+    try {
+      const o = JSON.parse(brut);
+      if (estObjet(o)) return { objet: o };
+    } catch (e) { /* illisible : le jeu l'ignore, la page aussi */ }
+    return { objet: null, illisible: true };
+  }
+  function sectionsEnregistrees(o) {
+    return estObjet(o) ? SECTIONS.filter((s) => Array.isArray(o[s.cle]) && o[s.cle].length).map((s) => s.cle) : [];
+  }
+  // Ce que la clé porte en plus des huit sections : gardé tel quel à chaque écriture.
+  function autresCles() {
+    const garde = {};
+    if (estObjet(brutEnregistre)) Object.keys(brutEnregistre).forEach((k) => { if (!PAR_CLE[k] && META.indexOf(k) < 0) garde[k] = brutEnregistre[k]; });
+    return garde;
+  }
+
+  /* ——— Ce que dit la barre d'actions ——— */
+
+  function statut(ton, message, detail) {
+    const z = document.getElementById("etat-zone");
+    z.dataset.ton = ton;
+    document.getElementById("etat").textContent = typo(message);
+    document.getElementById("etat-detail").textContent = typo(detail || "");
+  }
+  function statutRepos() {
+    const ks = sectionsEnregistrees(enregistre);
+    if (!ks.length) statut("neutre", "Le jeu montre le contenu d'origine.", "Change un texte, enregistre, puis recharge le jeu : tu le vois aussitôt.");
+    else statut("neutre", `Le jeu montre tes modifications : ${nomsOnglets(ks)}.`, enregistre.enregistre_le ? `Enregistrées ${dateHeure(enregistre.enregistre_le)}.` : "");
+  }
+  function annoncer(t) {
+    const a = document.getElementById("annonce");
+    a.textContent = "";
+    setTimeout(() => { a.textContent = typo(t); }, 30);
+  }
+  function majEtat() {
+    const s = canonTout(etat) !== derniere;
+    if (s === sale) return;
+    sale = s;
+    document.getElementById("enregistrer").classList.toggle("bouton--attend", sale);
+    if (sale) statut("modifie", "Modifications non enregistrées.", "Enregistre pour que le jeu les montre.");
+    else statutRepos();
+  }
+
+  /* ——— Le rendu ——— */
+
+  function titreEntree(s, e) { return texte(s.titreDe(e)).trim() || (neuves.has(e) ? s.nouveau : s.etiquette + " sans titre"); }
+  function statutEntree(s, e) {
+    const o = origineParCle[s.cle] && origineParCle[s.cle].get(texte(e.cle));
+    if (o === undefined) return "nouveau";
+    return canon(preparerEntree(s, e)) === o ? "" : "modifie";
+  }
+  function compteTexte(s, n) {
+    const mot = n > 1 ? s.unite[1] : s.unite[0];
+    return s.exact ? `${n} ${mot} sur ${s.exact}` : `${n} ${mot}`;
+  }
+  const idBase = (k, i, champ) => `c-${k}-${i}-${champ}`;
+  function idErreur(x) {
+    if (x.champ === "bonne") return "e-" + idBase(x.section, x.index, "options") + "-bonne";
+    return "e-" + idBase(x.section, x.index, x.champ) + (x.sous != null ? "-" + x.sous : "");
+  }
+  function idControle(x) {
+    if (x.champ === "bonne") return "b-" + idBase(x.section, x.index, "options") + "-0";
+    return idBase(x.section, x.index, x.champ) + (x.sous != null ? "-" + x.sous : "");
+  }
+
+  function champHTML(s, i, e, d) {
+    const base = idBase(s.cle, i, d.cle);
+    const lib = esc(typo(valeurDe(d.libelle)));
+    const facultatif = d.requis ? "" : ' <span class="facultatif">facultatif</span>';
+    const aide = d.aide ? `<p class="aide" id="a-${base}">${esc(typo(d.aide))}</p>` : "";
+    const decrit = (id) => `aria-describedby="e-${id}${d.aide ? " a-" + base : ""}"`;
+    const erreur = (id) => `<p class="erreur" id="e-${id}" hidden></p>`;
+    const largeur = "champ--" + (d.largeur || "plein");
+    if (d.type === "texte") {
+      return `<div class="champ ${largeur}"><label for="${base}">${lib}${facultatif}</label>` +
+        `<input type="text" id="${base}" data-champ="${d.cle}" value="${esc(e[d.cle])}" autocomplete="off" ${decrit(base)}>${aide}${erreur(base)}</div>`;
+    }
+    if (d.type === "long") {
+      return `<div class="champ ${largeur}"><label for="${base}">${lib}${facultatif}</label>` +
+        `<textarea id="${base}" data-champ="${d.cle}" rows="2" ${decrit(base)}>${esc(e[d.cle])}</textarea>${aide}${erreur(base)}</div>`;
+    }
+    if (d.type === "reponses") {
+      return `<div class="champ ${largeur}"><label for="${base}">${lib}</label>` +
+        `<input type="text" id="${base}" data-champ="reponses" value="${esc(decouper(e.reponses).join(", "))}" autocomplete="off" ${decrit(base)}>${aide}${erreur(base)}</div>`;
+    }
+    if (d.type === "choix") {
+      const liste = valeurDe(d.choix).slice();
+      const v = texte(e[d.cle]);
+      if (v && !liste.some((c) => c.valeur === v)) liste.push({ valeur: v, libelle: `Autre (${v})` });
+      const opts = (v ? "" : `<option value="" selected>${esc(d.invite)}</option>`) +
+        liste.map((c) => `<option value="${esc(c.valeur)}"${c.valeur === v ? " selected" : ""}>${esc(c.libelle)}</option>`).join("");
+      return `<div class="champ ${largeur}"><label for="${base}">${lib}</label>` +
+        `<select id="${base}" data-champ="${d.cle}" ${decrit(base)}>${opts}</select>${aide}${erreur(base)}</div>`;
+    }
+    if (d.type === "indices") {
+      const a = Array.isArray(e.indices) ? e.indices : [];
+      return d.libelles.map((l, j) => {
+        const id = base + "-" + j;
+        const ai = d.aides && d.aides[j] ? `<p class="aide" id="a-${id}">${esc(typo(d.aides[j]))}</p>` : "";
+        return `<div class="champ champ--plein"><label for="${id}">${esc(typo(l))}</label>` +
+          `<textarea id="${id}" data-champ="indices" data-sous="${j}" rows="2" aria-describedby="e-${id}${ai ? " a-" + id : ""}">${esc(a[j])}</textarea>${ai}${erreur(id)}</div>`;
+      }).join("");
+    }
+    if (d.type === "options") {
+      const a = Array.isArray(e.options) ? e.options : [];
+      const bonne = e.bonne == null || e.bonne === "" ? -1 : Number(e.bonne);
+      const nom = `bonne-${s.cle}-${i}`;
+      const lignes = LETTRES.map((L, j) => {
+        const id = base + "-" + j;
+        return `<div class="option${bonne === j ? " option--bonne" : ""}" data-option="${j}">` +
+          `<input type="radio" name="${nom}" id="b-${id}" value="${j}" data-champ="bonne"${bonne === j ? " checked" : ""} aria-label="La réponse ${L} est la bonne">` +
+          `<label class="option__lettre" for="${id}">${L}</label>` +
+          `<input type="text" id="${id}" data-champ="options" data-sous="${j}" value="${esc(a[j])}" autocomplete="off" aria-label="Réponse ${L}" aria-describedby="e-${id}">` +
+          `<span class="option__bonne" aria-hidden="true">${ICONE.bonne}Bonne réponse</span>${erreur(id)}</div>`;
+      }).join("");
+      return `<fieldset class="champ champ--plein options" aria-describedby="e-${base}-bonne${d.aide ? " a-" + base : ""}"><legend>${lib}</legend>${aide}` +
+        `<div class="options__liste">${lignes}</div><p class="erreur" id="e-${base}-bonne" hidden></p></fieldset>`;
+    }
+    return "";
+  }
+
+  function carteHTML(s, i, e, n) {
+    const st = statutEntree(s, e);
+    const tid = `t-${s.cle}-${i}`;
+    const cour = s.cle === "metiers" && nbCour()
+      ? (i < nbCour() ? '<span class="puce puce--cour">Dans la cour</span>' : '<span class="puce">Aux archives</span>') : "";
+    return `<article class="entree${st ? " entree--" + st : ""}" id="entree-${s.cle}-${i}" data-section="${s.cle}" data-index="${i}" aria-labelledby="${tid}">` +
+      `<header class="entree__tete">` +
+        `<span class="entree__numero" aria-hidden="true">${i + 1}</span>` +
+        `<div class="entree__titres"><h3 class="entree__titre" id="${tid}"><span class="sr-only">${esc(s.etiquette)} ${i + 1} : </span><span data-titre>${esc(titreEntree(s, e))}</span></h3>` +
+          `<p class="entree__meta">${cour}<span data-ref>réf. ${esc(e.cle)}</span></p></div>` +
+        `<span class="puce" data-statut="${st}"${st ? "" : " hidden"}>${st ? STATUTS[st] : ""}</span>` +
+        `<div class="entree__gestes">` +
+          `<button type="button" class="geste" data-geste="monter" aria-describedby="${tid}"${i === 0 ? " disabled" : ""}>${ICONE.haut}<span>Monter</span></button>` +
+          `<button type="button" class="geste" data-geste="descendre" aria-describedby="${tid}"${i === n - 1 ? " disabled" : ""}>${ICONE.bas}<span>Descendre</span></button>` +
+          `<button type="button" class="geste geste--retirer" data-geste="retirer" aria-describedby="${tid}">${ICONE.retirer}<span>Retirer</span></button>` +
+        `</div>` +
+      `</header>` +
+      `<div class="champs">${s.champs.map((d) => champHTML(s, i, e, d)).join("")}</div>` +
+    `</article>`;
+  }
+
+  function videHTML(s) {
+    const t = origine[s.cle] && origine[s.cle].length
+      ? "<strong>Tu as retiré toutes les entrées.</strong> Le jeu garderait celles d'origine : ajoute-en une, ou rétablis l'onglet."
+      : "<strong>Cette section n'est pas encore rédigée dans le contenu du jeu.</strong> Ajoute une première entrée : elle remplacera le contenu d'origine dès que tu enregistres.";
+    return `<div class="vide"><p>${typo(t)}</p></div>`;
+  }
+
+  function panneauHTML(s) {
+    const liste = etat[s.cle];
+    const complet = s.exact && liste.length >= s.exact;
+    const note = complet ? s.complet : s.note;
+    return `<div class="section__tete">` +
+        `<div class="section__titres">` +
+          `<p class="surtitre">${ICONE.lieu}${esc(typo(valeurDe(s.ou)))}</p>` +
+          `<h2 id="titre-${s.cle}">${esc(typo(s.titre))}</h2>` +
+          `<p class="chapo">${esc(typo(valeurDe(s.chapo)))}</p>` +
+        `</div>` +
+        `<div class="section__etat">` +
+          `<p class="compte" data-compte></p>` +
+          `<p class="puce puce--modifie" data-modifie hidden>Modifié par rapport au contenu d'origine</p>` +
+          `<button type="button" class="lien-bouton" data-retablir="${s.cle}" hidden>${ICONE.origine}Rétablir cet onglet</button>` +
+        `</div>` +
+      `</div>` +
+      `<div class="erreur-section" data-erreur-section role="alert" tabindex="-1" hidden></div>` +
+      (liste.length ? `<div class="liste">${liste.map((e, i) => carteHTML(s, i, e, liste.length)).join("")}</div>` : videHTML(s)) +
+      `<div class="ajout"><button type="button" class="bouton bouton--ajout" data-ajouter="${s.cle}"${complet ? " disabled" : ""}>${ICONE.plus}${esc(s.ajouter)}</button>` +
+        (note ? `<p class="ajout__note">${esc(typo(note))}</p>` : "") + `</div>`;
+  }
+
+  function majSection(k) {
+    const s = PAR_CLE[k], p = panneau(k), o = ongletDe(k);
+    const modifie = canon(preparer(s, etat[k])) !== origineCanon[k];
+    const compte = p.querySelector("[data-compte]");
+    if (compte) {
+      compte.textContent = compteTexte(s, etat[k].length);
+      compte.classList.toggle("compte--manque", !!s.exact && etat[k].length !== s.exact);
+    }
+    const m = p.querySelector("[data-modifie]"); if (m) m.hidden = !modifie;
+    const r = p.querySelector("[data-retablir]"); if (r) r.hidden = !modifie;
+    o.querySelector("[data-marque]").hidden = !modifie;
+    const n = erreurs.filter((x) => x.section === k).length;
+    const b = o.querySelector("[data-erreurs]");
+    b.hidden = !n;
+    b.innerHTML = n ? `<span aria-hidden="true">${n}</span><span class="sr-only">, ${n} point${n > 1 ? "s" : ""} à corriger</span>` : "";
+  }
+
+  function majCarte(s, e, carte) {
+    const t = carte.querySelector("[data-titre]"); if (t) t.textContent = titreEntree(s, e);
+    const r = carte.querySelector("[data-ref]"); if (r) r.textContent = "réf. " + e.cle;
+    const st = statutEntree(s, e);
+    const puce = carte.querySelector("[data-statut]");
+    if (puce) { puce.hidden = !st; puce.dataset.statut = st; puce.textContent = st ? STATUTS[st] : ""; }
+    carte.classList.toggle("entree--nouveau", st === "nouveau");
+    carte.classList.toggle("entree--modifie", st === "modifie");
+    const bonne = e.bonne == null || e.bonne === "" ? -1 : Number(e.bonne);
+    $$(".option", carte).forEach((o) => o.classList.toggle("option--bonne", Number(o.dataset.option) === bonne));
+  }
+
+  function ajusterUn(t) {
+    if (CHAMP_AUTO || !t || t.tagName !== "TEXTAREA") return;
+    t.style.height = "auto";
+    t.style.height = (t.scrollHeight + 3) + "px";
+  }
+  function ajuster(el) { if (!CHAMP_AUTO && el && !el.hidden) $$("textarea", el).forEach(ajusterUn); }
+
+  function rendreSection(k) {
+    panneau(k).innerHTML = panneauHTML(PAR_CLE[k]);
+    majSection(k);
+    ajuster(panneau(k));
+  }
+  function rendreTout() { SECTIONS.forEach((s) => rendreSection(s.cle)); }
+
+  /* ——— Les onglets ——— */
+
+  function choisir(k, opts) {
+    opts = opts || {};
+    if (!PAR_CLE[k]) k = SECTIONS[0].cle;
+    courant = k;
+    $$(".onglet").forEach((o) => {
+      const actif = o.dataset.onglet === k;
+      o.setAttribute("aria-selected", String(actif));
+      o.tabIndex = actif ? 0 : -1;
+    });
+    SECTIONS.forEach((s) => { panneau(s.cle).hidden = s.cle !== k; });
+    const o = ongletDe(k), rang = $(".onglets");
+    if (opts.focus) o.focus();
+    if (o.offsetLeft < rang.scrollLeft || o.offsetLeft + o.offsetWidth > rang.scrollLeft + rang.clientWidth) rang.scrollLeft = Math.max(0, o.offsetLeft - 24);
+    try { if (racine.location.hash !== "#" + k) racine.history.replaceState(null, "", "#" + k); } catch (e) { /* l'adresse reste telle quelle */ }
+    ajuster(panneau(k));
+    if (opts.defiler) {
+      const barre = $(".barre-onglets");
+      if (barre.getBoundingClientRect().top <= 1 && panneau(k).getBoundingClientRect().top < barre.offsetHeight) panneau(k).scrollIntoView({ block: "start" });
+    }
+  }
+
+  /* ——— Les erreurs, à côté du champ ——— */
+
+  function montrerErreurs() {
+    $$(".erreur:not([hidden])").forEach((el) => { el.hidden = true; el.textContent = ""; });
+    $$('[aria-invalid="true"]').forEach((el) => el.removeAttribute("aria-invalid"));
+    $$(".entree--erreur").forEach((el) => el.classList.remove("entree--erreur"));
+    $$("[data-erreur-section]").forEach((el) => { el.hidden = true; el.textContent = ""; });
+    erreurs.forEach((x) => {
+      if (x.index == null) {
+        const z = panneau(x.section).querySelector("[data-erreur-section]");
+        z.textContent = typo(x.message);
+        z.hidden = false;
+        return;
+      }
+      const p = document.getElementById(idErreur(x));
+      if (p) { p.textContent = typo(x.message); p.hidden = false; }
+      if (x.champ === "bonne") $$(`input[name="bonne-${x.section}-${x.index}"]`).forEach((r) => r.setAttribute("aria-invalid", "true"));
+      else { const c = document.getElementById(idControle(x)); if (c) c.setAttribute("aria-invalid", "true"); }
+      const carte = document.getElementById(`entree-${x.section}-${x.index}`);
+      if (carte) carte.classList.add("entree--erreur");
+    });
+    SECTIONS.forEach((s) => majSection(s.cle));
+  }
+  function effacerErreur(k, i, champ, sous) {
+    const avant = erreurs.length;
+    erreurs = erreurs.filter((x) => !(x.section === k && x.index === i && x.champ === champ && (x.sous == null ? sous == null : x.sous === sous)));
+    if (erreurs.length === avant) return;
+    const x = { section: k, index: i, champ: champ, sous: sous };
+    const p = document.getElementById(idErreur(x));
+    if (p) { p.hidden = true; p.textContent = ""; }
+    if (champ === "bonne") $$(`input[name="bonne-${k}-${i}"]`).forEach((r) => r.removeAttribute("aria-invalid"));
+    else { const c = document.getElementById(idControle(x)); if (c) c.removeAttribute("aria-invalid"); }
+    if (!erreurs.some((y) => y.section === k && y.index === i)) {
+      const carte = document.getElementById(`entree-${k}-${i}`);
+      if (carte) carte.classList.remove("entree--erreur");
+    }
+    majSection(k);
+    if (!erreurs.length) statut("modifie", "Tout est corrigé : tu peux enregistrer.", "Enregistre pour que le jeu montre tes modifications.");
+  }
+  // Après un ajout, un retrait ou un déplacement, les numéros des entrées changent :
+  // les erreurs de la section s'effacent, le prochain enregistrement les redira.
+  function oublierErreurs(k) {
+    if (!erreurs.some((x) => x.section === k)) return;
+    erreurs = erreurs.filter((x) => x.section !== k);
+    if (!erreurs.length && sale) statut("modifie", "Modifications non enregistrées.", "Enregistre pour que le jeu les montre.");
+  }
+  function allerALErreur(x) {
+    choisir(x.section);
+    const cible = x.index == null ? panneau(x.section).querySelector("[data-erreur-section]") : document.getElementById(idControle(x));
+    if (!cible) return;
+    cible.scrollIntoView({ block: "center" });
+    cible.focus({ preventScroll: true });
+  }
+
+  /* ——— Saisir ——— */
+
+  function recle(s, e, liste) {
+    const ancienne = e.cle;
+    e.cle = cleUnique(slug(e[s.cleDepuis]) || s.prefixe + "-" + (liste.indexOf(e) + 1), liste, e);
+    if (s.cle === "pages" && e.ville === ancienne) e.ville = e.cle;
+  }
+
+  function surSaisie(ev) {
+    const c = ev.target;
+    if (!c || !c.dataset || !c.dataset.champ) return;
+    const carte = c.closest(".entree");
+    if (!carte) return;
+    const k = carte.dataset.section, i = Number(carte.dataset.index), s = PAR_CLE[k];
+    const e = s && etat[k] ? etat[k][i] : null;
+    if (!e) return;
+    const champ = c.dataset.champ;
+    const sous = c.dataset.sous != null && c.dataset.sous !== "" ? Number(c.dataset.sous) : null;
+    if (champ === "bonne") {
+      if (!c.checked) return;
+      e.bonne = Number(c.value);
+    } else if (champ === "options" || champ === "indices") {
+      const a = Array.isArray(e[champ]) ? e[champ].slice() : [];
+      while (a.length < (champ === "options" ? LETTRES.length : 2)) a.push("");
+      a[sous] = c.value;
+      e[champ] = a;
+    } else if (champ === "reponses") {
+      e.reponses = decouper(c.value);
+    } else {
+      e[champ] = c.value;
+    }
+    if (neuves.has(e) && champ === s.cleDepuis) recle(s, e, etat[k]);
+    effacerErreur(k, i, champ, sous);
+    majCarte(s, e, carte);
+    majSection(k);
+    majEtat();
+    ajusterUn(c);
+  }
+
+  /* ——— Ajouter, retirer, déplacer, rétablir ——— */
+
+  function ajouter(k) {
+    const s = PAR_CLE[k], liste = etat[k];
+    if (s.exact && liste.length >= s.exact) return;
+    const e = nouvelleEntree(s, liste);
+    liste.push(e);
+    neuves.add(e);
+    oublierErreurs(k);
+    rendreSection(k);
+    majEtat();
+    const carte = document.getElementById(`entree-${k}-${liste.length - 1}`);
+    if (carte) {
+      carte.scrollIntoView({ block: "center" });
+      const c = carte.querySelector('input[type="text"], textarea, select');
+      if (c) c.focus({ preventScroll: true });
+    }
+    annoncer("Entrée ajoutée en bas de la liste : remplis-la, puis enregistre.");
+  }
+
+  function deplacer(k, i, pas) {
+    const s = PAR_CLE[k], liste = etat[k], j = i + pas;
+    if (j < 0 || j >= liste.length) return;
+    const e = liste.splice(i, 1)[0];
+    liste.splice(j, 0, e);
+    oublierErreurs(k);
+    rendreSection(k);
+    majEtat();
+    const carte = document.getElementById(`entree-${k}-${j}`);
+    if (carte) {
+      let cible = carte.querySelector(`[data-geste="${pas < 0 ? "monter" : "descendre"}"]`);
+      if (!cible || cible.disabled) cible = carte.querySelector(`[data-geste="${pas < 0 ? "descendre" : "monter"}"]`);
+      carte.scrollIntoView({ block: "nearest" });
+      if (cible) cible.focus({ preventScroll: true });
+    }
+    annoncer(`« ${titreEntree(s, e)} » : position ${j + 1} sur ${liste.length}.`);
+  }
+
+  async function retirer(k, i) {
+    const s = PAR_CLE[k], e = etat[k][i];
+    if (!e) return;
+    const titre = titreEntree(s, e);
+    const r = await demander({
+      titre: `Retirer « ${titre} » ?`,
+      texte: "Cette entrée disparaîtra du jeu au prochain enregistrement." +
+        (s.exact ? " Le jeu a besoin de sept murs : il faudra en ajouter un autre avant d'enregistrer." : ""),
+      choix: [{ valeur: "", libelle: "Annuler", style: "bouton--discret", focus: true }, { valeur: "retirer", libelle: "Retirer", style: "bouton--danger" }]
+    });
+    if (r !== "retirer") return;
+    etat[k].splice(i, 1);
+    oublierErreurs(k);
+    rendreSection(k);
+    majEtat();
+    const suivante = document.getElementById(`entree-${k}-${Math.min(i, etat[k].length - 1)}`);
+    const cible = suivante ? suivante.querySelector('input[type="text"], textarea, select') : panneau(k).querySelector("[data-ajouter]");
+    if (cible) cible.focus();
+    annoncer(`« ${titre} » est retiré de la liste.`);
+  }
+
+  async function retablir(k) {
+    const s = PAR_CLE[k];
+    const r = await demander({
+      titre: `Rétablir l'onglet « ${s.onglet} » ?`,
+      texte: "Il reprend le contenu d'origine, tel qu'il est écrit pour Nareva. Tes changements de cet onglet seront perdus ; le jeu, lui, ne change qu'au prochain enregistrement.",
+      choix: [{ valeur: "", libelle: "Annuler", style: "bouton--discret", focus: true }, { valeur: "oui", libelle: "Rétablir l'onglet", style: "bouton--danger" }]
+    });
+    if (r !== "oui") return;
+    etat[k] = clone(origine[k]);
+    oublierErreurs(k);
+    rendreSection(k);
+    majEtat();
+    ongletDe(k).focus();
+    annoncer(`Onglet « ${s.onglet} » rétabli.`);
+  }
+
+  /* ——— Enregistrer ——— */
+
+  function enregistrer() {
+    erreurs = valider(etat, origine);
+    montrerErreurs();
+    if (erreurs.length) {
+      const n = erreurs.length;
+      const ou = SECTIONS.filter((s) => erreurs.some((x) => x.section === s.cle)).map((s) => s.cle);
+      statut("erreur", `Enregistrement impossible : ${n} point${n > 1 ? "s" : ""} à corriger.`,
+        `Onglet${ou.length > 1 ? "s" : ""} ${nomsOnglets(ou)} — chaque point est signalé à côté du champ.`);
+      allerALErreur(erreurs[0]);
+      return false;
+    }
+    const prep = aEnregistrer(etat, origine);
+    const quand = new Date().toISOString();
+    const garde = autresCles();
+    const ecrit = Object.assign({}, garde, prep.objet, { enregistre_le: quand });
+    let reussi = true;
+    try {
+      const ls = racine.localStorage;
+      if (!prep.changees.length && !Object.keys(garde).length) ls.removeItem(CLE);
+      else ls.setItem(CLE, JSON.stringify(ecrit));
+      // relu aussitôt : la preuve que le navigateur l'a gardé
+      if (prep.changees.length && !ls.getItem(CLE)) reussi = false;
+    } catch (e) { reussi = false; }
+    if (!reussi) {
+      statut("erreur", "Le navigateur refuse d'enregistrer.", "Navigation privée ou stockage bloqué : exporte tes modifications pour ne rien perdre.");
+      return false;
+    }
+    brutEnregistre = prep.changees.length || Object.keys(garde).length ? ecrit : null;
+    enregistre = brutEnregistre;
+    derniere = canonTout(etat);
+    sale = false;
+    neuves = new WeakSet();
+    document.getElementById("enregistrer").classList.remove("bouton--attend");
+    SECTIONS.forEach((s) => majSection(s.cle));
+    statut("ok", "Enregistré — recharge le jeu pour le voir.",
+      prep.changees.length ? `Le jeu montrera tes modifications : ${nomsOnglets(prep.changees)}.` : "Le jeu montre le contenu d'origine : rien n'y est modifié.");
+    return true;
+  }
+
+  /* ——— Revenir au contenu d'origine ——— */
+
+  async function revenirOrigine() {
+    const r = await demander({
+      titre: "Revenir au contenu d'origine ?",
+      texte: "Toutes les modifications faites sur cette page sont effacées de ce navigateur, et le jeu reprend le contenu écrit pour Nareva. Pour en garder une copie, exporte d'abord.",
+      choix: [{ valeur: "", libelle: "Annuler", style: "bouton--discret", focus: true }, { valeur: "oui", libelle: "Revenir au contenu d'origine", style: "bouton--danger" }]
+    });
+    if (r !== "oui") return;
+    let ok = true;
+    try { racine.localStorage.removeItem(CLE); } catch (e) { ok = false; }
+    etat = etatInitial(origine, null);
+    neuves = new WeakSet();
+    erreurs = [];
+    enregistre = null;
+    brutEnregistre = null;
+    derniere = canonTout(etat);
+    sale = false;
+    document.getElementById("enregistrer").classList.remove("bouton--attend");
+    rendreTout();
+    choisir(courant);
+    if (ok) statut("ok", "Contenu d'origine rétabli — recharge le jeu pour le voir.", "Le jeu montre de nouveau le contenu écrit pour Nareva.");
+    else statut("erreur", "Le navigateur refuse l'accès à son stockage.", "La page montre le contenu d'origine ; rien n'a pu être effacé.");
+  }
+
+  /* ——— Exporter, importer ——— */
+
+  function exporter() {
+    const d = new Date();
+    const jour = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const nom = `au-courant-parametres-${jour}.json`;
+    try {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(pourExport(etat, d.toISOString()), null, 2)], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nom;
+      a.hidden = true;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      statut(sale ? "modifie" : "ok", `Fichier exporté : ${nom}.`,
+        sale ? "Il contient les huit onglets tels qu'ils sont à l'écran — tes modifications ne sont pas encore enregistrées dans le jeu." : "Il contient les huit onglets tels qu'ils sont à l'écran.");
+    } catch (e) {
+      statut("erreur", "Le navigateur refuse de télécharger le fichier.", "");
+    }
+  }
+
+  async function surFichier(ev) {
+    const f = ev.target.files && ev.target.files[0];
+    ev.target.value = "";
+    if (!f) return;
+    let brut = "";
+    try { brut = await f.text(); } catch (e) {
+      statut("erreur", "Import impossible.", "Le fichier ne se lit pas.");
+      return;
+    }
+    const r = lireImport(brut);
+    if (!r.ok) { statut("erreur", "Import impossible.", r.erreur + " Choisis un fichier exporté par cette page."); return; }
+    if (sale) {
+      const q = await demander({
+        titre: "Importer ce fichier ?",
+        texte: `Il remplace ${r.lues.length > 1 ? "les onglets" : "l'onglet"} ${nomsOnglets(r.lues)}. Tes modifications non enregistrées de ${r.lues.length > 1 ? "ces onglets" : "cet onglet"} seront perdues.`,
+        choix: [{ valeur: "", libelle: "Annuler", style: "bouton--discret", focus: true }, { valeur: "oui", libelle: "Importer", style: "bouton--principal" }]
+      });
+      if (q !== "oui") return;
+    }
+    r.lues.forEach((k) => { etat[k] = r.sections[k]; oublierErreurs(k); rendreSection(k); });
+    neuves = new WeakSet();
+    majEtat();
+    choisir(r.lues[0]);
+    statut(sale ? "modifie" : "neutre", `Fichier importé : ${nomsOnglets(r.lues)}.`,
+      sale ? "Vérifie, puis enregistre pour que le jeu le montre." : "C'est déjà ce que le jeu montre.");
+  }
+
+  /* ——— Voir dans le jeu ——— */
+
+  function ouvrirJeu() {
+    const w = racine.open(JEU, "_blank");
+    if (w) { try { w.opener = null; } catch (e) { /* rien à couper */ } }
+    else statut("erreur", "Le navigateur a bloqué l'ouverture du jeu.", "Clique de nouveau sur « Voir dans le jeu ».");
+  }
+  async function surVoir(ev) {
+    if (!sale) return;   // rien en attente : le lien ouvre le jeu de lui-même
+    ev.preventDefault();
+    const r = await demander({
+      titre: "Enregistrer avant d'ouvrir le jeu ?",
+      texte: "Tes dernières modifications ne sont pas encore enregistrées : le jeu ne les montrera pas.",
+      choix: [
+        { valeur: "", libelle: "Annuler", style: "bouton--discret" },
+        { valeur: "ouvrir", libelle: "Ouvrir sans enregistrer", style: "bouton--second" },
+        { valeur: "enregistrer", libelle: "Enregistrer et ouvrir le jeu", style: "bouton--principal", focus: true, principal: true }
+      ]
+    });
+    if (r === "enregistrer") { if (enregistrer()) ouvrirJeu(); }
+    else if (r === "ouvrir") ouvrirJeu();
+  }
+
+  /* ——— La question posée avant un geste qui efface ——— */
+
+  function demander(q) {
+    const d = document.getElementById("question");
+    const choix = q.choix || [];
+    if (!d || typeof d.showModal !== "function") {
+      const premier = choix.find((c) => c.principal) || choix.find((c) => c.valeur) || null;
+      return Promise.resolve(premier && racine.confirm(q.titre + "\n\n" + q.texte) ? premier.valeur : null);
+    }
+    if (d.open) return Promise.resolve(null);
+    document.getElementById("question-titre").textContent = typo(q.titre);
+    document.getElementById("question-texte").textContent = typo(q.texte);
+    const zone = d.querySelector(".question__boutons");
+    zone.innerHTML = choix.map((c) => `<button type="submit" class="bouton ${c.style || "bouton--discret"}" value="${esc(c.valeur)}"${c.focus ? " data-focus" : ""}>${esc(c.libelle)}</button>`).join("");
+    d.returnValue = "";
+    return new Promise((resolve) => {
+      d.addEventListener("close", () => resolve(d.returnValue || null), { once: true });
+      d.showModal();
+      const f = zone.querySelector("[data-focus]") || zone.querySelector("button");
+      if (f) f.focus();
+    });
+  }
+
+  /* ——— Un autre onglet a changé la clé (le jeu remis à zéro, une seconde page) ——— */
+
+  function surStockage(ev) {
+    if (ev.key !== null && ev.key !== CLE) return;
+    const lu = lireCle();
+    brutEnregistre = lu.objet;
+    enregistre = lu.objet;
+    const neuf = etatInitial(origine, lu.objet);
+    const ks = sectionsEnregistrees(enregistre);
+    const jeu = ks.length ? `Le jeu montre tes modifications : ${nomsOnglets(ks)}.` : "Le jeu montre le contenu d'origine.";
+    if (!sale) {
+      etat = neuf;
+      neuves = new WeakSet();
+      erreurs = [];
+      derniere = canonTout(etat);
+      rendreTout();
+      choisir(courant);
+      statut("neutre", ev.key === null ? "Le jeu a été remis à zéro dans un autre onglet." : "Le contenu enregistré a changé dans un autre onglet : la page le montre.", jeu);
+    } else {
+      derniere = canonTout(neuf);
+      statut("modifie", "Le contenu enregistré a changé dans un autre onglet.", "Tes modifications en cours sont toujours là : enregistre-les pour que le jeu les montre.");
+    }
+  }
+
+  /* ——— Les alertes du départ ——— */
+
+  function alertes(echecs, lu) {
+    const items = [];
+    if (racine.location && racine.location.protocol === "file:") {
+      items.push(["Cette page est ouverte comme un simple fichier.", "Elle n'écrit pas là où le jeu lit : ouvre-la à la même adresse que le jeu, en remplaçant au-courant.html par au-courant-parametres.html."]);
+    }
+    if (!stockage) items.push(["Ce navigateur ne laisse pas la page écrire dans son stockage.", "Le jeu ne verra pas tes modifications ici. Tu peux quand même tout préparer, puis l'exporter."]);
+    if (lu.illisible) items.push(["La version enregistrée dans ce navigateur est illisible.", "Le jeu l'ignore et montre le contenu d'origine. Enregistrer la remplacera."]);
+    if (echecs.length) {
+      items.push(["Une partie du contenu d'origine n'a pas pu être lue.",
+        `Fichier${echecs.length > 1 ? "s" : ""} en cause : ${echecs.map((f) => f.split("/").pop()).join(", ")}. Ce qui manque s'ouvre vide : tu peux le remplir et l'enregistrer.`]);
+    }
+    document.getElementById("alertes").innerHTML = items.map((x) => `<div class="alerte" role="alert">${ICONE.attention}<p><strong>${esc(typo(x[0]))}</strong> ${esc(typo(x[1]))}</p></div>`).join("");
+  }
+
+  /* ——— Le logo de la maison, s'il est posé ——— */
+
+  function brancherLogo() {
+    const place = document.getElementById("logo-maison");
+    const essayer = (i) => {
+      if (i >= LOGOS.length) return;   // aucun fichier : le mot NAREVA reste
+      const img = new Image();
+      img.alt = "Nareva";
+      img.onload = () => { place.replaceChildren(img); };
+      img.onerror = () => essayer(i + 1);
+      img.src = LOGOS[i];
+    };
+    essayer(0);
+  }
+
+  /* ——— Les gestes ——— */
+
+  function brancher() {
+    const main = document.getElementById("contenu");
+    main.addEventListener("input", surSaisie);
+    main.addEventListener("change", surSaisie);
+    main.addEventListener("click", (ev) => {
+      const b = ev.target.closest("button");
+      if (!b || b.disabled) return;
+      if (b.dataset.ajouter) { ajouter(b.dataset.ajouter); return; }
+      if (b.dataset.retablir) { retablir(b.dataset.retablir); return; }
+      const carte = b.closest(".entree");
+      if (!carte || !b.dataset.geste) return;
+      const k = carte.dataset.section, i = Number(carte.dataset.index);
+      if (b.dataset.geste === "monter") deplacer(k, i, -1);
+      else if (b.dataset.geste === "descendre") deplacer(k, i, 1);
+      else if (b.dataset.geste === "retirer") retirer(k, i);
+    });
+
+    const rang = $(".onglets");
+    rang.addEventListener("click", (ev) => {
+      const o = ev.target.closest(".onglet");
+      if (o) choisir(o.dataset.onglet, { defiler: true });
+    });
+    rang.addEventListener("keydown", (ev) => {
+      const liste = $$(".onglet"), i = liste.indexOf(document.activeElement);
+      if (i < 0) return;
+      let k = null;
+      if (ev.key === "ArrowRight") k = (i + 1) % liste.length;
+      if (ev.key === "ArrowLeft") k = (i - 1 + liste.length) % liste.length;
+      if (ev.key === "Home") k = 0;
+      if (ev.key === "End") k = liste.length - 1;
+      if (k === null) return;
+      ev.preventDefault();
+      choisir(liste[k].dataset.onglet, { focus: true });
+    });
+
+    document.getElementById("enregistrer").addEventListener("click", () => { enregistrer(); });
+    document.getElementById("voir").addEventListener("click", surVoir);
+    document.getElementById("exporter").addEventListener("click", exporter);
+    document.getElementById("importer").addEventListener("click", () => document.getElementById("fichier").click());
+    document.getElementById("fichier").addEventListener("change", surFichier);
+    document.getElementById("origine").addEventListener("click", revenirOrigine);
+
+    document.addEventListener("keydown", (ev) => {
+      if ((ev.metaKey || ev.ctrlKey) && !ev.altKey && (ev.key === "s" || ev.key === "S")) {
+        ev.preventDefault();
+        if (!document.getElementById("question").open) enregistrer();
+      }
+    });
+    $(".evitement").addEventListener("click", (ev) => { ev.preventDefault(); document.getElementById("contenu").focus(); });
+    racine.addEventListener("hashchange", () => { const k = racine.location.hash.slice(1); if (PAR_CLE[k] && k !== courant) choisir(k); });
+    racine.addEventListener("storage", surStockage);
+    racine.addEventListener("beforeunload", (ev) => { if (!sale) return; ev.preventDefault(); ev.returnValue = ""; });
+    let attente = null;
+    racine.addEventListener("resize", () => { clearTimeout(attente); attente = setTimeout(() => ajuster(panneau(courant)), 150); });
+  }
+
+  /* ——— Le départ : lire le contenu d'origine, puis ce qui est enregistré ——— */
+
+  function demarrer(echecs) {
+    const C = contenu();
+    origine = {}; origineCanon = {}; origineParCle = {};
+    SECTIONS.forEach((s) => {
+      origine[s.cle] = Array.isArray(C[s.cle]) ? clone(C[s.cle]).filter(estObjet) : [];
+      const prep = preparer(s, origine[s.cle]);
+      origineCanon[s.cle] = canon(prep);
+      const m = new Map();
+      prep.forEach((e) => { const c = texte(e.cle); if (c && !m.has(c)) m.set(c, canon(e)); });
+      origineParCle[s.cle] = m;
+    });
+    stockage = stockageDisponible();
+    const lu = lireCle();
+    if (lu.refuse) stockage = false;
+    brutEnregistre = lu.objet;
+    enregistre = lu.objet;
+    etat = etatInitial(origine, lu.objet);
+    derniere = canonTout(etat);
+    sale = false;
+    const ch = document.getElementById("chargement");
+    if (ch) ch.remove();
+    alertes(echecs || [], lu);
+    rendreTout();
+    brancher();
+    const depart = racine.location ? racine.location.hash.slice(1) : "";
+    choisir(PAR_CLE[depart] ? depart : SECTIONS[0].cle);
+    statutRepos();
+    ["enregistrer", "exporter", "importer", "origine"].forEach((id) => { document.getElementById(id).disabled = false; });
+    brancherLogo();
+    document.documentElement.dataset.pret = "1";
+  }
+
+  // Les trois fichiers de la maison, insérés dans l'ordre du jeu (async = false garde
+  // cet ordre) et marqués de l'heure : on ne lit jamais une copie périmée du cache.
+  function chargerContenu(fin) {
+    const echecs = [];
+    let restants = SCRIPTS.length, fini = false;
+    const marque = Date.now().toString(36);
+    const surErreur = (ev) => {
+      const f = texte(ev && ev.filename);
+      SCRIPTS.forEach((src) => { if (f.indexOf(src) >= 0 && echecs.indexOf(src) < 0) echecs.push(src); });
+    };
+    racine.addEventListener("error", surErreur);
+    const terminer = () => {
+      if (fini) return;
+      fini = true;
+      racine.removeEventListener("error", surErreur);
+      fin(echecs);
+    };
+    SCRIPTS.forEach((src) => {
+      const s = document.createElement("script");
+      s.src = src + "?t=" + marque;
+      s.async = false;
+      s.onload = () => { restants -= 1; if (!restants) terminer(); };
+      s.onerror = () => { if (echecs.indexOf(src) < 0) echecs.push(src); restants -= 1; if (!restants) terminer(); };
+      document.head.appendChild(s);
+    });
+    setTimeout(terminer, 8000);
+  }
+
+  const lancer = () => chargerContenu(demarrer);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", lancer);
+  else lancer();
+})(typeof window !== "undefined" ? window : this);
+</script>
+</body>
+</html>

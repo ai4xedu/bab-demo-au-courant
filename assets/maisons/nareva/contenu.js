@@ -1,6 +1,6 @@
 // Au Courant — la maison Nareva : le CONTENU (24/09/2026).
 //
-// Le jeu d'accueil de Nareva, sur le moteur Bab. Ce fichier ne porte que des
+// Le jeu d'accueil de Nareva, sur le moteur Mrehba (ex-Bab). Ce fichier ne porte que des
 // DONNÉES, dans la forme EXACTE des modules qu'elles remplacent :
 // assets/js/zawia-jeu/maison.js les pose sur le moteur au chargement, sans
 // toucher aux modules. La configuration (chemins, menu, lieux, portraits) vit
@@ -1069,7 +1069,7 @@
   // <title> qu'on voit en même temps, et les textes que jeu.js y écrit lui-même.
   // ⚠️ Un <p> qui ne contient qu'un lien est remplacé EN ENTIER par langue.js : le
   //    lien « Revoir l'intro » se réécrit donc en HTML, avec son id, sinon il meurt.
-  // ⚠️ La signature « Bab · une création Ai4x » n'est pas ici : maison.js (surPage)
+  // ⚠️ La signature « Mrehba · une création Ai4x » n'est pas ici : maison.js (surPage)
   //    la pose déjà au pied de l'écran d'accueil — la poser deux fois la doublerait.
   // ⚠️ interface.js (M.vocabulaire) est posé APRÈS ces paires : sur une même clé, c'est
   //    lui qui gagne. Les valeurs ci-dessous sont les mêmes que les siennes quand il y en a.

@@ -5,7 +5,8 @@
 // programme des 40 jours) vit à côté, dans contenu.js.
 //
 // Choix de Youssef, le 24/09/2026 : le produit s'appelle Bab (une création
-// Ai4x) ; chez Nareva, le jeu s'appelle « Au Courant » ; l'histoire est celle de
+// Ai4x) — renommé Mrehba le 25/09/2026 (mrehba.games) ; chez Nareva, le jeu
+// s'appelle « Au Courant » ; l'histoire est celle de
 // la lumière qui s'éteint, racontée par Ba Lahcen, un ancien de fiction ; les
 // trois axes s'appellent Lumière (culture), Puissance (métier), Réseau
 // (communauté) ; le décor est la base du désert (l'esquisse C) ; une seule langue
@@ -203,7 +204,7 @@
       if (!porte || doc.querySelector(".bab-signature")) return;
       var p = doc.createElement("p");
       p.className = "bab-signature";
-      p.innerHTML = "<strong>Bab</strong> · une création Ai4x";
+      p.innerHTML = "<strong>Mrehba</strong> · une création Ai4x";
       var cible = porte.querySelector(".zj-porte__carte, .zj-carte, form") ? porte.querySelector(".zj-porte__carte, .zj-carte") || porte : porte;
       cible.appendChild(p);
     }

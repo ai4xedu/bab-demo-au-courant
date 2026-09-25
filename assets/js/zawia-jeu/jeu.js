@@ -2570,6 +2570,10 @@
     if (dp) {
       dp.hidden = rihla.active;
       dp.textContent = "Cartes · " + pg.resolues;
+      // Bab — une maison peut montrer les POINTS de culture, comme les deux autres axes : chez
+      // Nareva la carte dit « +15 Lumière » et le carnet « Lumière 15 » ; une barre qui disait
+      // « Lumière · 1 » (le nombre de cartes) se contredisait.
+      if (window.ZWJ_MAISON && window.ZWJ_MAISON.hudCulture === "points") dp.textContent = "Dhakira · " + c.dhakira.total;
       dp.title = "La Dhakira — culture marocaine : " + c.dhakira.total + " (" + c.dhakira.niveau.nom + "). Une carte par page retrouvée au sandouq : " + pg.resolues + " sur " + pg.total + "." +
         (c.dhakira.prochain ? " Encore " + c.dhakira.prochain.manque + " pour " + c.dhakira.prochain.niveau.nom + "." : "");
     }
@@ -6902,12 +6906,20 @@
       var ICONE_JEU = { kelma: "tuiles", atay: "theiere", qlil: "plume", khessa: "fontaine" };
       // Bab — une maison nomme ce bloc (le vocabulaire l'avalerait : la boîte n'a qu'un <span>, langue.js la prend pour une feuille)
       var titreJeux = (window.ZWJ_MAISON && window.ZWJ_MAISON.jeuxDuJour) || "Les jeux du jour";
-      html += '<div class="zj-dar__bloc" role="group" aria-label="' + esc(titreJeux) + '"><span><h3>' + esc(titreJeux) + '</h3><span class="zj-dar__jetons">' +
-        jeux.map(function (l) {
-          var e = Dr.entree(l.cle), nom = e ? e.nom : l.cle;
-          return '<button type="button" class="zj-dar__jeton" data-dar-jour="' + esc(l.cle) + '" title="' + esc(nom) + '">' + medaillonDar(ICONE_JEU[l.cle] || "wird") +
-            (l.fait ? '<span class="zj-dar__fait" aria-label="fait">✓</span>' : "") + "</button>";
-        }).join("") + "</span></span></div>";
+      // Bab — un seul jeton (chez Nareva, la jauge des sites) : une icône seule ne se lisait pas.
+      // Le bloc prend alors la forme de ses deux voisins : l'icône, le titre, le nom en clair.
+      if (jeux.length === 1) {
+        var j1 = jeux[0], e1 = Dr.entree(j1.cle);
+        html += '<button type="button" class="zj-dar__bloc" data-dar-jour="' + esc(j1.cle) + '">' + medaillonDar(ICONE_JEU[j1.cle] || "wird") +
+          "<span><h3>" + esc(titreJeux) + "</h3><p>" + esc(e1 ? e1.nom : j1.cle) + (j1.fait ? " · ✓" : "") + "</p></span></button>";
+      } else {
+        html += '<div class="zj-dar__bloc" role="group" aria-label="' + esc(titreJeux) + '"><span><h3>' + esc(titreJeux) + '</h3><span class="zj-dar__jetons">' +
+          jeux.map(function (l) {
+            var e = Dr.entree(l.cle), nom = e ? e.nom : l.cle;
+            return '<button type="button" class="zj-dar__jeton" data-dar-jour="' + esc(l.cle) + '" title="' + esc(nom) + '">' + medaillonDar(ICONE_JEU[l.cle] || "wird") +
+              (l.fait ? '<span class="zj-dar__fait" aria-label="fait">✓</span>' : "") + "</button>";
+          }).join("") + "</span></span></div>";
+      }
     }
     html += '<button type="button" class="zj-dar__bloc" data-dar-jour="aller">' + medaillonDar("aller") +
       '<span><h3>Aller</h3><p>La maison, d\'un geste.</p></span></button>';
@@ -7477,6 +7489,13 @@
       rendreMessagesFil();
       tocPour(id);
       chargerBoite();
+      // Bab — en atelier, le collègue de démonstration répond quelques secondes plus tard : on
+      // relit le fil à ce moment-là plutôt qu'à la relecture de la minute (vu en rejouant la démo).
+      // Seulement s'il est encore sous les yeux : lire, c'est marquer lu.
+      if (compte.mode === "local") setTimeout(function () {
+        var pn = $("#zj-gens");
+        if (pn && !pn.hidden && gens.onglet === "rasail" && rasail.avec && rasail.avec.id === id) relireFilOuvert();
+      }, 4500);
     });
   }
   function bloquerFil(oui) {
@@ -10165,6 +10184,7 @@
   window.ZWJ_APP = {
     get joueur() { return joueur; }, get ecran() { return ecran; }, get perso() { return cour.perso; },
     get dayf() { return dayf.actif; }, get dayfEtat() { return dayf.etat; }, get menuOuvert() { return menuOuvert; },   // Bab — vie.js
+    get arb3ineDebut() { return joueur ? debutArb3ine() : null; },   // Bab — vie.js : le jour du rapport d'étonnement
     afficher: afficher, agir: agir, touches: cour.touches, get compte() { return compte; }, get scene() { return cour.scene; },
     sandouq: ouvrirSandouq, repondre: repondre, indice: demanderIndice, fermer: fermerDialogue,
     etabli: ouvrirEtabli, choisir: choisir, carnet: ouvrirCarnet, riwaq: ouvrirRiwaq, fermerRiwaq: fermerRiwaq,

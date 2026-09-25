@@ -374,6 +374,23 @@
         Z.traits.BIJOUX.forEach(function (b) { if (av.bijoux[b.cle]) Object.assign(b, av.bijoux[b.cle]); });
         faits.push("avatar:bijoux");
       }
+      // les mots d'une coiffure ou d'une barbe (« Celle du Fqih » ne dit rien chez un client)
+      [["coiffures", "COIFFURES"], ["barbes", "BARBES"], ["moustaches", "MOUSTACHES"]].forEach(function (x) {
+        var mots = av[x[0]], liste = Z.traits && Z.traits[x[1]];
+        if (!mots || !Array.isArray(liste)) return;
+        liste.forEach(function (o) { if (mots[o.cle]) Object.assign(o, mots[o.cle]); });
+        faits.push("avatar:" + x[0]);
+      });
+    }
+
+    // La CARTE DE COLLÈGUE (bitaqa.js) : ce qu'on cherche, ce qu'on offre, les liens qu'on pose.
+    // Dans Zawia, les mots d'une communauté d'entrepreneurs (« un associé », « un financement »,
+    // GitHub, TikTok) ; chez un client, ceux d'une entreprise. Remplacés en place : les
+    // fonctions du module lisent ces tableaux par référence.
+    if (cfg.bitaqa && Z.bitaqa) {
+      ["cherche", "offre", "liens", "langues"].forEach(function (k) {
+        if (Array.isArray(cfg.bitaqa[k]) && remplacerTableau(Z.bitaqa[k.toUpperCase()], cfg.bitaqa[k])) faits.push("bitaqa:" + k);
+      });
     }
 
     // Les BLANCS d'une tenue (une chemise, un casque, des cheveux blancs) : la

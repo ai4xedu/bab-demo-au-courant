@@ -74,7 +74,10 @@
 .bab-option { display: flex; align-items: center; gap: 8px; margin: 0; }
 .bab-option input[type="radio"] { width: 18px; height: 18px; accent-color: var(--gold); flex: none; }
 .bab-case { display: flex; align-items: flex-start; gap: 10px; margin: 0; font-size: 14px; line-height: 1.45; }
-.bab-case input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--gold); flex: none; }
+.bab-case input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--gold); flex: none; }
+/* le jeu pose une marge haute sur TOUT label (label { margin-top: 14px }) : à côté d'une case, elle
+   descendait le texte sous la case */
+.bab-case label { margin: 0; font-size: 14px; color: var(--ink); letter-spacing: 0; }
 .bab-visite { color: var(--muted); }
 .bab-form__note { margin: 0; font-size: 13px; color: var(--muted); }
 .bab-form__actions { display: flex; flex-wrap: wrap; gap: 10px; }

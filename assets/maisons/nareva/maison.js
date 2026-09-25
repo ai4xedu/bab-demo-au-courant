@@ -80,6 +80,9 @@
     salleFermee: "Cette porte-là ne s'ouvre pas chez Nareva.",
     // le bloc « Les jeux du jour » du menu : chez Nareva, il ne porte que la jauge
     jeuxDuJour: "Aussi aujourd'hui",
+    // la barre du haut compte la Lumière en POINTS, comme la Puissance et le Réseau : la carte
+    // dit « +15 Lumière », le carnet « Lumière 15 » — « Lumière · 1 » (les cartes) se contredisait
+    hudCulture: "points",
 
     // LE PERSONNAGE (Youssef, 24/09/2026 : « un style vestimentaire moderne :
     // costume, cravate, chemise, tenues corporate, tailleurs pour femmes »). Les
@@ -110,7 +113,36 @@
         boucles: { nom: "Boucles", detail: "Aux oreilles." },
         tazerzit: { nom: "Épinglette", detail: "Au revers de la veste." },
         "les-deux": { nom: "Les deux", detail: "Boucles et épinglette." }
-      }
+      },
+      coiffures: { courte: { detail: "Coupe courte, nette." } },
+      barbes: { pleine: { detail: "Fournie, bien taillée." } }
+    },
+    // LA CARTE DE COLLÈGUE : les mots d'une entreprise (vu en rejouant la démo le 25/09/2026 :
+    // la carte proposait « un associé », « un financement », « tester vos produits », GitHub,
+    // TikTok — le vocabulaire d'une communauté d'entrepreneurs). Des propositions de démo.
+    bitaqa: {
+      cherche: [
+        { cle: "mentor", nom: "un mentor" },
+        { cle: "metier", nom: "découvrir un autre métier" },
+        { cle: "site", nom: "visiter un autre site" },
+        { cle: "projet", nom: "des collègues pour un projet" },
+        { cle: "outil", nom: "de l'aide sur un outil" },
+        { cle: "trajet", nom: "partager un trajet" },
+        { cle: "apprendre", nom: "apprendre" }
+      ],
+      offre: [
+        { cle: "mentorat", nom: "du mentorat" },
+        { cle: "visite", nom: "une visite de mon site" },
+        { cle: "metier", nom: "faire découvrir mon métier" },
+        { cle: "technique", nom: "un coup de main technique" },
+        { cle: "relecture", nom: "une relecture" },
+        { cle: "trajet", nom: "une place dans ma voiture" },
+        { cle: "langue", nom: "des échanges de langue" }
+      ],
+      liens: [
+        { cle: "linkedin", nom: "LinkedIn", domaines: ["linkedin.com"] },
+        { cle: "site", nom: "Site", domaines: null }
+      ]
     },
     // la chemise, le casque, les bandes du gilet et les cheveux de l'ancien restent blancs
     figures: { blancs: 0.62 },

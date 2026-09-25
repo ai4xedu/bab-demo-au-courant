@@ -35,6 +35,14 @@
     "M39ol · {1}": "⌁ Réseau · {1}",
     "Sna3a · {1}": "⚡ Puissance · {1}",
     "Cartes · {1}": "☀ Lumière · {1}",
+    "Dhakira · {1}": "☀ Lumière · {1}",   // la barre en points (hudCulture), comme la carte et le carnet
+    // les messages (vu en rejouant la démo le 25/09/2026 : « on ne prospecte pas » est un mot de communauté)
+    "Tes conversations privées. Deux messages au plus tant que l'autre n'a pas répondu : ici, on ne prospecte pas.":
+      "Tes conversations privées avec tes collègues. Deux messages au plus tant que l'autre n'a pas répondu : chacun répond quand il peut.",
+    // la carte de collègue (vu en rejouant la démo le 25/09/2026)
+    "Maharat": "Compétences",
+    "Fermée, personne ne la lit. Ouverte, seuls les membres admis la voient — jamais un invité, jamais le Lawh public. Ni téléphone ni e-mail : on te joint par les messages de la maison.":
+      "Fermée, personne ne la lit. Ouverte, seuls tes collègues de la maison la voient — jamais un visiteur. Ni téléphone ni e-mail : on te joint par les messages de la maison.",
     "Wird · jour {1} · {2}": "Jour {1}/40 · {2}",
     "Wird · 40/40": "Quarante jours tenus",
     "atelier": "démo",
@@ -113,6 +121,10 @@
 
     // ---- Les cartes de site
     "Dhakira {1} — {2}, {3}": "Lumière {1} — {2}, {3}",
+    // le message du coffre quand un site est retrouvé (vu en rejouant la démo le 25/09/2026 :
+    // « +15 Dhakira » et « Dhakira : Curieux, Il découvre la maison » passaient tels quels)
+    "☑ « {1} » — {2}.\n+{3} Dhakira{4}\nLa voie exercée : « {5} ». Elle s'entraîne ici, elle se note à l'établi.\nDhakira : {6}, {7}.":
+      "☑ « {1} » — {2}.\n+{3} Lumière{4}\nLa famille exercée : « {5} ». Elle s'exerce ici ; elle se prouve à l'établi.\nTa Lumière : {6}. {7}.",
     "chez Nsyan": "encore dans le noir",
     "Une ville retrouvée ouvre ses habits dans ta lebsa. Voir ma garde-robe": "",
 
@@ -292,7 +304,7 @@
         { cle: "khatt", evenement: "tuile:V", tuile: "V",
           consigne: "Lis un mur des valeurs — approche-toi, puis Espace ou A",
           debut: { nom: BA, pages: [
-            "Marhba ! Je suis Ba Lahcen. Je suis entré ici en 2004, quand il n'y avait pas encore une seule éolienne. Je te montre la maison en six pas : suis le fil d'or au sol.",
+            "Viens, je te montre la maison en six pas. En 2004, il n'y avait pas encore une seule éolienne ici ; aujourd'hui, tout ce qui compte tient dans cette cour. Suis le fil d'or au sol.",
             "D'abord, les jambes : les flèches, ou la croix sous ton pouce. Sur les murs de la cour, sept plaques portent nos valeurs, notre mission et notre vision. Va en lire une : approche-toi, et appuie sur Espace (ou A)."
           ] } },
         { cle: "page", evenement: "page", tuile: "S",

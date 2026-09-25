@@ -18,7 +18,7 @@
   var C = root.ZWJ_MAISON_CONTENU = root.ZWJ_MAISON_CONTENU || {};
 
   // Les commandes de la vie de la maison entrent dans la liste blanche du menu.
-  if (Array.isArray(M.menu)) ["fil", "memoire", "candidater", "dyaf"].forEach(function (k) { if (M.menu.indexOf(k) < 0) M.menu.push(k); });
+  if (Array.isArray(M.menu)) ["fil", "memoire", "etonnement", "candidater", "dyaf"].forEach(function (k) { if (M.menu.indexOf(k) < 0) M.menu.push(k); });
 
   M.vie = {
     fil: {
@@ -38,6 +38,25 @@
       transmettreTitre: "Transmettre une page",
       transmettreSous: "Tu sais quelque chose qu'aucune procédure ne dit : un bruit, un geste, une erreur qu'on ne refait pas ? Écris-le. La RH relit, puis ta page entre aux archives.",
       porte: "apprendre", icone: "sablier"
+    },
+    // 4. Le rapport d'étonnement (l'idée nº 4, 17/20) : au 30ᵉ jour, le nouveau dit ce
+    //    qui l'a surpris. Anonyme s'il le veut — et alors vraiment anonyme.
+    etonnement: {
+      nom: "Mon rapport d'étonnement",
+      kicker: "Tes yeux sont encore neufs",
+      lead: "Au bout d'un mois, tu vois encore ce que les anciens ne voient plus. Dis-le : ce qui t'a plu, ce qui t'a étonné, ce que tu ferais autrement. La RH lit chaque rapport, et te répond ici.",
+      pourquoi: "Ce qui t'étonne chez Nareva, dit à la RH, avec ou sans ton nom.",
+      q1: "Ce qui m'a plu",
+      a1: "Un accueil, un geste, une manière de travailler : ce qui t'a fait te dire « ici, c'est bien ».",
+      q2: "Ce qui m'a étonné",
+      a2: "Ce que tu ne comprends pas encore, ce qui t'a surpris, ce qui t'a manqué à l'arrivée. Les anciens ne le voient plus : toi, si.",
+      q3: "Ce que je ferais autrement",
+      a3: "Une idée pour mieux accueillir ceux qui arriveront après toi, même petite. Tu peux laisser vide.",
+      site: "Ton site",
+      aSite: "Aftissat, Safi, le siège… Pour que la RH sache où regarder. Tu peux laisser vide.",
+      anonyme: "Envoyer sans mon nom : la RH lira mon rapport sans savoir qui l'a écrit. Je garde un reçu pour lire sa réponse.",
+      note: "Personne ne te note sur ce que tu écris ici, et ton rapport n'entre jamais dans une évaluation.",
+      porte: "partager", icone: "loupe"
     },
     discovery: {
       menu: "Postuler, ou être recontacté",

@@ -219,6 +219,28 @@ main { padding-block: clamp(22px, 2.4vw, 40px) clamp(36px, 4vw, 64px); }
 button.indicateur { cursor: pointer; font: inherit; transition: border-color .15s, box-shadow .15s; }
 button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px rgba(14, 27, 46, .05), 0 18px 36px -22px rgba(0, 91, 170, .45); }
 
+/* ——— Le tableau de bord de la DRH ——— */
+.indicateurs.indicateurs--tableau { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.indicateurs--tableau .indicateur__valeur small { font-size: .42em; font-weight: 650; letter-spacing: 0; color: var(--encre-3); }
+.etapes-promo { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .7rem; }
+.etape-promo { display: grid; grid-template-rows: auto minmax(2.5em, auto) auto auto; gap: .3rem; align-content: start; padding: .85rem .9rem; border: 1px solid var(--filet); border-radius: 12px; background: var(--surface-douce); }
+.etape-promo__jours { font-size: .78rem; font-weight: 760; letter-spacing: .04em; color: var(--nareva-2); }
+.etape-promo strong { font-weight: 700; font-size: .95rem; line-height: 1.25; }
+.etape-promo b { font-size: 1.9rem; font-weight: 760; line-height: 1; color: var(--nareva-1); font-variant-numeric: tabular-nums; }
+.etape-promo .jauge { height: 8px; margin-top: .2rem; }
+.a-decider { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.a-decider__ligne {
+  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: .85rem 1rem; border: 1px solid var(--filet); border-radius: 12px; background: var(--surface);
+  max-width: none; font: inherit; color: var(--encre); text-align: left; cursor: pointer; transition: border-color .15s;
+}
+.a-decider__ligne:hover { border-color: var(--nareva-2); }
+.a-decider__ligne b { font-size: 1.35rem; font-weight: 760; color: var(--nareva-1); margin-right: .55rem; font-variant-numeric: tabular-nums; }
+.a-decider__ligne .ico { width: 1.1em; height: 1.1em; color: var(--nareva-2); flex: none; }
+.tableau__regle { display: flex; gap: .55rem; align-items: flex-start; color: var(--encre-2); font-size: .93rem; }
+.tableau__regle .ico { width: 1.15rem; height: 1.15rem; margin-top: .12rem; color: var(--nareva-2); flex: none; }
+.section__tete .bouton { flex: none; }
+
 /* ——— Vue d'ensemble : la frise des 40 jours ——— */
 .frise__tete, .frise__ligne {
   display: grid; grid-template-columns: minmax(13rem, 27%) minmax(0, 1fr) 3.6rem; gap: 1.2rem; align-items: center;
@@ -601,6 +623,8 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
 }
 @media (max-width: 1099px) {
   .indicateurs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .indicateurs.indicateurs--tableau { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .etapes-promo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .grille-2 { grid-template-columns: 1fr; }
   .nouveaux { grid-template-columns: 1fr; }
   .liste-nouveaux { position: static; max-height: none; }
@@ -638,7 +662,9 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
   .marque { flex-wrap: wrap; gap: .5rem 1rem; }
 }
 @media (max-width: 520px) {
-  .indicateurs { grid-template-columns: 1fr; }
+  .indicateurs, .indicateurs.indicateurs--tableau { grid-template-columns: 1fr; }
+  .a-decider { grid-template-columns: 1fr; }
+  .etapes-promo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .indicateur__libelle { min-height: 0; }
   .demande__actions { grid-auto-flow: row; }
 }
@@ -648,6 +674,12 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
 @media print {
   .onglets, .regle .lien-bouton, .pied__droite button { display: none; }
   body { background: #fff; }
+  /* le tableau de bord s'imprime sur une page : sans son bouton, sans les liens « Ouvrir » */
+  [data-imprimer], .indicateurs--tableau .indicateur__aller, .a-decider__ligne .ico { display: none; }
+  .indicateurs.indicateurs--tableau { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grille-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .etapes-promo { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .carte { box-shadow: none; break-inside: avoid; }
 }
 </style>
 </head>
@@ -676,12 +708,14 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
       </nav>
     </div>
     <nav class="onglets" role="tablist" aria-label="Les sections de la console">
-      <button type="button" class="onglet" role="tab" id="onglet-vue-ensemble" aria-controls="panneau-vue-ensemble" aria-selected="true" data-aller="vue-ensemble">Vue d'ensemble</button>
+      <button type="button" class="onglet" role="tab" id="onglet-tableau" aria-controls="panneau-tableau" aria-selected="true" data-aller="tableau">Tableau de bord</button>
+      <button type="button" class="onglet" role="tab" id="onglet-vue-ensemble" aria-controls="panneau-vue-ensemble" aria-selected="false" tabindex="-1" data-aller="vue-ensemble">Vue d'ensemble</button>
       <button type="button" class="onglet" role="tab" id="onglet-nouveaux" aria-controls="panneau-nouveaux" aria-selected="false" tabindex="-1" data-aller="nouveaux">Les nouveaux arrivants</button>
       <button type="button" class="onglet" role="tab" id="onglet-a-attester" aria-controls="panneau-a-attester" aria-selected="false" tabindex="-1" data-aller="a-attester">À attester <span class="pastille" id="pastille-attester"></span></button>
       <button type="button" class="onglet" role="tab" id="onglet-referentiel" aria-controls="panneau-referentiel" aria-selected="false" tabindex="-1" data-aller="referentiel">Le référentiel</button>
       <button type="button" class="onglet" role="tab" id="onglet-sites" aria-controls="panneau-sites" aria-selected="false" tabindex="-1" data-aller="sites">La jauge des sites</button>
       <button type="button" class="onglet" role="tab" id="onglet-memoire" aria-controls="panneau-memoire" aria-selected="false" tabindex="-1" data-aller="memoire">Mémoire des anciens <span class="pastille" id="pastille-memoire" hidden></span></button>
+      <button type="button" class="onglet" role="tab" id="onglet-etonnement" aria-controls="panneau-etonnement" aria-selected="false" tabindex="-1" data-aller="etonnement">Rapports d'étonnement <span class="pastille" id="pastille-etonnement" hidden></span></button>
       <button type="button" class="onglet" role="tab" id="onglet-discovery" aria-controls="panneau-discovery" aria-selected="false" tabindex="-1" data-aller="discovery">Discovery <span class="pastille" id="pastille-discovery" hidden></span></button>
       <button type="button" class="onglet" role="tab" id="onglet-charte" aria-controls="panneau-charte" aria-selected="false" tabindex="-1" data-aller="charte">La charte</button>
     </nav>
@@ -699,12 +733,14 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
 <main id="contenu" class="cadre" tabindex="-1">
   <noscript><p class="carte">Cette maquette a besoin de JavaScript pour afficher ses données de démonstration.</p></noscript>
 
-  <section class="section" id="panneau-vue-ensemble" role="tabpanel" aria-labelledby="onglet-vue-ensemble"></section>
+  <section class="section" id="panneau-tableau" role="tabpanel" aria-labelledby="onglet-tableau"></section>
+  <section class="section" id="panneau-vue-ensemble" role="tabpanel" aria-labelledby="onglet-vue-ensemble" hidden></section>
   <section class="section" id="panneau-nouveaux" role="tabpanel" aria-labelledby="onglet-nouveaux" hidden></section>
   <section class="section" id="panneau-a-attester" role="tabpanel" aria-labelledby="onglet-a-attester" hidden></section>
   <section class="section" id="panneau-referentiel" role="tabpanel" aria-labelledby="onglet-referentiel" hidden></section>
   <section class="section" id="panneau-sites" role="tabpanel" aria-labelledby="onglet-sites" hidden></section>
   <section class="section" id="panneau-memoire" role="tabpanel" aria-labelledby="onglet-memoire" hidden></section>
+  <section class="section" id="panneau-etonnement" role="tabpanel" aria-labelledby="onglet-etonnement" hidden></section>
   <section class="section" id="panneau-discovery" role="tabpanel" aria-labelledby="onglet-discovery" hidden></section>
 
   <section class="section" id="panneau-charte" role="tabpanel" aria-labelledby="onglet-charte" hidden>
@@ -763,9 +799,9 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
 <div class="infobulle" id="infobulle" role="tooltip" hidden></div>
 <div class="sr-only" id="annonce" aria-live="polite"></div>
 
-<script src="assets/maisons/nareva/contenu.js"></script>
-<script src="assets/maisons/nareva/vie.js"></script>
-<script src="assets/js/zawia-jeu/vie.js"></script>
+<script src="assets/maisons/nareva/contenu.js?v=2"></script>
+<script src="assets/maisons/nareva/vie.js?v=2"></script>
+<script src="assets/js/zawia-jeu/vie.js?v=3"></script>
 <script id="au-courant">
 (function (racine) {
   "use strict";
@@ -1505,12 +1541,101 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
         </div>
       </section>`;
 
-    return `${teteSection("Vue d'ensemble", "La promotion de la rentrée 2026", "Douze nouveaux arrivants vivent leurs 40 premiers jours dans le riad d'Au Courant — la cour, les archives, l'atelier métier, la salle de réunion. Ils y découvrent la maison, prouvent leur métier devant un témoin et se font une place.")}
+    return `${teteSection("Vue d'ensemble", "La promotion de la rentrée 2026", "Douze nouveaux arrivants vivent leurs 40 premiers jours dans la base d'Au Courant, en plein désert — la cour, les archives, l'atelier métier, la salle de réunion. Ils y découvrent la maison, prouvent leur métier devant un témoin et se font une place.")}
       ${indicateurs}
       ${blocAxe("culture", "La culture de la maison", "L'axe central du jeu : ce que chacun découvre de Nareva, de ses valeurs à ses sites.", "lumiere", `<div class="grille-2">${valeurs}${pages}</div>${cartes}`, true)}
       ${blocAxe("metier", "Le métier", "Ce que chacun sait faire, prouvé par un livrable et attesté par un manager.", "puissance", metier)}
       ${blocAxe("communaute", "La communauté", "Ce que chacun apporte aux autres, et les rituels qui font vivre la maison.", "reseau", `<div class="grille-2">${rituels}${jaugeResume}</div>`)}
       ${blocAxe("parcours", "Les 40 jours", "Le parcours de chacun, jour après jour, avec son programme du jour.", null, frise)}`;
+  }
+
+  /* ——— Le tableau de bord de la DRH (25/09/2026) ———
+     Ce que la DRH montre en comité : six chiffres, la promotion dans ses 40 jours, ce qui attend
+     une décision. Des nombres sur toute la promotion, JAMAIS un nom (un test le garde) ; il se
+     lit en dix secondes et s'imprime. Tout vient des mêmes sources que les autres onglets. */
+  function tableauDeBord(etat) {
+    const jours = NOUVEAUX.map((p) => Math.max(1, Math.min(DUREE, jourDuParcours(p.arrivee))));
+    const culture = culturePromotion();
+    let lues = 0;
+    let possibles = 0;
+    for (const f of culture) { lues += f.lues; possibles += f.possibles; }
+    const moitie = VALEURS.filter((v) => NOUVEAUX.filter((p) => p.lumiere.valeurs.includes(v.cle)).length * 2 >= NOUVEAUX.length).length;
+    let attestees = 0;
+    for (const p of NOUVEAUX) for (const c of p.competences) if (etatDe(p, c, etat).etat === "atteste") attestees += 1;
+    const aAttester = demandes(etat).filter((d) => d.e.etat === "attente").length;
+    const rapports = etonnementsActuels();
+    const eto = VIE && VIE.bilanEtonnements ? VIE.bilanEtonnements(rapports) : { recu: 0, lu: 0, suite: 0, anonymes: 0 };
+    const memoires = memoiresActuelles().length;
+    const aRelire = propositionsActuelles().filter((x) => x.etat === "attente").length;
+    const visite = entonnoirActuel();
+    const nouvelles = candidaturesActuelles().filter((x) => x.statut === "nouvelle").length;
+    // les étapes des 40 jours : combien de nouveaux arrivants à chacune, sans dire qui
+    const etapes = JALONS.map((x, i) => {
+      const fin = i + 1 < JALONS.length ? JALONS[i + 1].j - 1 : DUREE;
+      return { debut: x.j, fin, nom: x.nom, n: jours.filter((j) => j >= x.j && j <= fin).length };
+    });
+    // le prochain bilan du 40ᵉ jour : une date, jamais un nom
+    const bilans = NOUVEAUX.filter((p, i) => jours[i] < DUREE).map((p) => jourAbsolu(p.arrivee) + DUREE - 1).sort((a, b) => a - b);
+    const prochainBilan = bilans.length ? new Date(bilans[0] * 864e5).toISOString().slice(0, 10) : null;
+    return {
+      n: NOUVEAUX.length, passe30: jours.filter((j) => j >= 30).length, jourMoyen: Math.round(jours.reduce((a, b) => a + b, 0) / (jours.length || 1)),
+      lues, possibles, moitie, attestees, aAttester, eto, rapports: rapports.length, memoires, aRelire, visite, nouvelles, etapes, prochainBilan
+    };
+  }
+
+  function tableauHTML(etat) {
+    const t = tableauDeBord(etat);
+    const tuile = (libelle, valeur, detail, aller, axe) => {
+      const dedans = `<span class="indicateur__libelle">${libelle}${axe ? ` ${puce(axe)}` : ""}</span>
+          <span class="indicateur__valeur">${valeur}</span>
+          <span class="indicateur__detail">${detail}</span>`;
+      return aller
+        ? `<button type="button" class="carte indicateur" data-aller="${aller}">${dedans}<span class="indicateur__aller">Ouvrir ${ico("fleche")}</span></button>`
+        : `<div class="carte indicateur">${dedans}</div>`;
+    };
+    const tuiles = `
+      <div class="indicateurs indicateurs--tableau">
+        ${tuile("L'intégration", `${t.passe30} <small>sur ${t.n}</small>`, `ont passé leur 30ᵉ jour ; la promotion en est en moyenne au J${t.jourMoyen}`, "vue-ensemble")}
+        ${tuile("La culture de la maison", `${Math.round((t.lues / (t.possibles || 1)) * 100)}\u00a0%`, `des pages de culture lues aux archives (${t.lues} sur ${t.possibles}) ; ${t.moitie} valeurs sur ${VALEURS.length} trouvées par la moitié de la promotion`, null, "lumiere")}
+        ${tuile("Le métier", `${t.attestees}`, `${t.attestees > 1 ? "compétences attestées" : "compétence attestée"} sur un livrable ; ${pl(t.aAttester, "livrable attend", "livrables attendent")} un manager`, "a-attester", "puissance")}
+        ${tuile("La voix des nouveaux", `${t.rapports}`, `${t.rapports > 1 ? "rapports d'étonnement" : "rapport d'étonnement"} ; ${pl(t.eto.suite, "a reçu une suite", "ont reçu une suite")}, ${t.eto.anonymes} sans nom`, "etonnement")}
+        ${tuile("La mémoire sauvée", `${t.memoires}`, `${t.memoires > 1 ? "pages d'anciens rangées" : "page d'ancien rangée"} aux archives ; ${pl(t.aRelire, "attend", "attendent")} une relecture`, "memoire")}
+        ${tuile("Les candidats", `${t.visite.candidature}`, `candidatures, sur ${t.visite.entree} visites de trois jours (${Math.round((t.visite.candidature / (t.visite.entree || 1)) * 100)}\u00a0%)`, "discovery")}
+      </div>`;
+
+    const etapes = `
+      <section class="carte" aria-labelledby="titre-etapes-promo">
+        <div class="carte__tete"><div><h3 id="titre-etapes-promo">La promotion dans ses 40 jours</h3><p class="carte__note">Combien de nouveaux arrivants à chaque étape du parcours, sur ${t.n}. Qui est où se lit dans la vue d'ensemble.</p></div></div>
+        <ol class="etapes-promo">${t.etapes.map((e) => `
+          <li class="etape-promo" data-infobulle="${esc(`${e.nom} — ${pl(e.n, "nouvel arrivant", "nouveaux arrivants")} entre le jour ${e.debut} et le jour ${e.fin}`)}">
+            <span class="etape-promo__jours">${e.debut === e.fin ? `J${e.debut}` : `J${e.debut} à J${e.fin}`}</span>
+            <strong>${esc(e.nom)}</strong>
+            <b>${e.n}</b>
+            ${jauge(e.n, t.n, "", `${e.nom} : ${e.n} sur ${t.n}`)}
+          </li>`).join("")}
+        </ol>
+        ${t.prochainBilan ? `<p class="a-retenir">${ico("horloge")}<span>Le premier bilan du 40ᵉ jour tombe le ${dateLongue(t.prochainBilan)} ${t.prochainBilan.slice(0, 4)}.</span></p>` : ""}
+      </section>`;
+
+    const attentes = [
+      [t.aAttester, "livrable attend un manager", "livrables attendent un manager", "a-attester"],
+      [t.eto.recu, "rapport d'étonnement à lire", "rapports d'étonnement à lire", "etonnement"],
+      [t.aRelire, "page d'ancien à relire", "pages d'anciens à relire", "memoire"],
+      [t.nouvelles, "candidature nouvelle à regarder", "candidatures nouvelles à regarder", "discovery"]
+    ].filter((x) => x[0] > 0);
+    const decisions = `
+      <section class="carte" aria-labelledby="titre-decisions">
+        <div class="carte__tete"><div><h3 id="titre-decisions">Ce qui attend une décision</h3><p class="carte__note">Rien ne part sans un geste humain : voici ce qui l'attend.</p></div></div>
+        ${attentes.length ? `<ul class="a-decider">${attentes.map((x) => `
+          <li><button type="button" class="a-decider__ligne" data-aller="${x[3]}"><span><b>${x[0]}</b>${x[0] > 1 ? x[2] : x[1]}</span>${ico("fleche")}</button></li>`).join("")}
+        </ul>` : `<p class="carte__note">Rien n'attend : la maison est à jour.</p>`}
+      </section>`;
+
+    return `${teteSection("Tableau de bord", "La promotion en un coup d'œil", "Six chiffres, la promotion dans ses 40 jours, et ce qui attend une décision. Des nombres sur toute la promotion, jamais un nom : ce tableau se montre en comité.", `<button type="button" class="bouton bouton--clair" data-imprimer>${ico("dossier")}Imprimer le tableau</button>`)}
+      ${tuiles}
+      ${etapes}
+      ${decisions}
+      <p class="tableau__regle">${ico("info")}<span>Jamais un nom sur cette page. Ces chiffres se lisent sur la promotion : ils ne classent personne, et aucun n'entre dans une évaluation.</span></p>`;
   }
 
   function listeHTML(choisi, etat) {
@@ -1771,18 +1896,56 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
       question: "", options: [], bonne: null, explication: "" }
   ];
 
+  /* Quatre rapports d'étonnement inventés (prénoms de fiction), dont deux sans nom : la file que la RH trouve en ouvrant la démo.
+     Un rapport sans nom ne garde que le mois : c'est la règle du module, la démo la suit. */
+  const ETONNEMENTS_DEMO = [
+    { id: "demo-eto-1", le: "2026-09-22T17:40:00Z", par: "Loubna", anonyme: false, site: "Siège — Casablanca", etat: "recu",
+      bien: "Le premier matin, ma marraine m'attendait à l'accueil avec mon badge et un café. Et au moment sécurité du lundi, tout le monde parle, même les nouveaux.",
+      surpris: "Je n'ai compris qu'à la deuxième semaine à quoi servaient les trois applications ouvertes le premier jour. Personne ne me l'avait dit, j'ai deviné.",
+      idee: "Une page « tes outils » aux archives du jeu : chaque application, à quoi elle sert, qui appeler.", demo: true },
+    { id: "demo-eto-2", le: "2026-09", anonyme: true, site: "Aftissat", etat: "recu",
+      bien: "L'équipe de maintenance m'a emmené dès la première semaine en haut d'une éolienne, avec toutes les consignes. Je me suis senti attendu.",
+      surpris: "Le planning des astreintes : on me l'a donné sans m'expliquer comment on échange une nuit avec un collègue. J'ai eu peur de mal faire.",
+      idee: "", demo: true },
+    { id: "demo-eto-3", le: "2026-09-15T09:05:00Z", par: "Siham", anonyme: false, site: "Aftissat", etat: "lu", decide_le: "2026-09-16T08:30:00Z",
+      bien: "La visite du parc avec un ancien : il connaissait l'histoire de chaque machine.",
+      surpris: "Les sigles ! Il m'a fallu dix jours pour oser demander ce que voulait dire la moitié des mots en réunion.",
+      idee: "Un lexique des sigles remis dès le premier jour.", demo: true },
+    { id: "demo-eto-4", le: "2026-09", anonyme: true, site: "", etat: "suite", decide_le: "2026-09-12T10:00:00Z",
+      bien: "Les valeurs ne sont pas seulement affichées : on m'a raconté une vraie histoire derrière chacune.",
+      surpris: "Mon poste informatique n'était pas prêt le premier jour, j'ai passé la matinée à attendre.",
+      idee: "Vérifier le poste la veille, avec le parrain.",
+      mot: "Merci. Désormais, le parrain d'intégration vérifie le poste la veille de l'arrivée : c'est dans sa liste.", demo: true }
+  ];
+
   function lireVie(cle, defaut) { return VIE && cle ? VIE.lire(null, cle, defaut) : defaut; }
   function ecrireVie(cle, valeur) { return VIE && cle ? VIE.ecrire(null, cle, valeur) : false; }
   function lireSuivi() { const s = lireVie(SUIVI, {}); return s && typeof s === "object" && !Array.isArray(s) ? s : {}; }
 
-  /* La file : les pages de démo n'y entrent qu'une fois, et jamais si elles sont déjà publiées */
+  /* Les exemples de démo n'entrent qu'une fois — y compris quand le jeu a écrit AVANT que la console
+     s'ouvre, ce qui est l'ordre naturel d'une démo (on écrit dans le jeu, puis on regarde arriver) :
+     on ajoute ceux qui manquent à la file, et l'on note que c'est fait. Ensuite, la file est celle
+     que le jeu et la RH écrivent. */
+  const AMORCE = "bab-au-courant-console-rh-amorce";
+  function amorcer(section, exemples) {
+    if (!VIE || !CLES_VIE || !CLES_VIE[section]) return;
+    const faits = lireVie(AMORCE, {}) || {};
+    if (faits[section]) return;
+    const brut = lireVie(CLES_VIE[section], null);
+    const liste = Array.isArray(brut) ? brut : [];
+    const ids = liste.map((x) => x && x.id);
+    ecrireVie(CLES_VIE[section], liste.concat(exemples.filter((x) => ids.indexOf(x.id) < 0)));
+    faits[section] = true;
+    ecrireVie(AMORCE, faits);
+  }
+  /* La file de la mémoire : jamais une page de démo déjà publiée */
   function amorcerPropositions() {
-    if (!VIE || !CLES_VIE) return;
-    if (lireVie(CLES_VIE.propositions, null) !== null) return;
     const publiees = memoiresActuelles().map((m) => m.titre);
-    ecrireVie(CLES_VIE.propositions, PROPOSITIONS_DEMO.filter((p) => publiees.indexOf(p.titre) < 0));
+    amorcer("propositions", PROPOSITIONS_DEMO.filter((p) => publiees.indexOf(p.titre) < 0));
   }
   function propositionsActuelles() { return VIE && CLES_VIE ? VIE.propositions(lireVie(CLES_VIE.propositions, [])) : []; }
+  function amorcerEtonnements() { amorcer("etonnements", ETONNEMENTS_DEMO); }
+  function etonnementsActuels() { return VIE && CLES_VIE && VIE.etonnements ? VIE.etonnements(lireVie(CLES_VIE.etonnements, [])) : []; }
   function memoiresActuelles() {
     if (!VIE || !CLES_VIE) return [];
     const edite = lireVie(CLES_VIE.contenu, {});
@@ -1903,6 +2066,54 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
       </section>`;
   }
 
+  function etonnementHTML(filtre, ouvert) {
+    if (!VIE || !VIE.etonnements) return `${teteSection("Rapports d'étonnement", "Ce qui étonne ceux qui arrivent", "")}<p class="carte">Le module de la vie de la maison n'est pas chargé.</p>`;
+    const toutes = etonnementsActuels().slice().sort((a, b) => (a.etat === "recu" ? 0 : 1) - (b.etat === "recu" ? 0 : 1) || String(b.le).localeCompare(String(a.le)));
+    const b = VIE.bilanEtonnements(toutes);
+    const f = filtre || "tous";
+    const liste = toutes.filter((x) => f === "tous" ? true : x.etat === f);
+    const MOIS_E = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+    const mois = (le) => { const m = /^(\d{4})-(\d{2})/.exec(String(le || "")); return m ? `${MOIS_E[+m[2] - 1]} ${m[1]}` : ""; };
+    const carte = (x) => {
+      const id = String(x.id).replace(/[^a-z0-9]+/gi, "-");
+      const quand = x.anonyme ? mois(x.le) : dateDe(x.le);
+      let actions;
+      if (x.etat === "recu") actions = `<button type="button" class="bouton bouton--attester" data-eto-lu="${esc(x.id)}">${ico("check")}Marquer comme lu</button><button type="button" class="bouton bouton--revoir" data-eto-suite="${esc(x.id)}">${ico("fleche")}Donner suite</button>`;
+      else if (x.etat === "lu") actions = `<div class="decision statut--ok">${ico("check")}<div><b>Lu</b><span>le ${esc(dateDe(x.decide_le))}</span></div></div><button type="button" class="bouton bouton--revoir" data-eto-suite="${esc(x.id)}">${ico("fleche")}Donner suite</button>`;
+      else actions = `<div class="decision statut--ok">${ico("check")}<div><b>Suite donnée</b><span><q>${esc(guillemets(x.mot))}</q></span></div></div><button type="button" class="lien-bouton" data-eto-annuler="${esc(x.id)}">Retirer la réponse</button>`;
+      if (ouvert === x.id) actions = "";
+      const formulaire = ouvert === x.id ? `
+        <form class="revoir" data-eto-suite-form="${esc(x.id)}" novalidate>
+          <label class="revoir__label" for="mot-e-${id}">Ce que la maison en fait <span>(obligatoire : ${x.anonyme ? "l'auteur le lit grâce à son reçu, sans être connu" : `${esc(x.par)} le lit dans le jeu`})</span></label>
+          <textarea id="mot-e-${id}" name="mot" rows="3" maxlength="${VIE.LIMITES.mot[1]}" aria-describedby="erreur-e-${id}" placeholder="Par exemple : merci, dès la prochaine arrivée le lexique des sigles est remis le premier jour."></textarea>
+          <p class="revoir__erreur" id="erreur-e-${id}" role="alert" hidden></p>
+          <div class="revoir__actions"><button type="submit" class="bouton bouton--envoi">${ico("fleche")}Envoyer la réponse</button><button type="button" class="lien-bouton" data-eto-fermer="${esc(x.id)}">Annuler</button></div>
+        </form>` : "";
+      return `<li class="carte demande demande--${x.etat === "recu" ? "attente" : "ok"}">
+        <div class="demande__corps">
+          <div class="demande__qui"><span class="avatar" aria-hidden="true">${x.anonyme ? "?" : esc((x.par || "?").charAt(0).toUpperCase())}</span><div><b>${esc(x.anonyme ? "Sans nom" : x.par)}</b><span>${esc([x.site, quand].filter(Boolean).join(" · "))}</span></div></div>
+          <p class="memoire__lecon"><span>« Ce qui m'a plu »</span>${esc(x.bien)}</p>
+          <p class="memoire__lecon"><span>« Ce qui m'a étonné »</span>${esc(x.surpris)}</p>
+          ${x.idee ? `<p class="memoire__lecon"><span>${ico("idee")} « Ce que je ferais autrement »</span>${esc(x.idee)}</p>` : ""}
+          ${x.demo ? "" : '<p class="demande__meta"><span class="candidat__recu">Reçu pendant la démo</span></p>'}
+        </div>
+        ${actions ? `<div class="demande__actions">${actions}</div>` : ""}
+        ${formulaire}
+      </li>`;
+    };
+    const filtreBouton = (cle, nom) => `<button type="button" class="filtre${f === cle ? " filtre--actif" : ""}" data-filtre-eto="${cle}" aria-pressed="${f === cle}">${nom}</button>`;
+    return `${teteSection("Rapports d'étonnement", "Ce qui étonne ceux qui arrivent", "Vers son 30ᵉ jour, le nouvel arrivant écrit ce qui lui a plu, ce qui l'a étonné, et ce qu'il ferait autrement. Sans son nom s'il le veut : alors ni son nom ni le jour exact ne sont gardés, le mois seulement. La RH lit, et peut y donner suite d'un mot que l'auteur lit dans le jeu.", `<button type="button" class="bouton bouton--clair" id="exporter-etonnements">${ico("dossier")}Exporter en CSV</button>`)}
+      <div class="compteurs" role="status">
+        <span class="compteur">À lire <b>${b.recu}</b></span>
+        <span class="compteur">Lus <b>${b.lu}</b></span>
+        <span class="compteur">Suite donnée <b>${b.suite}</b></span>
+        <span class="compteur">Sans nom <b>${b.anonymes} sur ${toutes.length}</b></span>
+      </div>
+      <div class="filtres" role="group" aria-label="Filtrer les rapports">${filtreBouton("tous", `Tous <b>${toutes.length}</b>`)}${filtreBouton("recu", "À lire")}${filtreBouton("lu", "Lus")}${filtreBouton("suite", "Suite donnée")}</div>
+      <p class="note-demo">${ico("info")}<span>Démo : un rapport envoyé depuis le jeu, dans ce navigateur, arrive ici aussitôt. Un rapport n'est jamais une note : il n'entre dans aucune évaluation.</span></p>
+      <ol class="demandes">${liste.map(carte).join("") || '<li class="carte">Aucun rapport dans ce filtre.</li>'}</ol>`;
+  }
+
   function csvCandidatures() {
     const col = ["prenom", "nom", "email", "telephone", "ecole", "filiere", "sortie", "cherche", "domaine", "mode", "statut", "le", "visite", "message"];
     const cellule = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
@@ -1912,7 +2123,7 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
 
   /* ───────────── La page : onglets, gestes, mémoire ───────────── */
 
-  const SECTIONS = ["vue-ensemble", "nouveaux", "a-attester", "referentiel", "sites", "memoire", "discovery", "charte"];
+  const SECTIONS = ["tableau", "vue-ensemble", "nouveaux", "a-attester", "referentiel", "sites", "memoire", "etonnement", "discovery", "charte"];
 
   function lireMemoire() {
     try { const lu = window.localStorage.getItem(MEMOIRE); return lu ? JSON.parse(lu) : null; } catch (e) { return null; }
@@ -1979,7 +2190,10 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     let versLeDossier = false;
     let filtreDiscovery = "toutes";
     let ouvertMemoire = null;
+    let filtreEtonnement = "tous";
+    let ouvertEtonnement = null;
     amorcerPropositions();
+    amorcerEtonnements();
 
     const annoncer = (texte) => { const a = $("#annonce"); a.textContent = ""; window.setTimeout(() => { a.textContent = texte; }, 30); };
     const focaliser = (sel) => { const el = document.querySelector(sel); if (el) el.focus(); };
@@ -1993,12 +2207,16 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     }
 
     function rendre() {
+      zones.tableau.innerHTML = typo(tableauHTML(etat));
       zones["vue-ensemble"].innerHTML = typo(vueEnsembleHTML(etat));
       rendreNouveaux();
       zones["a-attester"].innerHTML = typo(attesterHTML(etat, ouvert));
       zones.referentiel.innerHTML = typo(referentielHTML(etat));
       zones.sites.innerHTML = typo(sitesHTML());
       zones.memoire.innerHTML = typo(memoireHTML(ouvertMemoire));
+      zones.etonnement.innerHTML = typo(etonnementHTML(filtreEtonnement, ouvertEtonnement));
+      const ne = etonnementsActuels().filter((x) => x.etat === "recu").length;
+      const pe = $("#pastille-etonnement"); pe.textContent = String(ne); pe.hidden = ne === 0;
       zones.discovery.innerHTML = typo(discoveryHTML(filtreDiscovery));
       const nm = propositionsActuelles().filter((x) => x.etat === "attente").length;
       const pm = $("#pastille-memoire"); pm.textContent = String(nm); pm.hidden = nm === 0;
@@ -2014,7 +2232,7 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     function lireAdresse() {
       const [section, qui] = decodeURIComponent((window.location.hash || "").slice(1)).split("/");
       if (SECTIONS.includes(section)) return { section, qui: qui || null };
-      return { section: sectionAffichee || "vue-ensemble", qui: null };
+      return { section: sectionAffichee || "tableau", qui: null };
     }
 
     function afficher() {
@@ -2055,8 +2273,36 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     const sauver = () => ecrireMemoire(etat);
 
     document.addEventListener("click", (e) => {
-      const v = e.target.closest("[data-publier], [data-refuser], [data-rouvrir], [data-fermer-memoire], [data-effacer], [data-filtre-discovery], #exporter-candidatures");
+      const v = e.target.closest("[data-publier], [data-refuser], [data-rouvrir], [data-fermer-memoire], [data-effacer], [data-filtre-discovery], #exporter-candidatures, [data-eto-lu], [data-eto-suite], [data-eto-annuler], [data-eto-fermer], [data-filtre-eto], #exporter-etonnements");
       if (v && VIE) {
+        if (v.dataset.etoLu) {
+          const r = VIE.repondreEtonnement(etonnementsActuels(), v.dataset.etoLu, "lu");
+          if (!r.ok) { annoncer(r.erreur); return; }
+          ecrireVie(CLES_VIE.etonnements, r.liste);
+          rendre(); focaliser(`[data-eto-suite="${v.dataset.etoLu}"]`);
+          annoncer("Rapport marqué comme lu : son auteur le voit dans le jeu.");
+          return;
+        }
+        if (v.dataset.etoSuite) { ouvertEtonnement = v.dataset.etoSuite; rendre(); focaliser(`form[data-eto-suite-form="${ouvertEtonnement}"] textarea`); return; }
+        if (v.dataset.etoFermer) { const id = v.dataset.etoFermer; ouvertEtonnement = null; rendre(); focaliser(`[data-eto-suite="${id}"]`); return; }
+        if (v.dataset.etoAnnuler) {
+          const r = VIE.repondreEtonnement(etonnementsActuels(), v.dataset.etoAnnuler, "lu");
+          if (!r.ok) { annoncer(r.erreur); return; }
+          ecrireVie(CLES_VIE.etonnements, r.liste);
+          rendre(); focaliser(`[data-eto-suite="${v.dataset.etoAnnuler}"]`);
+          annoncer("Réponse retirée : le rapport reste lu.");
+          return;
+        }
+        if (v.dataset.filtreEto) { filtreEtonnement = v.dataset.filtreEto; rendre(); focaliser(`[data-filtre-eto="${filtreEtonnement}"]`); return; }
+        if (v.id === "exporter-etonnements") {
+          const lien = document.createElement("a");
+          lien.href = URL.createObjectURL(new Blob([VIE.csvEtonnements(etonnementsActuels())], { type: "text/csv;charset=utf-8" }));
+          lien.download = "au-courant-rapports-etonnement.csv";
+          document.body.appendChild(lien); lien.click(); lien.remove();
+          setTimeout(() => URL.revokeObjectURL(lien.href), 2000);
+          annoncer("Le fichier des rapports est prêt.");
+          return;
+        }
         if (v.dataset.publier) {
           const r = VIE.publier(propositionsActuelles(), memoiresActuelles(), v.dataset.publier);
           if (!r.ok) { annoncer(r.erreur); return; }
@@ -2098,6 +2344,7 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
           return;
         }
       }
+      if (e.target.closest("[data-imprimer]")) { window.print(); return; }
       const t = e.target.closest("[data-aller], [data-nouveau], [data-attester], [data-revoir], [data-fermer], [data-annuler], #remise");
       if (!t) return;
       if (t.dataset.aller) { aller(t.dataset.aller); return; }
@@ -2162,6 +2409,20 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
         annoncer("Page renvoyée avec votre mot : l'auteur le lit dans le jeu.");
         return;
       }
+      const fe = e.target.closest("form[data-eto-suite-form]");
+      if (fe && VIE) {
+        e.preventDefault();
+        const id = fe.dataset.etoSuiteForm, zone = fe.querySelector("textarea");
+        const r = VIE.repondreEtonnement(etonnementsActuels(), id, "suite", zone.value);
+        if (!r.ok) {
+          const er = fe.querySelector(".revoir__erreur"); er.textContent = r.erreur; er.hidden = false;
+          zone.setAttribute("aria-invalid", "true"); zone.focus(); return;
+        }
+        ecrireVie(CLES_VIE.etonnements, r.liste);
+        ouvertEtonnement = null; rendre(); focaliser(`[data-eto-annuler="${id}"]`);
+        annoncer("Réponse envoyée : son auteur la lit dans le jeu.");
+        return;
+      }
       const form = e.target.closest("form[data-renvoyer]");
       if (!form) return;
       e.preventDefault();
@@ -2215,7 +2476,7 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
 
     window.addEventListener("hashchange", afficher);
     // Une candidature ou une page envoyée depuis le jeu, dans un autre onglet : la console la voit aussitôt.
-    window.addEventListener("storage", (e) => { if (!e.key || /^bab\.maison\.nareva\./.test(e.key)) { ouvertMemoire = null; rendre(); } });
+    window.addEventListener("storage", (e) => { if (!e.key || /^bab\.maison\.nareva\./.test(e.key)) { ouvertMemoire = null; ouvertEtonnement = null; rendre(); } });
     rendre();
     afficher();
     brancherLogo();
@@ -2226,6 +2487,7 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     DATE_DES_DONNEES, DUREE, VALEURS, VALEURS_REPLI, VALEURS_SOURCE, CULTURE, RITUELS, PALIERS, SITES, SITES_A_CARTE, DOMAINES, JAUGES, AXES, NOUVEAUX,
     jourDuParcours, axesDe, demandes, attester, renvoyer, annuler, nettoyer, etatVide,
     prochaineEtape, culturePromotion, competencesParDomaine, jaugesSites,
+    tableauDeBord, tableauHTML: (etat) => typo(tableauHTML(etat)),
     vueEnsembleHTML: (etat) => typo(vueEnsembleHTML(etat)),
     nouveauxHTML: (choisi, etat) => typo(nouveauxHTML(choisi, etat)),
     panneauHTML: (p, etat) => typo(panneauHTML(p, etat)),
@@ -2235,6 +2497,8 @@ button.indicateur:hover { border-color: var(--nareva-2); box-shadow: 0 1px 2px r
     CANDIDATS_DEMO, PROPOSITIONS_DEMO, ENTONNOIR_DEMO,
     discoveryHTML: (filtre) => typo(discoveryHTML(filtre)),
     memoireHTML: (ouvert) => typo(memoireHTML(ouvert)),
+    ETONNEMENTS_DEMO, etonnementHTML: (filtre, ouvert) => typo(etonnementHTML(filtre, ouvert)),
+    amorcerPropositions, amorcerEtonnements, propositionsActuelles, etonnementsActuels,
     csvCandidatures
   };
 

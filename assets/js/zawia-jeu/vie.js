@@ -79,6 +79,7 @@
     fil: { titre: 90, texte: 600 },
     memoire: { titre: 90, auteur: 60, metier: 60, site: 60, annees: 40, recit: [80, 1500], lecon: [20, 300], question: 220, option: 120, explication: 400, enAttente: 3 },
     candidature: { prenom: 40, nom: 60, email: 120, telephone: 20, filiere: 80, message: 400, anneeMin: 2024, anneeMax: 2032 },
+    etonnement: { bien: [20, 800], surpris: [20, 800], idee: [0, 600], site: 60, jour: 30 },
     mot: [10, 280]
   };
 
@@ -344,6 +345,98 @@
   }
 
   // ======================================================================================
+  // 4. LE RAPPORT D'ÉTONNEMENT (Youssef, 25/09/2026 : l'idée nº 4 de la liste, 17/20)
+  // ======================================================================================
+  // Au bout d'un mois, le nouveau voit encore ce que les anciens ne voient plus. Il écrit
+  // ce qui lui a plu, ce qui l'a étonné, et une idée s'il en a une. La RH lit chaque
+  // rapport, le marque lu, et peut y donner suite d'un mot que l'auteur lit dans le jeu.
+  // ⚠️ ANONYME VEUT DIRE ANONYME : ni pseudo, ni identifiant, ni jour exact (le MOIS
+  //    seulement). L'auteur garde un REÇU chez lui (son navigateur) pour relire la
+  //    réponse ; la RH, elle, ne peut pas remonter jusqu'à lui.
+  // ⚠️ Aucun point, aucune note : un rapport n'est jamais un score, ni lu à l'évaluation.
+  var ETATS_ETONNEMENT = ["recu", "lu", "suite"];
+  function quandISO(v) { return texte(v) && !isNaN(new Date(v).getTime()) ? new Date(v).toISOString() : ""; }
+  function normaliserEtonnement(e, i) {
+    var o = estObjet(e) ? e : {}, L = LIMITES.etonnement;
+    var anonyme = o.anonyme === true;
+    var le = quandISO(o.le) || (/^\d{4}-\d{2}$/.test(texte(o.le)) ? texte(o.le) : "");
+    return {
+      id: net(o.id, 60) || "eto-" + ((Number(i) || 0) + 1),
+      anonyme: anonyme,
+      par: anonyme ? "" : net(o.par, 40),
+      le: anonyme ? le.slice(0, 7) : le,          // anonyme : AAAA-MM, jamais l'heure
+      site: net(o.site, L.site),
+      bien: paragraphe(o.bien, L.bien[1]),
+      surpris: paragraphe(o.surpris, L.surpris[1]),
+      idee: paragraphe(o.idee, L.idee[1]),
+      etat: ETATS_ETONNEMENT.indexOf(o.etat) >= 0 ? o.etat : "recu",
+      mot: paragraphe(o.mot, LIMITES.mot[1]),
+      decide_le: quandISO(o.decide_le),
+      demo: o.demo === true
+    };
+  }
+  function etonnements(liste) { return (Array.isArray(liste) ? liste : []).filter(estObjet).map(normaliserEtonnement); }
+  function validerEtonnement(e) {
+    var o = estObjet(e) ? e : {}, L = LIMITES.etonnement, erreurs = [];
+    var err = function (champ, message) { erreurs.push({ champ: champ, message: message }); };
+    var bien = paragraphe(o.bien), surpris = paragraphe(o.surpris), idee = paragraphe(o.idee);
+    if (bien.length < L.bien[0]) err("bien", "Quelques mots de plus : ce qui t'a plu (" + L.bien[0] + " caractères au moins).");
+    if (surpris.length < L.surpris[0]) err("surpris", "Quelques mots de plus : ce qui t'a étonné (" + L.surpris[0] + " caractères au moins).");
+    [["bien", bien], ["surpris", surpris], ["idee", idee]].forEach(function (c) { if (RE_LIEN.test(c[1])) err(c[0], "Pas de lien ici : écris-le avec tes mots."); });
+    return erreurs;
+  }
+  // Écrire son rapport. `remplace` : l'id de son rapport précédent (lu dans son reçu) —
+  // tant que la RH ne l'a pas lu, le nouveau le remplace ; lu, il n'est plus réécrit.
+  function etonner(liste, e, meta) {
+    var l = etonnements(liste), mt = meta || {}, erreurs = validerEtonnement(e);
+    var ancien = mt.remplace ? l.filter(function (x) { return x.id === mt.remplace; })[0] : null;
+    if (ancien && ancien.etat !== "recu") erreurs.push({ champ: null, message: "La RH a déjà lu ton rapport : il ne se réécrit plus. Tu peux lui écrire autrement." });
+    if (erreurs.length) return { ok: false, erreurs: erreurs, liste: l };
+    var o = estObjet(e) ? e : {};
+    // ⚠️ un identifiant tiré de l'heure (Date.now) trahirait la minute d'envoi d'un rapport
+    //    anonyme : l'anonyme reçoit un tirage au hasard, qui ne dit rien de lui.
+    var id = net(mt.id, 60) || (o.anonyme === true
+      ? "eto-" + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6)
+      : "eto-" + (l.length + 1) + "-" + Date.now().toString(36));
+    var x = normaliserEtonnement({ id: id, anonyme: o.anonyme === true, par: mt.par, le: mt.le || new Date().toISOString(),
+      site: o.site, bien: o.bien, surpris: o.surpris, idee: o.idee, etat: "recu" }, l.length);
+    var garde = ancien ? l.filter(function (y) { return y.id !== ancien.id; }) : l;
+    return { ok: true, erreurs: [], liste: garde.concat([x]), rapport: x, remplace: !!ancien };
+  }
+  // Ce que la RH en fait : « lu », ou « suite » avec un mot (obligatoire) que l'auteur lit.
+  function repondreEtonnement(liste, id, etat, mot, quand) {
+    var l = etonnements(liste), i = -1;
+    for (var k = 0; k < l.length; k++) if (l[k].id === id) i = k;
+    if (i < 0) return { ok: false, erreur: "Ce rapport n'est plus dans la file." };
+    if (ETATS_ETONNEMENT.indexOf(etat) < 0) return { ok: false, erreur: "Réponse inconnue." };
+    var m = paragraphe(mot, LIMITES.mot[1]);
+    if (etat === "suite" && m.length < LIMITES.mot[0]) return { ok: false, erreur: "Écris ce que la maison en fait (" + LIMITES.mot[0] + " caractères au moins) : l'auteur le lira dans le jeu." };
+    // le mot n'existe qu'avec une suite : revenir à « lu » retire la réponse
+    l[i] = normaliserEtonnement(Object.assign({}, l[i], { etat: etat, mot: etat === "suite" ? m : "", decide_le: etat === "recu" ? "" : (quand || new Date().toISOString()) }), i);
+    return { ok: true, liste: l, rapport: l[i] };
+  }
+  // Ce que la console et le tableau de bord en lisent : des nombres, jamais une personne.
+  function bilanEtonnements(liste) {
+    var l = etonnements(liste), t = { total: l.length, recu: 0, lu: 0, suite: 0, anonymes: 0, idees: 0, parSite: {} };
+    l.forEach(function (x) {
+      t[x.etat] += 1;
+      if (x.anonyme) t.anonymes += 1;
+      if (x.idee) t.idees += 1;
+      var s = x.site || "Sans site";
+      t.parSite[s] = (t.parSite[s] || 0) + 1;
+    });
+    return t;
+  }
+  function csvEtonnements(liste) {
+    var col = ["le", "site", "auteur", "bien", "surpris", "idee", "etat", "mot"];
+    var cellule = function (v) { return '"' + texte(v).replace(/"/g, '""') + '"'; };
+    var lignes = etonnements(liste).map(function (x) {
+      return [x.le, x.site, x.anonyme ? "Anonyme" : x.par, x.bien, x.surpris, x.idee, x.etat, x.mot].map(cellule).join(";");
+    });
+    return "﻿" + col.join(";") + "\n" + lignes.join("\n");
+  }
+
+  // ======================================================================================
   // Le rangement (le navigateur en démo) : toujours derrière un try/catch.
   // ======================================================================================
   function cles(maison) {
@@ -353,6 +446,10 @@
       propositions: "bab.maison." + m + ".propositions",
       candidatures: "bab.maison." + m + ".candidatures",
       visites: "bab.maison." + m + ".visites",
+      etonnements: "bab.maison." + m + ".etonnements",
+      // le reçu de l'auteur (chez lui) : l'id de son rapport, jamais relié à lui dans la file
+      etonnementRecu: function (joueur) { return "bab.etonnement.recu." + m + "." + (joueur && (joueur.id || joueur.pseudo) || "anon"); },
+      etonnementSignale: function (joueur) { return "bab.etonnement.signale." + m + "." + (joueur && (joueur.id || joueur.pseudo) || "anon"); },
       filLus: function (joueur) { return "bab.fil.lus." + m + "." + (joueur && (joueur.id || joueur.pseudo) || "anon"); },
       filVu: function (joueur) { return "bab.fil.vu." + m + "." + (joueur && (joueur.id || joueur.pseudo) || "anon"); },
       memoiresRallumees: function (joueur) { return "bab.memoire.rallumees." + m + "." + (joueur && (joueur.id || joueur.pseudo) || "anon"); }
@@ -739,6 +836,92 @@
     } catch (err) { /* navigation privée : la démo attendra demain */ }
   }
 
+  // ---- 4. Le rapport d'étonnement ----
+  function cfgEtonnement() { return (cfgVie() || {}).etonnement || null; }
+  function monRecu() { var j = joueur(); if (!j) return null; var r = lire(null, cles(maisonCle()).etonnementRecu(j), null); return estObjet(r) && r.id ? r : null; }
+  function monRapport() {
+    var r = monRecu(); if (!r) return null;
+    return etonnements(lire(null, cles(maisonCle()).etonnements, [])).filter(function (x) { return x.id === r.id; })[0] || null;
+  }
+  // Le jour des quarante, tel que le JEU le regarde. ⚠️ Le jeu tient son joueur en camelCase
+  // (arb3ineDebut) ; seule la ligne de la base écrit arb3ine_debut — lire celle-là seule donnait
+  // toujours le jour 1, et le signal du 30ᵉ jour ne partait jamais.
+  function jourDesQuarante() {
+    try {
+      var a = app(), j = joueur(), R = root.ZWJ && root.ZWJ.regles;
+      if (!R || !j) return 1;
+      var debut = (a && a.arb3ineDebut) || j.arb3ineDebut || j.arb3ine_debut;
+      return debut ? R.arb3ine(debut).jour : 1;
+    } catch (e) { return 1; }
+  }
+  function ouvrirEtonnement(vue) {
+    var doc = ici.doc, corps = doc && doc.getElementById("bab-etonnement-corps"), c = cfgEtonnement() || {};
+    if (!corps) return;
+    var r = monRapport(), L = LIMITES.etonnement, html = "";
+    if (r && vue !== "ecrire") {
+      var etat = r.etat === "suite" ? (c.etatSuite || "La maison y a donné suite") : r.etat === "lu" ? (c.etatLu || "Lu par la RH") : (c.etatRecu || "Chez la RH, pas encore lu");
+      html += '<div class="bab-etonnement__mien"><p class="bab-fil__meta"><span class="bab-fil__puce' + (r.etat === "suite" ? " bab-fil__puce--epingle" : "") + '">' + esc(etat) + '</span><span>' +
+        esc(r.anonyme ? (c.anonymeCourt || "Envoyé sans ton nom") : "Signé " + r.par) + (r.site ? " · " + esc(r.site) : "") + '</span></p>' +
+        (r.etat === "suite" && r.mot ? '<p class="bab-memoire__lecon"><span>' + esc(c.motTitre || "Ce que la maison en fait") + '</span>' + br(r.mot) + '</p>' : "") +
+        '<h3>' + esc(c.q1 || "Ce qui m'a plu") + '</h3><p>' + br(r.bien) + '</p>' +
+        '<h3>' + esc(c.q2 || "Ce qui m'a étonné") + '</h3><p>' + br(r.surpris) + '</p>' +
+        (r.idee ? '<h3>' + esc(c.q3 || "Ce que je ferais autrement") + '</h3><p>' + br(r.idee) + '</p>' : "") +
+        (r.etat === "recu" ? '<div class="bab-form__actions"><button type="button" class="zj-bouton zj-bouton--discret" data-bab-reecrire>' + esc(c.reecrire || "Le réécrire avant qu'il soit lu") + '</button></div>' : "") + '</div>';
+    } else {
+      var v = vue === "ecrire" && r ? r : {}, jour = jourDesQuarante();
+      html += (jour < L.jour ? '<p class="bab-form__note">' + esc(c.avant || ("On l'attend vers ton " + L.jour + "ᵉ jour. Rien ne t'empêche de l'écrire avant.")) + '</p>' : "") +
+        '<form class="bab-form" id="bab-form-etonnement" novalidate>' +
+        champ("bien", c.q1 || "Ce qui m'a plu", "long", c.a1 || "Un accueil, un geste, une manière de faire : ce qui t'a fait te dire « ici, c'est bien ».", L.bien[1], true, v.bien) +
+        champ("surpris", c.q2 || "Ce qui m'a étonné", "long", c.a2 || "Ce que tu ne comprends pas encore, ce qui t'a surpris, ce qui t'a manqué. Les anciens ne le voient plus : toi, si.", L.surpris[1], true, v.surpris) +
+        champ("idee", c.q3 || "Ce que je ferais autrement", "long", c.a3 || "Une idée, même petite. Tu peux laisser vide.", L.idee[1], false, v.idee) +
+        champ("site", c.site || "Ton site", "texte", c.aSite || "Pour que la RH sache où regarder. Tu peux laisser vide.", L.site, false, v.site || siteDuJoueur()) +
+        '<p class="bab-case"><input type="checkbox" id="bab-f-anonyme" name="anonyme"' + (v.anonyme ? " checked" : "") + '><label for="bab-f-anonyme">' +
+        esc(c.anonyme || "Envoyer sans mon nom : la RH lira mon rapport sans savoir qui l'a écrit. Je garde un reçu pour lire sa réponse.") + '</label></p>' +
+        '<p class="bab-form__note">' + esc(c.note || "Personne ne te note sur ce que tu écris ici, et ton rapport n'entre jamais dans une évaluation.") + '</p>' +
+        '<p class="bab-erreur bab-erreur--globale" data-erreur="_" hidden></p>' +
+        '<div class="bab-form__actions"><button type="submit" class="zj-bouton">' + esc(c.envoyer || "Envoyer à la RH") + '</button><button type="button" class="zj-bouton zj-bouton--discret" data-bab-fermer>Plus tard</button></div>' +
+        (atelier() ? '<p class="bab-form__note">Démo : le rapport reste dans ce navigateur ; la console RH le lit aussitôt.</p>' : "") + '</form>';
+    }
+    corps.innerHTML = html;
+    if (ici.ouvert !== "bab-etonnement") ouvrir("bab-etonnement");
+    if (vue === "ecrire") { var premier = corps.querySelector("textarea"); if (premier) premier.focus(); }
+  }
+  function envoyerEtonnement(form) {
+    var o = lireFormulaire(form), j = joueur() || {}, c = cfgEtonnement() || {};
+    var k = cles(maisonCle()).etonnements, recu = monRecu(), anonyme = o.anonyme === true;
+    var r = etonner(lire(null, k, []), { bien: o.bien, surpris: o.surpris, idee: o.idee, site: o.site, anonyme: anonyme },
+      { par: anonyme ? "" : j.pseudo, remplace: recu && recu.id });
+    if (!r.ok) { montrerErreurs(form, r.erreurs); return; }
+    ecrire(null, k, r.liste);
+    ecrire(null, cles(maisonCle()).etonnementRecu(j), { id: r.rapport.id });
+    var corps = ici.doc.getElementById("bab-etonnement-corps");
+    corps.innerHTML = '<div class="bab-merci"><h3>' + esc(c.merci || "Ton rapport est parti à la RH.") + '</h3><p>' +
+      esc(anonyme ? (c.merciAnonyme || "Sans ton nom : la RH le lira sans savoir qui l'a écrit. Reviens ici pour lire sa réponse.") : (c.merciSigne || "La RH le lira. Reviens ici pour lire ce qu'elle en fait.")) + '</p>' +
+      '<button type="button" class="zj-bouton" data-bab-fermer>Revenir dans la maison</button></div>';
+    var b = corps.querySelector("button"); if (b) b.focus();
+  }
+  // Au 30ᵉ jour, une seule fois, quand la cour est libre : « tes yeux sont encore neufs ».
+  function signalerEtonnement() {
+    var c = cfgEtonnement(), doc = ici.doc, j = joueur();
+    if (!c || !doc || !j || visiteur() || !courLibre()) return;
+    if (!ici.libreDepuis || Date.now() - ici.libreDepuis < 6000) return;
+    var fa = doc.getElementById("bab-fil-annonce"); if (fa && !fa.hidden) return;
+    if (monRecu() || jourDesQuarante() < LIMITES.etonnement.jour) return;
+    var k = cles(maisonCle()).etonnementSignale(j);
+    if (lire(null, k, false)) return;
+    ecrire(null, k, true);
+    var b = doc.getElementById("bab-etonnement-annonce");
+    if (!b) {
+      b = doc.createElement("button");
+      b.id = "bab-etonnement-annonce"; b.type = "button"; b.className = "bab-annonce";
+      b.addEventListener("click", function () { b.hidden = true; ouvrirEtonnement(); });
+      doc.body.appendChild(b);
+    }
+    b.innerHTML = '<span class="bab-annonce__kicker">' + esc(c.signalKicker || "Ton " + LIMITES.etonnement.jour + "ᵉ jour") + '</span><strong>' + esc(c.signal || "Tes yeux sont encore neufs : écris ton rapport d'étonnement.") + '</strong><span class="bab-annonce__lire">' + esc(c.signalLire || "Écrire") + '</span>';
+    b.hidden = false;
+    setTimeout(function () { b.hidden = true; }, 12000);
+  }
+
   // Ce qui dépend de l'état du jeu : qui voit quelles commandes, la pastille de démo.
   function rafraichir() {
     var doc = ici.doc, c = cfgVie(); if (!doc || !c) return;
@@ -748,6 +931,7 @@
     var bf = doc.getElementById("zj-menu-fil"); if (bf) bf.hidden = !(c.fil && permis("fil"));
     var bm = doc.getElementById("zj-menu-memoire"); if (bm) bm.hidden = !(c.memoire && permis("memoire"));
     var bc = doc.getElementById("zj-menu-candidater"); if (bc) bc.hidden = !(c.discovery && inv && permis("candidater"));
+    var be = doc.getElementById("zj-menu-etonnement"); if (be) be.hidden = !(c.etonnement && !inv && permis("etonnement"));
     var demo = doc.getElementById("bab-demo-jour");
     if (demo) {
       var j = 1;
@@ -789,6 +973,17 @@
         ouvrirMemoire();
       });
     }
+    if (c.etonnement) {
+      var ce = c.etonnement;
+      var be = commande(doc, "etonnement", ce.nom || "Mon rapport d'étonnement", "carnet");
+      if (be) be.addEventListener("click", function () { ouvrirEtonnement(); });
+      carteDar("etonnement", ce.porte || "partager", ce.icone || "loupe", ce.nom || "Mon rapport d'étonnement", ce.pourquoi || "Ce qui t'étonne ici, dit à la RH.", ["etonnement", "rapport", "surpris", "avis", "idee", "retour"]);
+      panneau(doc, "bab-etonnement", ce.kicker || "Tes yeux sont encore neufs", ce.nom || "Mon rapport d'étonnement", ce.lead || "");
+      doc.getElementById("bab-etonnement").addEventListener("click", function (e) {
+        var t = e.target.closest ? e.target.closest("[data-bab-reecrire]") : null;
+        if (t) ouvrirEtonnement("ecrire");
+      });
+    }
     if (c.discovery) {
       // L'écran d'accueil : l'entrée du visiteur devient celle des étudiants.
       var pt = c.discovery.porte || {}, bloc = doc.querySelector(".zj-dyaf");
@@ -815,6 +1010,7 @@
       if (!f || !f.id) return;
       if (f.id === "bab-form-memoire") { e.preventDefault(); envoyerMemoire(f); }
       else if (f.id === "bab-form-candidature") { e.preventDefault(); envoyerCandidature(f); }
+      else if (f.id === "bab-form-etonnement") { e.preventDefault(); envoyerEtonnement(f); }
     });
     doc.addEventListener("input", function (e) {
       var t = e.target; if (!t || !t.name || !t.form || !/^bab-form-/.test(t.form.id || "")) return;
@@ -825,7 +1021,7 @@
     doc.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && ici.ouvert) { e.preventDefault(); e.stopImmediatePropagation(); var r = ici.retour; fermer(); if (r && r.focus) try { r.focus(); } catch (x) { /* rien */ } }
     }, true);
-    ici.minuteur = setInterval(function () { rafraichir(); signalerFil(); }, 900);
+    ici.minuteur = setInterval(function () { rafraichir(); signalerFil(); signalerEtonnement(); }, 900);
     return true;
   }
 
@@ -850,10 +1046,13 @@
     normaliserCandidature: normaliserCandidature, validerCandidature: validerCandidature, candidater: candidater,
     resumeVisite: resumeVisite, phraseVisite: phraseVisite, noter: noter, entonnoir: entonnoir, additionner: additionner,
     appliquerVisiteur: appliquerVisiteur,
+    // le rapport d'étonnement
+    ETATS_ETONNEMENT: ETATS_ETONNEMENT, normaliserEtonnement: normaliserEtonnement, etonnements: etonnements, validerEtonnement: validerEtonnement,
+    etonner: etonner, repondreEtonnement: repondreEtonnement, bilanEtonnements: bilanEtonnements, csvEtonnements: csvEtonnements,
     // le rangement
     cles: cles, lire: lire, ecrire: ecrire, ecrireSection: ecrireSection, jourValide: jourValide, jourDe: jourDe,
     // au navigateur
-    demarrer: demarrer, noterVisite: noterVisite, geste: geste, ouvrirFil: ouvrirFil, ouvrirMemoire: ouvrirMemoire, ouvrirCandidature: ouvrirCandidature, fermer: fermer,
+    demarrer: demarrer, noterVisite: noterVisite, geste: geste, ouvrirFil: ouvrirFil, ouvrirMemoire: ouvrirMemoire, ouvrirCandidature: ouvrirCandidature, ouvrirEtonnement: ouvrirEtonnement, jourDesQuarante: jourDesQuarante, fermer: fermer,
     get ouvert() { return ici.ouvert; }
   };
 });
